@@ -11,7 +11,6 @@ namespace KinkShellClient
 
         public bool SomePropertyToBeSavedAndWithADefault { get; set; } = true;
 
-        // the below exist just to make saving less cumbersome
         [NonSerialized]
         private DalamudPluginInterface? PluginInterface;
 
