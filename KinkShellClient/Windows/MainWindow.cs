@@ -28,7 +28,7 @@ public class MainWindow : Window, IDisposable
 
         if (ImGui.Button("Show Settings"))
         {
-            this.Plugin.DrawConfigUI();
+            this.Plugin.UIHandler.DrawConfigUI();
         }
 
         ImGui.Spacing();

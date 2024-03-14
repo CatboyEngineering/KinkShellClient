@@ -1,6 +1,6 @@
 {
   "Author": "Kenji",
-  "Name": "KinkShellClient",
+  "Name": "KinkShell",
   "Punchline": "Pair and synchronize toys with other users.",
   "Description": "Pair and synchronize toys with other users. Use /kinkshell to get started.",
   "ApplicableVersion": "any",
