@@ -9,7 +9,9 @@ namespace KinkShellClient
     {
         public int Version { get; set; } = 0;
 
-        public bool SomePropertyToBeSavedAndWithADefault { get; set; } = true;
+        public string KinkShellServerAddress { get; set; } = "http://localhost";
+        public string KinkShellServerUsername { get; set; } = "";
+        public string KinkShellServerPassword { get; set; } = "";
 
         [NonSerialized]
         private DalamudPluginInterface? PluginInterface;

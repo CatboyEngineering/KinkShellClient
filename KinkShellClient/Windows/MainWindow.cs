@@ -24,8 +24,7 @@ public class MainWindow : Window, IDisposable
 
     public override void Draw()
     {
-        ImGui.Text($"The random config bool is {this.Plugin.Configuration.SomePropertyToBeSavedAndWithADefault}");
-
+        // TODO use pattern from configwindow. Use the connect button here
         if (ImGui.Button("Show Settings"))
         {
             this.Plugin.UIHandler.DrawConfigUI();

@@ -24,13 +24,70 @@ public class ConfigWindow : Window, IDisposable
 
     public override void Draw()
     {
-        // can't ref a property, so use a local copy
-        var configValue = this.Configuration.SomePropertyToBeSavedAndWithADefault;
-        if (ImGui.Checkbox("Random Config Bool", ref configValue))
+        ImGui.SetNextWindowSize(new Vector2(640, 400), ImGuiCond.Appearing);
+
+        if (ImGui.Begin("KinkShell"))
         {
-            this.Configuration.SomePropertyToBeSavedAndWithADefault = configValue;
-            // can save immediately on change, if you don't want to provide a "Save and Close" button
-            this.Configuration.Save();
+            DrawUIWindowBody();
+        }
+
+        ImGui.End();
+    }
+
+    private void DrawUIWindowBody()
+    {
+        ImGui.BeginChild("body", new Vector2(0, -ImGui.GetFrameHeightWithSpacing()), false);
+        ImGui.Indent(1);
+
+        if (ImGui.BeginTabBar("Connection", ImGuiTabBarFlags.None))
+        {
+            DrawUIServerTabItem();
+            ImGui.EndTabBar();
+        }
+
+        ImGui.Unindent(1);
+        ImGui.EndChild();
+
+        DrawUISaveButton();
+    }
+
+    private void DrawUIServerTabItem()
+    {
+        if (ImGui.BeginTabItem("Server"))
+        {
+            var shellServer = this.Configuration.KinkShellServerAddress;
+            var shellUser = this.Configuration.KinkShellServerUsername;
+            var shellPass = this.Configuration.KinkShellServerPassword;
+
+            if (ImGui.InputText("KinkShell Server Address", ref shellServer, 64))
+            {
+                this.Configuration.KinkShellServerAddress = shellServer;
+            }
+
+            if (ImGui.InputText("KinkShell Server Username", ref shellUser, 64))
+            {
+                this.Configuration.KinkShellServerUsername = shellUser;
+            }
+
+            if (ImGui.InputText("KinkShell Server Password", ref shellPass, 64))
+            {
+                this.Configuration.KinkShellServerPassword = shellPass;
+            }
+
+            //if (ImGui.Button("Connect"))
+            //{
+            //    // TODO connect
+            //}
+
+            ImGui.EndTabItem();
+        }
+    }
+
+    private void DrawUISaveButton()
+    {
+        if (ImGui.Button("Save"))
+        {
+            Configuration.Save();
         }
     }
 }
