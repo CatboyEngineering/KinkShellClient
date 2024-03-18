@@ -10,7 +10,7 @@ public class ConfigWindow : Window, IDisposable
     private Configuration Configuration;
 
     public ConfigWindow(Plugin plugin) : base(
-        "A Wonderful Configuration Window",
+        "KinkShell Configuration",
         ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar |
         ImGuiWindowFlags.NoScrollWithMouse)
     {
@@ -20,19 +20,19 @@ public class ConfigWindow : Window, IDisposable
         this.Configuration = plugin.Configuration;
     }
 
-    public void Dispose() { }
-
     public override void Draw()
     {
         ImGui.SetNextWindowSize(new Vector2(640, 400), ImGuiCond.Appearing);
 
-        if (ImGui.Begin("KinkShell"))
+        if (ImGui.Begin("KinkShell Configuration"))
         {
             DrawUIWindowBody();
         }
 
         ImGui.End();
     }
+
+    public void Dispose() { }
 
     private void DrawUIWindowBody()
     {

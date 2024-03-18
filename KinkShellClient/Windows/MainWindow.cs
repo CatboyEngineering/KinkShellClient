@@ -1,5 +1,6 @@
 ﻿using Dalamud.Interface.Internal;
 using Dalamud.Interface.Windowing;
+using Dalamud.Utility;
 using ImGuiNET;
 using System;
 using System.Numerics;
@@ -9,9 +10,10 @@ namespace KinkShellClient.Windows;
 public class MainWindow : Window, IDisposable
 {
     private Plugin Plugin;
+    private Configuration Configuration;
 
     public MainWindow(Plugin plugin) : base(
-        "My Test Window", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
+        "KinkShell", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
     {
         this.SizeConstraints = new WindowSizeConstraints
         {
@@ -20,18 +22,75 @@ public class MainWindow : Window, IDisposable
         };
 
         this.Plugin = plugin;
+        this.Configuration = plugin.Configuration;
     }
 
     public override void Draw()
     {
-        // TODO use pattern from configwindow. Use the connect button here
-        if (ImGui.Button("Show Settings"))
+        ImGui.SetNextWindowSize(new Vector2(640, 400), ImGuiCond.Appearing);
+
+        if (ImGui.Begin("KinkShell"))
         {
-            this.Plugin.UIHandler.DrawConfigUI();
+            DrawUIWindowBody();
         }
 
-        ImGui.Spacing();
+        ImGui.End();
     }
 
     public void Dispose() { }
+
+    private void DrawUIWindowBody()
+    {
+        ImGui.BeginChild("body", new Vector2(0, -ImGui.GetFrameHeightWithSpacing()), false);
+
+        DrawUIServerConfigurationText();
+        DrawUIConnectButton();
+
+        ImGui.EndChild();
+    }
+
+    private void DrawUIServerConfigurationText()
+    {
+        ImGui.Text("Server: ");
+        ImGui.Indent();
+        ImGui.Text(Configuration.KinkShellServerAddress);
+        ImGui.Unindent();
+
+        ImGui.Text("Username: ");
+        ImGui.Indent();
+        ImGui.Text(GetCensoredUsername(Configuration.KinkShellServerUsername));
+        ImGui.Unindent();
+    }
+
+    private void DrawUIConnectButton()
+    {
+        if (ImGui.Button("Connect"))
+        {
+            // TODO authenticate with the server, get an auth token, store in memory only, GET a list of shells, draw them on screen.
+            _ = Plugin.ConnectionHandler.Authenticate();
+        }
+    }
+
+    private string GetCensoredUsername(string plaintext)
+    {
+        if(!plaintext.IsNullOrEmpty())
+        {
+            var length = plaintext.Length;
+            var asterisks = length;
+            var start = "";
+            var end = "";
+
+            if(length > 3)
+            {
+                start = plaintext.Substring(0, 3);
+                end = plaintext.Substring(length - 3, 3);
+
+                asterisks -= 6;
+            }
+            
+            return start + (new string('*', asterisks)) + end;
+        }
+
+        return plaintext;
+    }
 }

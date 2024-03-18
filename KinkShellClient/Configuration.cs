@@ -1,5 +1,6 @@
 ﻿using Dalamud.Configuration;
 using Dalamud.Plugin;
+using KinkShellClient.Models.API.Response;
 using System;
 
 namespace KinkShellClient
@@ -9,9 +10,12 @@ namespace KinkShellClient
     {
         public int Version { get; set; } = 0;
 
-        public string KinkShellServerAddress { get; set; } = "http://localhost";
+        public string KinkShellServerAddress { get; set; } = "localhost";
         public string KinkShellServerUsername { get; set; } = "";
         public string KinkShellServerPassword { get; set; } = "";
+
+        [NonSerialized]
+        public AccountAuthenticatedResponse KinkShellAuthenticatedUserData;
 
         [NonSerialized]
         private DalamudPluginInterface? PluginInterface;

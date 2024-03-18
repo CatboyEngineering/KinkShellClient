@@ -3,6 +3,7 @@ using Dalamud.Interface.Windowing;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
+using KinkShellClient.Network;
 using KinkShellClient.Windows;
 using System.IO;
 using System.Reflection.Metadata;
@@ -16,6 +17,8 @@ namespace KinkShellClient
 
         public CommandHandler CommandHandler { get; init; }
         public UIHandler UIHandler { get; init; }
+        public ConnectionHandler ConnectionHandler { get; init; }
+        public HTTPHandler HTTPHandler { get; set; }
 
         public Plugin(
             [RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
@@ -23,8 +26,10 @@ namespace KinkShellClient
         {
             this.PluginInterface = pluginInterface;
 
+            HTTPHandler = new HTTPHandler(this);
             CommandHandler = new CommandHandler(this, commandManager);
             UIHandler = new UIHandler(this, this.PluginInterface);
+            ConnectionHandler = new ConnectionHandler(this);
 
             this.Configuration = this.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             this.Configuration.Initialize(this.PluginInterface);
