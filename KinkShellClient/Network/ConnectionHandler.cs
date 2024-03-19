@@ -24,7 +24,7 @@ namespace KinkShellClient.Network
             Connections = new List<ShellSession>();
         }
 
-        public async Task Authenticate()
+        public async Task<bool> Authenticate()
         {
             var loginRequest = new AccountLoginRequest
             {
@@ -37,7 +37,10 @@ namespace KinkShellClient.Network
             if(response != null)
             {
                 Plugin.Configuration.KinkShellAuthenticatedUserData = response.Value;
+                return true;
             }
+
+            return false;
         }
 
         public async Task OpenConnection(KinkShell kinkShell)

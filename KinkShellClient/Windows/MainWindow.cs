@@ -67,7 +67,22 @@ public class MainWindow : Window, IDisposable
         if (ImGui.Button("Connect"))
         {
             // TODO authenticate with the server, get an auth token, store in memory only, GET a list of shells, draw them on screen.
-            _ = Plugin.ConnectionHandler.Authenticate();
+            var result = Plugin.ConnectionHandler.Authenticate();
+
+            result.Wait();
+
+            if(result.Result)
+            {
+                ImGui.Indent();
+                ImGui.TextColored(new Vector4(0, 1, 0, 1), "Logged in!");
+                ImGui.Unindent();
+            }
+            else
+            {
+                ImGui.Indent();
+                ImGui.TextColored(new Vector4(1, 0, 0, 1), "Login failed");
+                ImGui.Unindent();
+            }
         }
     }
 

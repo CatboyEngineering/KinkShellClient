@@ -5,6 +5,7 @@ using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using KinkShellClient.Network;
 using KinkShellClient.Windows;
+using System;
 using System.IO;
 using System.Reflection.Metadata;
 
@@ -12,13 +13,13 @@ namespace KinkShellClient
 {
     public sealed class Plugin : IDalamudPlugin
     {
-        private DalamudPluginInterface PluginInterface { get; init; }
-        public Configuration Configuration { get; init; }
+        private DalamudPluginInterface PluginInterface { get; }
+        public Configuration Configuration { get; }
 
-        public CommandHandler CommandHandler { get; init; }
-        public UIHandler UIHandler { get; init; }
-        public ConnectionHandler ConnectionHandler { get; init; }
-        public HTTPHandler HTTPHandler { get; set; }
+        public CommandHandler CommandHandler { get; }
+        public UIHandler UIHandler { get; }
+        public ConnectionHandler ConnectionHandler { get; }
+        public HTTPHandler HTTPHandler { get; }
 
         public Plugin(
             [RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,

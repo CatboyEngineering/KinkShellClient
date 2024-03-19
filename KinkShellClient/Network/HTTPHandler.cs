@@ -12,8 +12,8 @@ namespace KinkShellClient.Network
 {
     public class HTTPHandler
     {
-        public HttpClient Http { get; init; }
-        public Plugin Plugin { get; init; }
+        public HttpClient Http { get; }
+        public Plugin Plugin { get; }
 
         public HTTPHandler(Plugin plugin)
         {
@@ -83,9 +83,16 @@ namespace KinkShellClient.Network
 
         private T? MapJSONToType<T>(string json) where T : struct
         {
-            var jObj = JObject.Parse(json);
+            try
+            {
+                var jObj = JObject.Parse(json);
 
-            return APIRequestMapper.MapRequestToModel<T>(jObj);
+                return APIRequestMapper.MapRequestToModel<T>(jObj);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         private async Task ReceiveWebSocketData(ClientWebSocket ws, ShellSession shellSession, Action<string> websocketResponseCallback)
