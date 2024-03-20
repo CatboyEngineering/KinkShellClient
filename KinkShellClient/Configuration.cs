@@ -1,7 +1,9 @@
 ﻿using Dalamud.Configuration;
 using Dalamud.Plugin;
 using KinkShellClient.Models.API.Response;
+using KinkShellClient.ShellData;
 using System;
+using System.Collections.Generic;
 
 namespace KinkShellClient
 {
@@ -18,7 +20,10 @@ namespace KinkShellClient
         public AccountAuthenticatedResponse KinkShellAuthenticatedUserData;
 
         [NonSerialized]
-        private DalamudPluginInterface? PluginInterface;
+        public List<KinkShell> Shells;
+
+        [NonSerialized]
+        private DalamudPluginInterface PluginInterface;
 
         public void Initialize(DalamudPluginInterface pluginInterface)
         {

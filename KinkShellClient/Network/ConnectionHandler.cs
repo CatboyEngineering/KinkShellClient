@@ -1,4 +1,5 @@
 ﻿using FFXIVClientStructs.Havok;
+using KinkShellClient.Models;
 using KinkShellClient.Models.API.Request;
 using KinkShellClient.Models.API.Response;
 using KinkShellClient.Models.API.WebSocket;
@@ -15,8 +16,9 @@ namespace KinkShellClient.Network
     public class ConnectionHandler
     {
         // Organizes each connection this client has to the KinkShell server
-        public List<ShellSession> Connections { get; init; }
-        public Plugin Plugin { get; init; }
+        public List<ShellSession> Connections { get; }
+        public Plugin Plugin { get; }
+        public ServerConnectionStatus ServerConnectionStatus { get; set; }
 
         public ConnectionHandler(Plugin plugin)
         {
@@ -32,11 +34,24 @@ namespace KinkShellClient.Network
                 Password = Plugin.Configuration.KinkShellServerPassword
             };
 
-            var response = await Plugin.HTTPHandler.Post<AccountAuthenticatedResponse>("account", JObject.FromObject(loginRequest));
+            var response = await Plugin.HTTP.Post<AccountAuthenticatedResponse>("account", JObject.FromObject(loginRequest));
 
             if(response != null)
             {
                 Plugin.Configuration.KinkShellAuthenticatedUserData = response.Value;
+                return true;
+            }
+
+            return false;
+        }
+
+        public async Task<bool> GetKinKShells()
+        {
+            var response = await Plugin.HTTP.Get<ShellListResponse>("shell");
+
+            if (response != null)
+            {
+                Plugin.Configuration.Shells = response.Value.Shells;
                 return true;
             }
 
@@ -48,7 +63,7 @@ namespace KinkShellClient.Network
             var newSession = new ShellSession(kinkShell);
             Connections.Add(newSession);
 
-            await Plugin.HTTPHandler.ConnectWebSocket("ws", newSession, (message) => HandleWebSocketResponse(message, newSession));
+            await Plugin.HTTP.ConnectWebSocket("ws", newSession, (message) => HandleWebSocketResponse(message, newSession));
         }
 
         // TODO need to work on this

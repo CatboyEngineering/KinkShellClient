@@ -13,13 +13,15 @@ namespace KinkShellClient
     {
         private const string CommandName = "/kinkshell";
 
-        public Plugin Plugin { get; init; }
+        public Plugin Plugin { get; }
 
-        private ICommandManager CommandManager { get; init; }
+        private ICommandManager CommandManager { get; }
 
         public CommandHandler(Plugin plugin, ICommandManager commandManager) {
             this.Plugin = plugin;
             this.CommandManager = commandManager;
+
+            RegisterCommands();
         }
 
         public void RegisterCommands()

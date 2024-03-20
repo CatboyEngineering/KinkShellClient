@@ -74,9 +74,9 @@ namespace KinkShellClient.Network
             var fqdn = "ws://" + Plugin.Configuration.KinkShellServerAddress + "/" + uri;
             var ws = new ClientWebSocket();
 
-            shellSession.Status = Models.ConnectionStatus.CONNECTING;
+            shellSession.Status = Models.ShellConnectionStatus.CONNECTING;
             await ws.ConnectAsync(new Uri(fqdn), CancellationToken.None);
-            shellSession.Status = Models.ConnectionStatus.CONNECTED;
+            shellSession.Status = Models.ShellConnectionStatus.CONNECTED;
 
             await ReceiveWebSocketData(ws, shellSession, websocketResponseCallback);
         }
@@ -103,7 +103,7 @@ namespace KinkShellClient.Network
             {
                 var result = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
 
-                if (result.MessageType == WebSocketMessageType.Close || shellSession.Status == Models.ConnectionStatus.CLOSED)
+                if (result.MessageType == WebSocketMessageType.Close || shellSession.Status == Models.ShellConnectionStatus.CLOSED)
                 {
                     break;
                 }

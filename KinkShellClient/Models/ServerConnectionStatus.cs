@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 
 namespace KinkShellClient.Models
 {
-    public enum ConnectionStatus
+    public enum ServerConnectionStatus
     {
-        CLOSED,
-        CONNECTING,
-        CONNECTED,
-        FAILED
+        OFFLINE,
+        AUTHENTICATED
     }
 }
