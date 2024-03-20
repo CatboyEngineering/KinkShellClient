@@ -34,5 +34,23 @@ namespace KinkShellClient
         {
             this.PluginInterface!.SavePluginConfig(this);
         }
+
+        public Configuration Clone()
+        {
+            var clone = new Configuration();
+
+            clone.KinkShellServerAddress = this.KinkShellServerAddress;
+            clone.KinkShellServerUsername = this.KinkShellServerUsername;
+            clone.KinkShellServerPassword = this.KinkShellServerPassword;
+
+            return clone;
+        }
+
+        public void Import(Configuration configuration)
+        {
+            this.KinkShellServerAddress = configuration.KinkShellServerAddress;
+            this.KinkShellServerUsername = configuration.KinkShellServerUsername;
+            this.KinkShellServerPassword = configuration.KinkShellServerPassword;
+        }
     }
 }

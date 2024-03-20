@@ -12,26 +12,21 @@ namespace KinkShellClient.Windows
         private Plugin Plugin;
         private Configuration Configuration;
 
-        public MainWindow(Plugin plugin) : base(
-            "KinkShell", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
+        public MainWindow(Plugin plugin) : base("KinkShell", ImGuiWindowFlags.NoResize)
         {
-            this.SizeConstraints = new WindowSizeConstraints
-            {
-                MinimumSize = new Vector2(375, 330),
-                MaximumSize = new Vector2(float.MaxValue, float.MaxValue)
-            };
-
             this.Plugin = plugin;
             this.Configuration = plugin.Configuration;
         }
 
         public override void Draw()
         {
-            ImGui.SetNextWindowSize(new Vector2(640, 400), ImGuiCond.Appearing);
+            // TODO: adjust the size as needed using xldev GUI debugger.
+            ImGui.SetNextWindowSize(new Vector2(410, 190), ImGuiCond.Always);
 
             if (ImGui.Begin("KinkShell"))
             {
                 DrawUIWindowBody();
+                DrawUIWindowFooter();
             }
 
             ImGui.End();
@@ -41,12 +36,8 @@ namespace KinkShellClient.Windows
 
         private void DrawUIWindowBody()
         {
-            ImGui.BeginChild("body", new Vector2(0, -ImGui.GetFrameHeightWithSpacing()), false);
-
             DrawUIServerConfigurationText();
             DrawUIConnectButton();
-
-            ImGui.EndChild();
         }
 
         private void DrawUIServerConfigurationText()
@@ -64,25 +55,36 @@ namespace KinkShellClient.Windows
 
         private void DrawUIConnectButton()
         {
-            if (ImGui.Button("Connect"))
+            if (!Plugin.Configuration.KinkShellServerUsername.IsNullOrEmpty())
             {
-                // TODO authenticate with the server, get an auth token, store in memory only, GET a list of shells, draw them on screen.
-                var result = Plugin.ConnectionHandler.Authenticate();
-
-                result.Wait();
-
-                if (result.Result)
+                if (ImGui.Button("Connect"))
                 {
-                    ImGui.Indent();
-                    ImGui.TextColored(new Vector4(0, 1, 0, 1), "Logged in!");
-                    ImGui.Unindent();
+                    // TODO authenticate with the server, get an auth token, store in memory only, GET a list of shells, draw them on screen.
+                    var result = Plugin.ConnectionHandler.Authenticate();
+
+                    result.Wait();
+
+                    if (result.Result)
+                    {
+                        ImGui.Indent();
+                        ImGui.TextColored(new Vector4(0, 1, 0, 1), "Logged in!");
+                        ImGui.Unindent();
+                    }
+                    else
+                    {
+                        ImGui.Indent();
+                        ImGui.TextColored(new Vector4(1, 0, 0, 1), "Login failed");
+                        ImGui.Unindent();
+                    }
                 }
-                else
-                {
-                    ImGui.Indent();
-                    ImGui.TextColored(new Vector4(1, 0, 0, 1), "Login failed");
-                    ImGui.Unindent();
-                }
+            }
+        }
+
+        private void DrawUIWindowFooter()
+        {
+            if (ImGui.Button("Settings"))
+            {
+                Plugin.UIHandler.DrawConfigUI();
             }
         }
 

@@ -8,17 +8,27 @@ namespace KinkShellClient.Windows
     public class ConfigWindow : Window, IDisposable
     {
         private Configuration Configuration;
+        private Configuration WorkingCopy;
 
-        public ConfigWindow(Plugin plugin) : base("KinkShell Configuration")
+        public ConfigWindow(Plugin plugin) : base("KinkShell Configuration", ImGuiWindowFlags.NoResize)
         {
             this.Configuration = plugin.Configuration;
         }
 
-        public override void Draw()
+        public override void OnOpen()
         {
+            base.OnOpen();
+            this.WorkingCopy = Configuration.Clone();
+        }
+
+        public override void Draw()
+        {   
+            ImGui.SetNextWindowSize(new Vector2(410, 190), ImGuiCond.Always);
+
             if (ImGui.Begin("KinkShell Configuration"))
             {
                 DrawUIWindowBody();
+                DrawUIWindowFooter();
             }
 
             ImGui.End();
@@ -28,58 +38,76 @@ namespace KinkShellClient.Windows
 
         private void DrawUIWindowBody()
         {
-            ImGui.BeginChild("body");
-            ImGui.Indent(1);
-
-            if (ImGui.BeginTabBar("Connection", ImGuiTabBarFlags.None))
+            if (ImGui.BeginTabBar("Connection"))
             {
-                DrawUIServerTabItem();
+                DrawUIKinkshellServerTabItem();
+                DrawUIIntifaceServerTabItem();
                 ImGui.EndTabBar();
             }
-
-            ImGui.Unindent(1);
-            ImGui.EndChild();
-
-            DrawUISaveButton();
         }
 
-        private void DrawUIServerTabItem()
+        private void DrawUIKinkshellServerTabItem()
         {
-            if (ImGui.BeginTabItem("Server"))
+            if (ImGui.BeginTabItem("KinkShell Server"))
             {
-                var shellServer = this.Configuration.KinkShellServerAddress;
-                var shellUser = this.Configuration.KinkShellServerUsername;
-                var shellPass = this.Configuration.KinkShellServerPassword;
+                var shellServer = this.WorkingCopy.KinkShellServerAddress;
+                var shellUser = this.WorkingCopy.KinkShellServerUsername;
+                var shellPass = this.WorkingCopy.KinkShellServerPassword;
 
-                if (ImGui.InputText("KinkShell Server Address", ref shellServer, 64))
+                if (ImGui.InputText("Server Address", ref shellServer, 64))
                 {
-                    this.Configuration.KinkShellServerAddress = shellServer;
+                    this.WorkingCopy.KinkShellServerAddress = shellServer;
                 }
 
-                if (ImGui.InputText("KinkShell Server Username", ref shellUser, 64))
+                if (ImGui.InputText("Server Username", ref shellUser, 64))
                 {
-                    this.Configuration.KinkShellServerUsername = shellUser;
+                    this.WorkingCopy.KinkShellServerUsername = shellUser;
                 }
 
-                if (ImGui.InputText("KinkShell Server Password", ref shellPass, 64))
+                if (ImGui.InputText("Server Password", ref shellPass, 64, ImGuiInputTextFlags.Password))
                 {
-                    this.Configuration.KinkShellServerPassword = shellPass;
+                    this.WorkingCopy.KinkShellServerPassword = shellPass;
                 }
-
-                //if (ImGui.Button("Connect"))
-                //{
-                //    // TODO connect
-                //}
 
                 ImGui.EndTabItem();
             }
         }
 
-        private void DrawUISaveButton()
+        private void DrawUIIntifaceServerTabItem()
         {
-            if (ImGui.Button("Save"))
+            if (ImGui.BeginTabItem("Intiface"))
             {
+                // TODO: in progress
+                var shellServer = "";
+                var shellUser = "";
+                var shellPass = "";
+
+                if (ImGui.InputText("Address", ref shellServer, 64))
+                {
+                    
+                }
+
+                if (ImGui.InputText("Username", ref shellUser, 64))
+                {
+
+                }
+
+                if (ImGui.InputText("Password", ref shellPass, 64, ImGuiInputTextFlags.Password))
+                {
+                    
+                }
+
+                ImGui.EndTabItem();
+            }
+        }
+
+        private void DrawUIWindowFooter()
+        {
+            if (ImGui.Button("Save and Close"))
+            {
+                Configuration.Import(WorkingCopy);
                 Configuration.Save();
+                this.IsOpen = false;
             }
         }
     }
