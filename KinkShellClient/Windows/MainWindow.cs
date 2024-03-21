@@ -2,31 +2,32 @@
 using Dalamud.Interface.Windowing;
 using Dalamud.Utility;
 using ImGuiNET;
+using KinkShellClient.Windows.Utilities;
 using System;
 using System.Numerics;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace KinkShellClient.Windows
 {
     public class MainWindow : Window, IDisposable
     {
         private Plugin Plugin;
-        private Configuration Configuration;
+
+        public MainWindowState State { get; init; }
 
         public MainWindow(Plugin plugin) : base("KinkShell", ImGuiWindowFlags.NoResize)
         {
             this.Plugin = plugin;
-            this.Configuration = plugin.Configuration;
+            State = new MainWindowState(plugin);
         }
 
         public override void Draw()
         {
-            // TODO: adjust the size as needed using xldev GUI debugger.
             ImGui.SetNextWindowSize(new Vector2(410, 190), ImGuiCond.Always);
 
             if (ImGui.Begin("KinkShell"))
             {
                 DrawUIWindowBody();
-                DrawUIWindowFooter();
             }
 
             ImGui.End();
@@ -36,21 +37,60 @@ namespace KinkShellClient.Windows
 
         private void DrawUIWindowBody()
         {
-            DrawUIServerConfigurationText();
-            DrawUIConnectButton();
+            if (!Plugin.Configuration.KinkShellServerUsername.IsNullOrEmpty() && !Plugin.Configuration.KinkShellServerPassword.IsNullOrEmpty() && !Plugin.Configuration.KinkShellServerAddress.IsNullOrEmpty())
+            {
+                if (!State.IsAuthenticated)
+                {
+                    DrawUIWindowReadyToConnect();
+
+                    if(State.HasError)
+                    {
+                        DrawUIErrorText(State.ErrorText);
+                    }
+                }
+                else
+                {
+                    // TODO Draw authenticated screen
+                    ImGui.Text($"Welcome, {Plugin.Configuration.KinkShellAuthenticatedUserData.DisplayName}!");
+                    if(ImGui.Button("Log out"))
+                    {
+                        _ = MainWindowUtilities.LogOut(Plugin, this);
+                    }
+                }
+            } else
+            {
+                DrawUIWindowNeedsServer();
+            }
         }
 
-        private void DrawUIServerConfigurationText()
+        private void DrawUIWindowNeedsServer()
         {
-            ImGui.Text("Server: ");
-            ImGui.Indent();
-            ImGui.Text(Configuration.KinkShellServerAddress);
-            ImGui.Unindent();
+            var text = "Please add your KinkShell Server login credentials.";
 
-            ImGui.Text("Username: ");
-            ImGui.Indent();
-            ImGui.Text(GetCensoredUsername(Configuration.KinkShellServerUsername));
-            ImGui.Unindent();
+            var windowWidth = ImGui.GetWindowSize().X;
+            var textWidth = ImGui.CalcTextSize(text).X;
+
+            ImGui.SetCursorPosX((windowWidth - textWidth) * 0.5f);
+            DrawUIErrorText(text);
+
+            var settingsTextWidth = ImGui.CalcTextSize("Settings").X;
+            ImGui.SetCursorPosX((windowWidth - settingsTextWidth) * 0.5f);
+            DrawUISettingsButton();
+        }
+
+        private void DrawUIWindowReadyToConnect()
+        {
+            var text = "Press the button below to connect.";
+
+            var windowWidth = ImGui.GetWindowSize().X;
+            var textWidth = ImGui.CalcTextSize(text).X;
+
+            ImGui.SetCursorPosX((windowWidth - textWidth) * 0.5f);
+            ImGui.Text(text);
+
+            var settingsTextWidth = ImGui.CalcTextSize("Connect").X;
+            ImGui.SetCursorPosX((windowWidth - settingsTextWidth) * 0.5f);
+            DrawUIConnectButton();
         }
 
         private void DrawUIConnectButton()
@@ -59,28 +99,12 @@ namespace KinkShellClient.Windows
             {
                 if (ImGui.Button("Connect"))
                 {
-                    // TODO authenticate with the server, get an auth token, store in memory only, GET a list of shells, draw them on screen.
-                    var result = Plugin.ConnectionHandler.Authenticate();
-
-                    result.Wait();
-
-                    if (result.Result)
-                    {
-                        ImGui.Indent();
-                        ImGui.TextColored(new Vector4(0, 1, 0, 1), "Logged in!");
-                        ImGui.Unindent();
-                    }
-                    else
-                    {
-                        ImGui.Indent();
-                        ImGui.TextColored(new Vector4(1, 0, 0, 1), "Login failed");
-                        ImGui.Unindent();
-                    }
+                    _ = MainWindowUtilities.LogInAndRetrieve(Plugin, this);
                 }
             }
         }
 
-        private void DrawUIWindowFooter()
+        private void DrawUISettingsButton()
         {
             if (ImGui.Button("Settings"))
             {
@@ -88,27 +112,9 @@ namespace KinkShellClient.Windows
             }
         }
 
-        private string GetCensoredUsername(string plaintext)
+        private void DrawUIErrorText(string text)
         {
-            if (!plaintext.IsNullOrEmpty())
-            {
-                var length = plaintext.Length;
-                var asterisks = length;
-                var start = "";
-                var end = "";
-
-                if (length > 3)
-                {
-                    start = plaintext.Substring(0, 3);
-                    end = plaintext.Substring(length - 3, 3);
-
-                    asterisks -= 6;
-                }
-
-                return start + (new string('*', asterisks)) + end;
-            }
-
-            return plaintext;
+            ImGui.TextColored(new Vector4(1, 0, 0, 1), text);
         }
     }
 }

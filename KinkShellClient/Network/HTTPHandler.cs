@@ -3,10 +3,12 @@ using KinkShellClient.Utilities;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static System.Net.WebRequestMethods;
 
 namespace KinkShellClient.Network
 {
@@ -24,49 +26,29 @@ namespace KinkShellClient.Network
             };
         }
 
-        public async Task<T?> Get<T>(string uri) where T : struct
+        public async Task<APIResponse<T>> Get<T>(string uri) where T : struct
         {
-            using HttpResponseMessage response = await Http.GetAsync(uri);
-            return MapJSONToType<T>(await response.Content.ReadAsStringAsync());
+            return await GetHTTP<T>(HttpMethod.Get, uri, null);
         }
 
-        public async Task<T?> Post<T>(string uri, JObject body) where T : struct
+        public async Task<APIResponse<T>> Post<T>(string uri, JObject body) where T : struct
         {
-            using StringContent jsonContent = new(
-               body.ToString(),
-               Encoding.UTF8,
-               "application/json");
-
-            using HttpResponseMessage response = await Http.PostAsync(uri, jsonContent);
-            return MapJSONToType<T>(await response.Content.ReadAsStringAsync());
+            return await GetHTTP<T>(HttpMethod.Post, uri, body);
         }
 
-        public async Task<T?> Put<T>(string uri, JObject body) where T : struct
+        public async Task<APIResponse<T>> Put<T>(string uri, JObject body) where T : struct
         {
-            using StringContent jsonContent = new(
-               body.ToString(),
-               Encoding.UTF8,
-               "application/json");
-
-            using HttpResponseMessage response = await Http.PutAsync(uri, jsonContent);
-            return MapJSONToType<T>(await response.Content.ReadAsStringAsync());
+            return await GetHTTP<T>(HttpMethod.Put, uri, body);
         }
 
-        public async Task<T?> Patch<T>(string uri, JObject body) where T : struct
+        public async Task<APIResponse<T>> Patch<T>(string uri, JObject body) where T : struct
         {
-            using StringContent jsonContent = new(
-               body.ToString(),
-               Encoding.UTF8,
-               "application/json");
-
-            using HttpResponseMessage response = await Http.PatchAsync(uri, jsonContent);
-            return MapJSONToType<T>(await response.Content.ReadAsStringAsync());
+            return await GetHTTP<T>(HttpMethod.Patch, uri, body);
         }
 
-        public async Task<T?> Delete<T>(string uri) where T : struct
+        public async Task<APIResponse<T>> Delete<T>(string uri) where T : struct
         {
-            using HttpResponseMessage response = await Http.DeleteAsync(uri);
-            return MapJSONToType<T>(await response.Content.ReadAsStringAsync());
+            return await GetHTTP<T>(HttpMethod.Delete, uri, null);
         }
 
         public async Task ConnectWebSocket(string uri, ShellSession shellSession, Action<string> websocketResponseCallback)
@@ -81,12 +63,69 @@ namespace KinkShellClient.Network
             await ReceiveWebSocketData(ws, shellSession, websocketResponseCallback);
         }
 
-        private T? MapJSONToType<T>(string json) where T : struct
+        public void SetAuthenticationToken(string token)
+        {
+            Http.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {token}");
+        }
+
+        private async Task<APIResponse<T>> GetHTTP<T>(HttpMethod method, string uri, JObject? body) where T : struct
+        {
+            StringContent stringContent = null;
+
+            if (body != null)
+            {
+                stringContent = new(
+                body.ToString(),
+                Encoding.UTF8,
+                "application/json");
+            }
+
+            HttpResponseMessage response;
+
+            switch (method.Method.ToUpper())
+            {
+                case "POST":
+                    response = await Http.PostAsync(uri, stringContent);
+                    break;
+                case "PUT":
+                    response = await Http.PutAsync(uri, stringContent);
+                    break;
+                case "PATCH":
+                    response = await Http.PatchAsync(uri, stringContent);
+                    break;
+                case "DELETE":
+                    response = await Http.DeleteAsync(uri);
+                    break;
+                default:
+                    response = await Http.GetAsync(uri);
+                    break;
+            }
+
+            try
+            {
+                var responseBody = JObject.Parse(await response.Content.ReadAsStringAsync());
+
+                return new APIResponse<T>
+                {
+                    StatusCode = response.StatusCode,
+                    Response = responseBody,
+                    Result = MapJSONToType<T>(responseBody)
+                };
+            }
+            catch (Exception)
+            {
+                return new APIResponse<T>
+                {
+                    StatusCode = response.StatusCode,
+                    Response = new JObject()
+                };
+            }
+        }
+
+        private T? MapJSONToType<T>(JObject jObj) where T : struct
         {
             try
             {
-                var jObj = JObject.Parse(json);
-
                 return APIRequestMapper.MapRequestToModel<T>(jObj);
             }
             catch (Exception)

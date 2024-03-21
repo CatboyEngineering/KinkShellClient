@@ -8,6 +8,7 @@ using KinkShellClient.Utilities;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -26,7 +27,7 @@ namespace KinkShellClient.Network
             Connections = new List<ShellSession>();
         }
 
-        public async Task<bool> Authenticate()
+        public async Task<HttpStatusCode> Authenticate()
         {
             var loginRequest = new AccountLoginRequest
             {
@@ -36,26 +37,37 @@ namespace KinkShellClient.Network
 
             var response = await Plugin.HTTP.Post<AccountAuthenticatedResponse>("account", JObject.FromObject(loginRequest));
 
-            if(response != null)
+            if(response.StatusCode == HttpStatusCode.OK)
             {
-                Plugin.Configuration.KinkShellAuthenticatedUserData = response.Value;
-                return true;
+                Plugin.Configuration.KinkShellAuthenticatedUserData = response.Result.Value;
+                Plugin.HTTP.SetAuthenticationToken(response.Result.Value.AuthToken);
             }
 
-            return false;
+            return response.StatusCode;
         }
 
-        public async Task<bool> GetKinKShells()
+        public async Task<HttpStatusCode> GetKinkShells()
         {
             var response = await Plugin.HTTP.Get<ShellListResponse>("shell");
 
-            if (response != null)
+            if (response.StatusCode == HttpStatusCode.OK)
             {
-                Plugin.Configuration.Shells = response.Value.Shells;
-                return true;
+                Plugin.Configuration.Shells = response.Result.Value.Shells;
             }
 
-            return false;
+            return response.StatusCode;
+        }
+
+        public async Task<HttpStatusCode> LogOut()
+        {
+            var response = await Plugin.HTTP.Post<AccountAuthenticatedResponse>("logout", null);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                Plugin.Configuration.KinkShellAuthenticatedUserData = new AccountAuthenticatedResponse();
+            }
+
+            return response.StatusCode;
         }
 
         public async Task OpenConnection(KinkShell kinkShell)
