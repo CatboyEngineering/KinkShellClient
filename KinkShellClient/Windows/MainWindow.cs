@@ -23,10 +23,13 @@ namespace KinkShellClient.Windows
 
         public override void Draw()
         {
-            ImGui.SetNextWindowSize(new Vector2(410, 190), ImGuiCond.Always);
+            ImGui.SetNextWindowSize(new Vector2(410, 300), ImGuiCond.Always);
 
             if (ImGui.Begin("KinkShell"))
             {
+                ImGui.Text("[BETA]");
+                ImGui.Spacing();
+
                 DrawUIWindowBody();
             }
 
@@ -42,20 +45,15 @@ namespace KinkShellClient.Windows
                 if (!State.IsAuthenticated)
                 {
                     DrawUIWindowReadyToConnect();
-
-                    if(State.HasError)
-                    {
-                        DrawUIErrorText(State.ErrorText);
-                    }
                 }
                 else
                 {
-                    // TODO Draw authenticated screen
-                    ImGui.Text($"Welcome, {Plugin.Configuration.KinkShellAuthenticatedUserData.DisplayName}!");
-                    if(ImGui.Button("Log out"))
-                    {
-                        _ = MainWindowUtilities.LogOut(Plugin, this);
-                    }
+                    DrawUIWindowLoggedInHomepage();
+                }
+
+                if (State.HasError)
+                {
+                    DrawUIErrorText(State.ErrorText);
                 }
             } else
             {
@@ -93,6 +91,41 @@ namespace KinkShellClient.Windows
             DrawUIConnectButton();
         }
 
+        private void DrawUIWindowLoggedInHomepage()
+        {
+            var welcomeText = $"Welcome, {Plugin.Configuration.KinkShellAuthenticatedUserData.DisplayName}!";
+
+            DrawUICenteredText(welcomeText);
+
+            ImGui.Spacing();
+            ImGui.Spacing();
+
+            DrawUISectionShellList();
+            DrawUILogOutButton();
+        }
+
+        private void DrawUISectionShellList()
+        {
+            ImGui.Text("Your Shells");
+            ImGui.SameLine();
+            ImGui.Indent();
+            ImGui.SameLine();
+            ImGui.Button("+ Create");
+
+            foreach(var shell in Plugin.Configuration.Shells)
+            {
+                ImGui.Text(shell.ShellName);
+                ImGui.SameLine();
+                ImGui.Button("Join"); //TODO make this work
+                
+                if(shell.OwnerID == Plugin.Configuration.KinkShellAuthenticatedUserData.AccountID)
+                {
+                    ImGui.SameLine();
+                    ImGui.Button("Edit"); // TODO make this work
+                }
+            }
+        }
+
         private void DrawUIConnectButton()
         {
             if (!Plugin.Configuration.KinkShellServerUsername.IsNullOrEmpty())
@@ -101,6 +134,19 @@ namespace KinkShellClient.Windows
                 {
                     _ = MainWindowUtilities.LogInAndRetrieve(Plugin, this);
                 }
+            }
+        }
+
+        private void DrawUILogOutButton()
+        {
+            // Put logout button in right corner.
+            var buttonTextWidth = ImGui.CalcTextSize("Log Out").X;
+            var windowWidth = ImGui.GetWindowSize().X;
+            ImGui.SetCursorPosX((windowWidth - buttonTextWidth) * 0.75f);
+
+            if (ImGui.Button("Log Out"))
+            {
+                _ = MainWindowUtilities.LogOut(Plugin, this);
             }
         }
 
@@ -115,6 +161,15 @@ namespace KinkShellClient.Windows
         private void DrawUIErrorText(string text)
         {
             ImGui.TextColored(new Vector4(1, 0, 0, 1), text);
+        }
+
+        private void DrawUICenteredText(string text)
+        {
+            var windowWidth = ImGui.GetWindowSize().X;
+            var textWidth = ImGui.CalcTextSize(text).X;
+
+            ImGui.SetCursorPosX((windowWidth - textWidth) * 0.5f);
+            ImGui.Text(text);
         }
     }
 }

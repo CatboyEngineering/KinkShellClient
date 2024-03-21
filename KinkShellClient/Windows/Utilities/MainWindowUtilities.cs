@@ -7,12 +7,12 @@ namespace KinkShellClient.Windows.Utilities
     {
         public static async Task LogInAndRetrieve(Plugin plugin, MainWindow window)
         {
-            // TODO authenticate with the server, get an auth token, store in memory only, GET a list of shells, draw them on screen.
             var result = await plugin.ConnectionHandler.Authenticate();
 
             if(result == HttpStatusCode.OK)
             {
                 window.State.IsAuthenticated = true;
+                await GetUserShells(plugin, window);
             }
             else
             {
@@ -27,6 +27,16 @@ namespace KinkShellClient.Windows.Utilities
             if (result == HttpStatusCode.OK)
             {
                 window.State.IsAuthenticated = false;
+            }
+        }
+
+        public static async Task GetUserShells(Plugin plugin, MainWindow window)
+        {
+            var result = await plugin.ConnectionHandler.GetKinkShells();
+
+            if (result != HttpStatusCode.OK)
+            {
+                window.State.OnError("Error retrieving Kinkshell list");
             }
         }
     }
