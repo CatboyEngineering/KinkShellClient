@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace KinkShellClient.Windows.Utilities
@@ -22,13 +24,17 @@ namespace KinkShellClient.Windows.Utilities
 
         public static async Task LogOut(Plugin plugin, MainWindow window)
         {
-            window.State.ClearErrors();
+            window.State.SetDefauts();
 
             var result = await plugin.ConnectionHandler.LogOut();
 
             if (result == HttpStatusCode.OK)
             {
                 window.State.IsAuthenticated = false;
+            }
+            else
+            {
+                FixStateIfUnauthenticated(result, window);
             }
         }
 
@@ -41,6 +47,7 @@ namespace KinkShellClient.Windows.Utilities
             if (result != HttpStatusCode.OK)
             {
                 window.State.OnError("Error retrieving Kinkshell list");
+                FixStateIfUnauthenticated(result, window);
             }
         }
 
@@ -59,7 +66,29 @@ namespace KinkShellClient.Windows.Utilities
                 else
                 {
                     window.State.OnError("Error creating a new shell");
+                    FixStateIfUnauthenticated(result, window);
                 }
+            }
+        }
+
+        public static async Task UpdateShellUsers(Plugin plugin, MainWindow window, Guid shell, List<Guid> users)
+        {
+            window.State.ClearErrors();
+
+            var result = await plugin.ConnectionHandler.UpdateShell(shell, users);
+
+            if (result != HttpStatusCode.OK)
+            {
+                window.State.OnError("Error updating the shell");
+                FixStateIfUnauthenticated(result, window);
+            }
+        }
+
+        private static void FixStateIfUnauthenticated(HttpStatusCode statusCode, MainWindow mainWindow)
+        {
+            if(statusCode == HttpStatusCode.Unauthorized)
+            {
+                mainWindow.State.SetDefauts();
             }
         }
     }

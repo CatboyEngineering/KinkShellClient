@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KinkShellClient.ShellData;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,8 @@ namespace KinkShellClient.Windows.Utilities
         public bool IsAuthenticated { get; set; }
         public bool HasError { get; set; }
         public string ErrorText { get; set; }
+        public List<Guid> GuidsToAdd { get; set; }
+        public List<Guid> GuidsToDelete { get; set; }
 
         public byte[] stringByteBuffer;
 
@@ -22,11 +25,30 @@ namespace KinkShellClient.Windows.Utilities
             SetDefauts();
         }
 
+        public List<Guid> GetShellMembers(KinkShell kinkShell)
+        {
+            var shellMembers = new List<Guid>();
+
+            shellMembers.AddRange(kinkShell.Users.Select(u => u.AccountID));
+            shellMembers.RemoveAll(GuidsToDelete.Contains);
+            shellMembers.AddRange(GuidsToAdd);
+
+            return shellMembers;
+        }
+
         public void SetDefauts()
         {
             IsAuthenticated = false;
-            stringByteBuffer = new byte[32];
+            GuidsToAdd = new List<Guid>();
+            GuidsToDelete = new List<Guid>();
+
             ClearErrors();
+            ResetStringBuffer();
+        }
+
+        public void ResetStringBuffer()
+        {
+            stringByteBuffer = new byte[40];
         }
 
         public void OnError(string error)

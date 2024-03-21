@@ -2,6 +2,7 @@
 using Dalamud.Interface.Windowing;
 using Dalamud.Utility;
 using ImGuiNET;
+using KinkShellClient.ShellData;
 using KinkShellClient.Windows.Utilities;
 using System;
 using System.Numerics;
@@ -130,7 +131,13 @@ namespace KinkShellClient.Windows
                     if (shell.OwnerID == Plugin.Configuration.KinkShellAuthenticatedUserData.AccountID)
                     {
                         ImGui.SameLine();
-                        ImGui.Button("Edit"); // TODO make this work
+
+                        if(ImGui.Button("Edit"))
+                        {
+                            ImGui.OpenPopup("kinkshell_editshell_dialog");
+                        }
+
+                        DrawUIPopupEditShell(shell);
                     }
                 }
             }
@@ -150,7 +157,7 @@ namespace KinkShellClient.Windows
                     
                     if (newShellName.Length > 0)
                     {
-                        State.stringByteBuffer = new byte[32];
+                        State.ResetStringBuffer();
                         _ = MainWindowUtilities.CreateShell(Plugin, this, newShellName);
                         ImGui.CloseCurrentPopup();
                     }
@@ -161,6 +168,105 @@ namespace KinkShellClient.Windows
                 }
 
                 if(State.HasError)
+                {
+                    DrawUIErrorText(State.ErrorText);
+                }
+
+                ImGui.EndPopup();
+            }
+        }
+
+        private void DrawUIPopupEditShell(KinkShell kinkShell)
+        {
+            if (ImGui.BeginPopup("kinkshell_editshell_dialog"))
+            {
+                DrawUICenteredText("Edit Kinkshell Members");
+                ImGui.Spacing();
+
+                ImGui.Text("New User ID:");
+                ImGui.InputText("", State.stringByteBuffer, (uint)State.stringByteBuffer.Length);
+                ImGui.SameLine();
+
+                if (ImGui.Button("Add"))
+                {
+                    var newUser = Encoding.UTF8.GetString(State.stringByteBuffer, 0, 36);
+
+                    if (newUser.Length > 0 && Guid.TryParse(newUser, out Guid newGuid))
+                    {
+                        State.GuidsToAdd.Add(newGuid);
+                        State.ResetStringBuffer();
+                    }
+                    else
+                    {
+                        State.OnError("Please enter a valid Kinkshell User ID. " + newUser);
+                    }
+                }
+
+                //ImGui.SameLine();
+
+                //if(ImGui.Button("Paste"))
+                //{
+                //    var text = ImGui.GetClipboardText();
+
+                //    if(!text.IsNullOrEmpty())
+                //    {
+                //        State.stringByteBuffer = Encoding.UTF8.GetBytes(text);
+                //    }
+                //}
+
+                foreach(var userToAdd in State.GuidsToAdd)
+                {
+                    ImGui.Text(userToAdd.ToString());
+                    ImGui.SameLine();
+                    ImGui.Spacing();
+                    ImGui.SameLine();
+                    ImGui.Text("(pending)");
+                }
+
+                foreach (var currentUser in kinkShell.Users)
+                {
+                    ImGui.Text(currentUser.AccountID.ToString());
+                    ImGui.SameLine();
+                    ImGui.Spacing();
+                    ImGui.SameLine();
+                    ImGui.Text($"({currentUser.DisplayName})");
+                    ImGui.SameLine();
+
+                    if (!State.GuidsToDelete.Contains(currentUser.AccountID))
+                    {
+                        if (ImGui.Button("Remove")) // TODO this only seems to work for index0?
+                        {
+                            State.GuidsToDelete.Add(currentUser.AccountID);
+                        }
+                    }
+                    else
+                    {
+                        ImGui.Text($"(removing)");
+                    }
+                }
+
+                if(ImGui.Button("Cancel"))
+                {
+                    State.ResetStringBuffer();
+                    State.GuidsToAdd.Clear();
+                    State.GuidsToDelete.Clear();
+
+                    ImGui.CloseCurrentPopup();
+                }
+
+                ImGui.SameLine();
+
+                if (ImGui.Button("Save"))
+                {
+                    _ = MainWindowUtilities.UpdateShellUsers(Plugin, this, kinkShell.ShellID, State.GetShellMembers(kinkShell));
+
+                    State.GuidsToAdd.Clear();
+                    State.GuidsToDelete.Clear();
+
+                    ImGui.CloseCurrentPopup();
+                }
+
+                if (State.HasError)
                 {
                     DrawUIErrorText(State.ErrorText);
                 }

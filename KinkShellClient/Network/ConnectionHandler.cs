@@ -75,6 +75,25 @@ namespace KinkShellClient.Network
             return response.StatusCode;
         }
 
+        public async Task<HttpStatusCode> UpdateShell(Guid shellID, List<Guid> users)
+        {
+            var request = new ShellUpdateUsersRequest
+            {
+                Users = users
+            };
+
+            var response = await Plugin.HTTP.Patch<KinkShell>($"shell/{shellID}", JObject.FromObject(request));
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var shell = Plugin.Configuration.Shells.Find(s => s.ShellID == shellID);
+
+                shell.Users = response.Result.Value.Users;
+            }
+
+            return response.StatusCode;
+        }
+
         public async Task<HttpStatusCode> LogOut()
         {
             var response = await Plugin.HTTP.Post<AccountAuthenticatedResponse>("logout", null);
