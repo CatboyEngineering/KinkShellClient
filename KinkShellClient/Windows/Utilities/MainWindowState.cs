@@ -13,6 +13,8 @@ namespace KinkShellClient.Windows.Utilities
         public bool HasError { get; set; }
         public string ErrorText { get; set; }
 
+        public byte[] stringByteBuffer;
+
         public MainWindowState(Plugin plugin)
         {
             Plugin = plugin;
@@ -23,14 +25,20 @@ namespace KinkShellClient.Windows.Utilities
         public void SetDefauts()
         {
             IsAuthenticated = false;
-            HasError = false;
-            ErrorText = string.Empty;
+            stringByteBuffer = new byte[32];
+            ClearErrors();
         }
 
         public void OnError(string error)
         {
             HasError = true;
             ErrorText = error;
+        }
+
+        public void ClearErrors()
+        {
+            HasError = false;
+            ErrorText = string.Empty;
         }
     }
 }

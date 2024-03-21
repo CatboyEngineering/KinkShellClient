@@ -5,6 +5,7 @@ using ImGuiNET;
 using KinkShellClient.Windows.Utilities;
 using System;
 using System.Numerics;
+using System.Text;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace KinkShellClient.Windows
@@ -110,19 +111,61 @@ namespace KinkShellClient.Windows
             ImGui.SameLine();
             ImGui.Indent();
             ImGui.SameLine();
-            ImGui.Button("+ Create");
-
-            foreach(var shell in Plugin.Configuration.Shells)
+            
+            if(ImGui.Button("+ New Shell"))
             {
-                ImGui.Text(shell.ShellName);
-                ImGui.SameLine();
-                ImGui.Button("Join"); //TODO make this work
-                
-                if(shell.OwnerID == Plugin.Configuration.KinkShellAuthenticatedUserData.AccountID)
+                ImGui.OpenPopup("kinkshell_createshell_dialog");
+            }
+
+            DrawUIPopupCreateShell();
+
+            if (Plugin.Configuration.Shells != null)
+            {
+                foreach (var shell in Plugin.Configuration.Shells)
                 {
+                    ImGui.Text(shell.ShellName);
                     ImGui.SameLine();
-                    ImGui.Button("Edit"); // TODO make this work
+                    ImGui.Button("Join"); //TODO make this work
+
+                    if (shell.OwnerID == Plugin.Configuration.KinkShellAuthenticatedUserData.AccountID)
+                    {
+                        ImGui.SameLine();
+                        ImGui.Button("Edit"); // TODO make this work
+                    }
                 }
+            }
+        }
+
+        private void DrawUIPopupCreateShell()
+        {
+            if(ImGui.BeginPopup("kinkshell_createshell_dialog"))
+            {
+                DrawUICenteredText("New Kinkshell");
+                ImGui.Spacing();
+                ImGui.InputText("Shell name", State.stringByteBuffer, (uint)State.stringByteBuffer.Length);
+
+                if (ImGui.Button("Create Shell"))
+                {
+                    var newShellName = Encoding.UTF8.GetString(State.stringByteBuffer);
+                    
+                    if (newShellName.Length > 0)
+                    {
+                        State.stringByteBuffer = new byte[32];
+                        _ = MainWindowUtilities.CreateShell(Plugin, this, newShellName);
+                        ImGui.CloseCurrentPopup();
+                    }
+                    else
+                    {
+                        State.OnError("Shell name cannot be blank");
+                    }
+                }
+
+                if(State.HasError)
+                {
+                    DrawUIErrorText(State.ErrorText);
+                }
+
+                ImGui.EndPopup();
             }
         }
 

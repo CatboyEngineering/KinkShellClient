@@ -22,6 +22,8 @@ namespace KinkShellClient.Windows.Utilities
 
         public static async Task LogOut(Plugin plugin, MainWindow window)
         {
+            window.State.ClearErrors();
+
             var result = await plugin.ConnectionHandler.LogOut();
 
             if (result == HttpStatusCode.OK)
@@ -32,11 +34,32 @@ namespace KinkShellClient.Windows.Utilities
 
         public static async Task GetUserShells(Plugin plugin, MainWindow window)
         {
+            window.State.ClearErrors();
+
             var result = await plugin.ConnectionHandler.GetKinkShells();
 
             if (result != HttpStatusCode.OK)
             {
                 window.State.OnError("Error retrieving Kinkshell list");
+            }
+        }
+
+        public static async Task CreateShell(Plugin plugin, MainWindow window, string name)
+        {
+            window.State.ClearErrors();
+
+            var result = await plugin.ConnectionHandler.CreateShell(name);
+
+            if (result != HttpStatusCode.Created)
+            {
+                if(result == HttpStatusCode.PaymentRequired)
+                {
+                    window.State.OnError("You cannot create any more shells!");
+                }
+                else
+                {
+                    window.State.OnError("Error creating a new shell");
+                }
             }
         }
     }

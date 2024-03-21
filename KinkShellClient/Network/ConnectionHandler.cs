@@ -29,13 +29,13 @@ namespace KinkShellClient.Network
 
         public async Task<HttpStatusCode> Authenticate()
         {
-            var loginRequest = new AccountLoginRequest
+            var request = new AccountLoginRequest
             {
                 Email = Plugin.Configuration.KinkShellServerUsername,
                 Password = Plugin.Configuration.KinkShellServerPassword
             };
 
-            var response = await Plugin.HTTP.Post<AccountAuthenticatedResponse>("account", JObject.FromObject(loginRequest));
+            var response = await Plugin.HTTP.Post<AccountAuthenticatedResponse>("account", JObject.FromObject(request));
 
             if(response.StatusCode == HttpStatusCode.OK)
             {
@@ -53,6 +53,23 @@ namespace KinkShellClient.Network
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 Plugin.Configuration.Shells = response.Result.Value.Shells;
+            }
+
+            return response.StatusCode;
+        }
+
+        public async Task<HttpStatusCode> CreateShell(string name)
+        {
+            var request = new ShellCreateRequest
+            {
+                ShellName = name
+            };
+
+            var response = await Plugin.HTTP.Put<KinkShell>("shell", JObject.FromObject(request));
+
+            if (response.StatusCode == HttpStatusCode.Created)
+            {
+                Plugin.Configuration.Shells.Add(response.Result.Value);
             }
 
             return response.StatusCode;
