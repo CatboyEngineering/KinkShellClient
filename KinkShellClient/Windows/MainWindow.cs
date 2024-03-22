@@ -118,7 +118,14 @@ namespace KinkShellClient.Windows
                 ImGui.OpenPopup("kinkshell_createshell_dialog");
             }
 
-            DrawUIPopupCreateShell();
+            ImGui.SameLine();
+
+            if (ImGui.Button("Refresh"))
+            {
+                _ = MainWindowUtilities.GetUserShells(Plugin, this);
+            }
+
+            BuildUIPopupCreateShell();
 
             if (Plugin.Configuration.Shells != null)
             {
@@ -126,24 +133,24 @@ namespace KinkShellClient.Windows
                 {
                     ImGui.Text(shell.ShellName);
                     ImGui.SameLine();
-                    ImGui.Button("Join"); //TODO make this work
+                    ImGui.Button($"Join##{shell.ShellID}"); //TODO make this work
 
                     if (shell.OwnerID == Plugin.Configuration.KinkShellAuthenticatedUserData.AccountID)
                     {
                         ImGui.SameLine();
 
-                        if(ImGui.Button("Edit"))
+                        if(ImGui.Button($"Edit##{shell.ShellID}"))
                         {
-                            ImGui.OpenPopup("kinkshell_editshell_dialog");
+                            ImGui.OpenPopup($"kinkshell_editshell_dialog##{shell.ShellID}");
                         }
 
-                        DrawUIPopupEditShell(shell);
+                        BuildUIPopupEditShell(shell);
                     }
                 }
             }
         }
 
-        private void DrawUIPopupCreateShell()
+        private void BuildUIPopupCreateShell()
         {
             if(ImGui.BeginPopup("kinkshell_createshell_dialog"))
             {
@@ -176,9 +183,9 @@ namespace KinkShellClient.Windows
             }
         }
 
-        private void DrawUIPopupEditShell(KinkShell kinkShell)
+        private void BuildUIPopupEditShell(KinkShell kinkShell)
         {
-            if (ImGui.BeginPopup("kinkshell_editshell_dialog"))
+            if (ImGui.BeginPopup($"kinkshell_editshell_dialog##{kinkShell.ShellID}"))
             {
                 DrawUICenteredText("Edit Kinkshell Members");
                 ImGui.Spacing();
@@ -198,21 +205,9 @@ namespace KinkShellClient.Windows
                     }
                     else
                     {
-                        State.OnError("Please enter a valid Kinkshell User ID. " + newUser);
+                        State.OnError("Please enter a valid Kinkshell User ID.");
                     }
                 }
-
-                //ImGui.SameLine();
-
-                //if(ImGui.Button("Paste"))
-                //{
-                //    var text = ImGui.GetClipboardText();
-
-                //    if(!text.IsNullOrEmpty())
-                //    {
-                //        State.stringByteBuffer = Encoding.UTF8.GetBytes(text);
-                //    }
-                //}
 
                 foreach(var userToAdd in State.GuidsToAdd)
                 {
@@ -234,7 +229,7 @@ namespace KinkShellClient.Windows
 
                     if (!State.GuidsToDelete.Contains(currentUser.AccountID))
                     {
-                        if (ImGui.Button("Remove")) // TODO this only seems to work for index0?
+                        if (ImGui.Button($"Remove##{currentUser.AccountID}"))
                         {
                             State.GuidsToDelete.Add(currentUser.AccountID);
                         }
