@@ -19,7 +19,7 @@ namespace KinkShellClient
             [RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
             [RequiredVersion("1.0")] ICommandManager commandManager)
         {
-            this.PluginInterface = pluginInterface;            
+            this.PluginInterface = pluginInterface;
 
             this.Configuration = this.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             this.Configuration.Initialize(this.PluginInterface);

@@ -1,5 +1,8 @@
-﻿using KinkShellClient.ShellData;
+﻿using KinkShellClient.Models.API.WebSocket;
+using KinkShellClient.ShellData;
 using KinkShellClient.Utilities;
+using Lumina.Excel.GeneratedSheets2;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Net.Http;
@@ -56,11 +59,22 @@ namespace KinkShellClient.Network
             var fqdn = "ws://" + Plugin.Configuration.KinkShellServerAddress + "/" + uri;
             var ws = new ClientWebSocket();
 
-            shellSession.Status = Models.ShellConnectionStatus.CONNECTING;
+            ws.Options.SetRequestHeader("Authorization", $"Bearer {Plugin.Configuration.KinkShellAuthenticatedUserData.AuthToken}");
+            shellSession.WebSocket = ws;
+
             await ws.ConnectAsync(new Uri(fqdn), CancellationToken.None);
-            shellSession.Status = Models.ShellConnectionStatus.CONNECTED;
+            shellSession.Status = Models.ShellConnectionStatus.CONNECTING;
 
             await ReceiveWebSocketData(ws, shellSession, websocketResponseCallback);
+        }
+        
+        public async Task SendWebSocketMessage(ShellSession session, ShellSocketMessage message)
+        {
+            var jsonReply = JsonConvert.SerializeObject(message);
+            var bytesReply = Encoding.UTF8.GetBytes(jsonReply);
+            var arraySegment = new ArraySegment<byte>(bytesReply, 0, bytesReply.Length);
+
+            await session.WebSocket.SendAsync(arraySegment, WebSocketMessageType.Text, true, CancellationToken.None);
         }
 
         public void SetAuthenticationToken(string token)
@@ -138,7 +152,7 @@ namespace KinkShellClient.Network
         {
             var buffer = new byte[1024 * 4];
 
-            while (true)
+            while (ws.State == WebSocketState.Open)
             {
                 var result = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
 

@@ -29,7 +29,7 @@ namespace KinkShellClient.Windows
 
             if (ImGui.Begin("KinkShell"))
             {
-                ImGui.Text("[BETA]");
+                ImGui.Text("[DEVELOPER BETA]");
                 ImGui.Spacing();
 
                 DrawUIWindowBody();
@@ -133,7 +133,11 @@ namespace KinkShellClient.Windows
                 {
                     ImGui.Text(shell.ShellName);
                     ImGui.SameLine();
-                    ImGui.Button($"Join##{shell.ShellID}"); //TODO make this work
+
+                    if (ImGui.Button($"Join##{shell.ShellID}"))
+                    {
+                        _ = MainWindowUtilities.LaunchShellWebsocketWindow(Plugin, this, shell);
+                    }
 
                     if (shell.OwnerID == Plugin.Configuration.KinkShellAuthenticatedUserData.AccountID)
                     {
@@ -160,7 +164,7 @@ namespace KinkShellClient.Windows
 
                 if (ImGui.Button("Create Shell"))
                 {
-                    var newShellName = Encoding.UTF8.GetString(State.stringByteBuffer);
+                    var newShellName = Encoding.UTF8.GetString(State.stringByteBuffer, 0, State.stringByteBuffer.Length);
                     
                     if (newShellName.Length > 0)
                     {

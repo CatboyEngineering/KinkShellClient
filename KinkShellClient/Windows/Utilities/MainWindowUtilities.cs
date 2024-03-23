@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Dalamud.Interface.Windowing;
+using KinkShellClient.ShellData;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -82,6 +84,14 @@ namespace KinkShellClient.Windows.Utilities
                 window.State.OnError("Error updating the shell");
                 FixStateIfUnauthenticated(result, window);
             }
+        }
+
+        public static async Task LaunchShellWebsocketWindow(Plugin plugin, MainWindow window, KinkShell kinkShell)
+        {
+            var session = plugin.ConnectionHandler.CreateShellSession(kinkShell);
+            var shellWindow = plugin.UIHandler.CreateShellWindow(session);
+
+            await shellWindow.ConnectAndOpen();
         }
 
         private static void FixStateIfUnauthenticated(HttpStatusCode statusCode, MainWindow mainWindow)

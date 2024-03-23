@@ -9,7 +9,9 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.WebSockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace KinkShellClient.Network
@@ -106,17 +108,59 @@ namespace KinkShellClient.Network
             return response.StatusCode;
         }
 
-        public async Task OpenConnection(KinkShell kinkShell)
+        public ShellSession CreateShellSession(KinkShell kinkShell)
         {
-            var newSession = new ShellSession(kinkShell);
-            Connections.Add(newSession);
+            var session = Connections.Find(c => c.KinkShell.ShellID == kinkShell.ShellID);
+            if (session == null)
+            {
+                var newSession = new ShellSession(kinkShell);
+                Connections.Add(newSession);
 
-            await Plugin.HTTP.ConnectWebSocket("ws", newSession, (message) => HandleWebSocketResponse(message, newSession));
+                return newSession;
+            } else
+            {
+                return session;
+            }
+        }
+
+        public async Task OpenConnection(ShellSession shellSession)
+        {
+            await Plugin.HTTP.ConnectWebSocket("ws", shellSession, async (message) => await HandleWebSocketResponse(message, shellSession));
+        }
+
+        public async Task CloseConnection(KinkShell kinkShell)
+        {
+            var session = Connections.Find(c => c.KinkShell.ShellID == kinkShell.ShellID);
+
+            if (session != null && session.WebSocket != null)
+            {
+                await session.WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Client disconnected safely.", CancellationToken.None);
+            }
+        }
+
+        public async Task SendShellConnectRequest(ShellSession shellSession)
+        {
+            var connectMessage = new ShellSocketMessage
+            {
+                MessageType = ShellSocketMessageType.CONNECT,
+                MessageData = JObject.FromObject(new ShellSocketConnectRequest
+                {
+                    ShellID = shellSession.KinkShell.ShellID
+                })
+            };
+
+            await Plugin.HTTP.SendWebSocketMessage(shellSession, connectMessage);
         }
 
         // TODO need to work on this
-        private void HandleWebSocketResponse(string message, ShellSession session)
+        private async Task HandleWebSocketResponse(string message, ShellSession session)
         {
+            if(session.Status == ShellConnectionStatus.CONNECTING)
+            {
+                await SendShellConnectRequest(session);
+                session.Status = ShellConnectionStatus.CONNECTED;
+            }
+
             var messageBody = JObject.Parse(message);
             var response = APIRequestMapper.MapRequestToModel<ShellSocketMessage>(messageBody);
 
@@ -129,8 +173,6 @@ namespace KinkShellClient.Network
                     case ShellSocketMessageType.COMMAND:
                         break;
                     case ShellSocketMessageType.CONNECT:
-                        break;
-                    case ShellSocketMessageType.DISCONNECT:
                         break;
                     case ShellSocketMessageType.INFO:
                         // Not implemented currently
