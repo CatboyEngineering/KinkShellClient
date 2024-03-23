@@ -141,20 +141,6 @@ namespace KinkShellClient.Network
             }
         }
 
-        public async Task SendShellConnectRequest(ShellSession shellSession)
-        {
-            var connectMessage = new ShellSocketMessage
-            {
-                MessageType = ShellSocketMessageType.CONNECT,
-                MessageData = JObject.FromObject(new ShellSocketConnectRequest
-                {
-                    ShellID = shellSession.KinkShell.ShellID
-                })
-            };
-
-            await Plugin.HTTP.SendWebSocketMessage(shellSession, connectMessage);
-        }
-
         private async Task ListenWebSocket(ClientWebSocket ws, ShellSession session)
         {
             if (session.Status == ShellConnectionStatus.CONNECTING)
@@ -180,6 +166,20 @@ namespace KinkShellClient.Network
             }
         }
 
+        private async Task SendShellConnectRequest(ShellSession shellSession)
+        {
+            var connectMessage = new ShellSocketMessage
+            {
+                MessageType = ShellSocketMessageType.CONNECT,
+                MessageData = JObject.FromObject(new ShellSocketConnectRequest
+                {
+                    ShellID = shellSession.KinkShell.ShellID
+                })
+            };
+
+            await Plugin.HTTP.SendWebSocketMessage(shellSession, connectMessage);
+        }
+
         // TODO need to work on this
         private void HandleWebSocketResponse(string message, ShellSession session)
         {
@@ -195,13 +195,13 @@ namespace KinkShellClient.Network
                     case ShellSocketMessageType.COMMAND:
                         break;
                     case ShellSocketMessageType.CONNECT:
-                        HandleUserConnectedMessage(baseResponse, session);
+                        // We won't be receiving these messages
                         break;
                     case ShellSocketMessageType.INFO:
-                        // Not implemented currently
+                        HandleUserConnectedMessage(baseResponse, session);
                         break;
                     default:
-                        // Text
+                        HandleUserTextMessage(baseResponse, session);
                         break;
                 }
             }
@@ -215,6 +215,20 @@ namespace KinkShellClient.Network
             {
                 session.ConnectedUsers.Clear();
                 session.ConnectedUsers.AddRange(request.Value.ConnectedUsers);
+            }
+        }
+
+        private void HandleUserTextMessage(ShellSocketMessage message, ShellSession session)
+        {
+            var request = APIRequestMapper.MapRequestToModel<ShellSocketTextResponse>(message.MessageData);
+
+            if (request != null)
+            {
+                session.Messages.Add(new ChatMessage
+                {
+                    DisplayName = request.Value.UserFrom.DisplayName,
+                    Message = request.Value.MessageText
+                });
             }
         }
     }

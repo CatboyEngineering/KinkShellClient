@@ -71,12 +71,11 @@ namespace KinkShellClient.Windows
         private void DrawUIChatWindow()
         {
             var width = ImGui.GetWindowWidth();
-            ImGui.BeginChild("ChatWindow", new Vector2(width-2, 100), true);
+            ImGui.BeginChild("ChatWindow", new Vector2(width-10, 150), true);
 
-            // TODO test data for display testing purposes
-            for(var i = 0; i<30; i++)
+            foreach(var message in State.Session.Messages)
             {
-                ImGui.Text("Example text " + i);
+                ImGui.TextWrapped($"{message.DisplayName}: {message.Message}");
             }
 
             ImGui.EndChild();

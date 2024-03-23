@@ -11,12 +11,14 @@ namespace KinkShellClient.ShellData
         public ClientWebSocket WebSocket { get; set; }
         public List<KinkShellMember> ConnectedUsers { get; }
         public ShellConnectionStatus Status { get; set; }
+        public List<ChatMessage> Messages { get; set; }
 
         public ShellSession(KinkShell kinkShell)
         {
             KinkShell = kinkShell;
             Status = ShellConnectionStatus.CLOSED;
             ConnectedUsers = new List<KinkShellMember>();
+            Messages = new List<ChatMessage>();
         }
     }
 }
