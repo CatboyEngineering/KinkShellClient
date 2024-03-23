@@ -136,7 +136,7 @@ namespace KinkShellClient.Windows
 
                     if (ImGui.Button($"Join##{shell.ShellID}"))
                     {
-                        _ = MainWindowUtilities.LaunchShellWebsocketWindow(Plugin, this, shell);
+                        MainWindowUtilities.LaunchShellWindow(Plugin, this, shell);
                     }
 
                     if (shell.OwnerID == Plugin.Configuration.KinkShellAuthenticatedUserData.AccountID)

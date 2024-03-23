@@ -54,7 +54,7 @@ namespace KinkShellClient.Network
             return await GetHTTP<T>(HttpMethod.Delete, uri, null);
         }
 
-        public async Task ConnectWebSocket(string uri, ShellSession shellSession, Action<string> websocketResponseCallback)
+        public async Task<ClientWebSocket> ConnectWebSocket(string uri, ShellSession shellSession)
         {
             var fqdn = "ws://" + Plugin.Configuration.KinkShellServerAddress + "/" + uri;
             var ws = new ClientWebSocket();
@@ -65,7 +65,7 @@ namespace KinkShellClient.Network
             await ws.ConnectAsync(new Uri(fqdn), CancellationToken.None);
             shellSession.Status = Models.ShellConnectionStatus.CONNECTING;
 
-            await ReceiveWebSocketData(ws, shellSession, websocketResponseCallback);
+            return ws;
         }
         
         public async Task SendWebSocketMessage(ShellSession session, ShellSocketMessage message)
@@ -145,24 +145,6 @@ namespace KinkShellClient.Network
             catch (Exception)
             {
                 return null;
-            }
-        }
-
-        private async Task ReceiveWebSocketData(ClientWebSocket ws, ShellSession shellSession, Action<string> websocketResponseCallback)
-        {
-            var buffer = new byte[1024 * 4];
-
-            while (ws.State == WebSocketState.Open)
-            {
-                var result = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-
-                if (result.MessageType == WebSocketMessageType.Close || shellSession.Status == Models.ShellConnectionStatus.CLOSED)
-                {
-                    break;
-                }
-
-                var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                websocketResponseCallback(message);
             }
         }
     }

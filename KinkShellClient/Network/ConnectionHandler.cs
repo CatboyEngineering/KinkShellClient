@@ -13,6 +13,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static System.Collections.Specialized.BitVector32;
 
 namespace KinkShellClient.Network
 {
@@ -125,7 +126,9 @@ namespace KinkShellClient.Network
 
         public async Task OpenConnection(ShellSession shellSession)
         {
-            await Plugin.HTTP.ConnectWebSocket("ws", shellSession, async (message) => await HandleWebSocketResponse(message, shellSession));
+            var socket = await Plugin.HTTP.ConnectWebSocket("ws", shellSession);
+
+            await ListenWebSocket(socket, shellSession);
         }
 
         public async Task CloseConnection(KinkShell kinkShell)
@@ -152,15 +155,34 @@ namespace KinkShellClient.Network
             await Plugin.HTTP.SendWebSocketMessage(shellSession, connectMessage);
         }
 
-        // TODO need to work on this
-        private async Task HandleWebSocketResponse(string message, ShellSession session)
+        private async Task ListenWebSocket(ClientWebSocket ws, ShellSession session)
         {
-            if(session.Status == ShellConnectionStatus.CONNECTING)
+            if (session.Status == ShellConnectionStatus.CONNECTING)
             {
                 await SendShellConnectRequest(session);
                 session.Status = ShellConnectionStatus.CONNECTED;
             }
 
+            var buffer = new byte[1024 * 4];
+
+            while (ws.State == WebSocketState.Open)
+            {
+                var result = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+
+                if (result.MessageType == WebSocketMessageType.Close || session.Status == Models.ShellConnectionStatus.CLOSED)
+                {
+                    break;
+                }
+
+                var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                
+                HandleWebSocketResponse(message, session);
+            }
+        }
+
+        // TODO need to work on this
+        private void HandleWebSocketResponse(string message, ShellSession session)
+        {
             var messageBody = JObject.Parse(message);
             var response = APIRequestMapper.MapRequestToModel<ShellSocketMessage>(messageBody);
 
@@ -173,6 +195,7 @@ namespace KinkShellClient.Network
                     case ShellSocketMessageType.COMMAND:
                         break;
                     case ShellSocketMessageType.CONNECT:
+                        HandleUserConnectedMessage(baseResponse, session);
                         break;
                     case ShellSocketMessageType.INFO:
                         // Not implemented currently
@@ -181,6 +204,17 @@ namespace KinkShellClient.Network
                         // Text
                         break;
                 }
+            }
+        }
+
+        private void HandleUserConnectedMessage(ShellSocketMessage message, ShellSession session)
+        {
+            var request = APIRequestMapper.MapRequestToModel<ShellSocketConnectResponse>(message.MessageData);
+
+            if (request != null)
+            {
+                session.ConnectedUsers.Clear();
+                session.ConnectedUsers.AddRange(request.Value.ConnectedUsers);
             }
         }
     }

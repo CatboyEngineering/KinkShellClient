@@ -86,12 +86,12 @@ namespace KinkShellClient.Windows.Utilities
             }
         }
 
-        public static async Task LaunchShellWebsocketWindow(Plugin plugin, MainWindow window, KinkShell kinkShell)
+        public static void LaunchShellWindow(Plugin plugin, MainWindow window, KinkShell kinkShell)
         {
             var session = plugin.ConnectionHandler.CreateShellSession(kinkShell);
             var shellWindow = plugin.UIHandler.CreateShellWindow(session);
 
-            await shellWindow.ConnectAndOpen();
+            _ = ShellWindowUtilities.Launch(plugin, shellWindow);
         }
 
         private static void FixStateIfUnauthenticated(HttpStatusCode statusCode, MainWindow mainWindow)

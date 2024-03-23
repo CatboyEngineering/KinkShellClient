@@ -9,9 +9,11 @@ namespace KinkShellClient.Windows.Utilities
 {
     public class ShellWindowUtilities
     {
-        public static async Task ConnectToShellWebSocket(Plugin plugin, ShellWindow window, ShellSession shellSession)
+        public static async Task Launch(Plugin plugin, ShellWindow shellWindow)
         {
-            await plugin.ConnectionHandler.OpenConnection(shellSession);
+            shellWindow.IsOpen = true;
+
+            await plugin.ConnectionHandler.OpenConnection(shellWindow.State.Session);
         }
 
         public static async Task DisconnectFromShellWebSocket(Plugin plugin, KinkShell kinkShell)

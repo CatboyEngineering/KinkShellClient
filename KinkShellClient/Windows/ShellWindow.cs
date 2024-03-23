@@ -23,6 +23,13 @@ namespace KinkShellClient.Windows
             State.Session = session;
         }
 
+        public override void OnClose()
+        {
+            base.OnClose();
+
+            _ = ShellWindowUtilities.DisconnectFromShellWebSocket(Plugin, State.KinkShell);
+        }
+
         public override void Draw()
         {   
             ImGui.SetNextWindowSize(new Vector2(600, 300), ImGuiCond.Always);
@@ -33,13 +40,6 @@ namespace KinkShellClient.Windows
             }
 
             ImGui.End();
-        }
-
-        public async Task ConnectAndOpen()
-        {
-            await ShellWindowUtilities.ConnectToShellWebSocket(Plugin, this, State.Session);
-
-            this.IsOpen = true;
         }
 
         public void Dispose() { }
