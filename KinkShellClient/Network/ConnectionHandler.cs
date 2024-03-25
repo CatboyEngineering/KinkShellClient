@@ -34,7 +34,7 @@ namespace KinkShellClient.Network
         {
             var request = new AccountLoginRequest
             {
-                Email = Plugin.Configuration.KinkShellServerUsername,
+                Username = Plugin.Configuration.KinkShellServerUsername,
                 Password = Plugin.Configuration.KinkShellServerPassword
             };
 
@@ -138,6 +138,7 @@ namespace KinkShellClient.Network
             if (session != null && session.WebSocket != null)
             {
                 await session.WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Client disconnected safely.", CancellationToken.None);
+                Connections.Remove(session);
             }
         }
 
@@ -174,6 +175,22 @@ namespace KinkShellClient.Network
                 MessageData = JObject.FromObject(new ShellSocketConnectRequest
                 {
                     ShellID = shellSession.KinkShell.ShellID
+                })
+            };
+
+            await Plugin.HTTP.SendWebSocketMessage(shellSession, connectMessage);
+        }
+
+        public async Task SendShellChatMessage(ShellSession shellSession, string message)
+        {
+            var connectMessage = new ShellSocketMessage
+            {
+                MessageType = ShellSocketMessageType.TEXT,
+                MessageData = JObject.FromObject(new ShellSocketTextMessage
+                {
+                    ShellID = shellSession.KinkShell.ShellID,
+                    DateTime = DateTime.UtcNow,
+                    MessageText = message
                 })
             };
 
@@ -227,6 +244,7 @@ namespace KinkShellClient.Network
                 session.Messages.Add(new ChatMessage
                 {
                     DisplayName = request.Value.UserFrom.DisplayName,
+                    DateTime = request.Value.DateTime,
                     Message = request.Value.MessageText
                 });
             }

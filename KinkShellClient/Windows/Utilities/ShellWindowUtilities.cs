@@ -16,6 +16,11 @@ namespace KinkShellClient.Windows.Utilities
             await plugin.ConnectionHandler.OpenConnection(shellWindow.State.Session);
         }
 
+        public static async Task SendChat(Plugin plugin, ShellSession session, string message)
+        {
+            await plugin.ConnectionHandler.SendShellChatMessage(session, message);
+        }
+
         public static async Task DisconnectFromShellWebSocket(Plugin plugin, KinkShell kinkShell)
         {
             await plugin.ConnectionHandler.CloseConnection(kinkShell);

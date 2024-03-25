@@ -9,6 +9,7 @@ namespace KinkShellClient.Models
     public struct ChatMessage
     {
         public string DisplayName { get; set; }
+        public DateTime DateTime { get; set; }
         public string Message { get; set; }
     }
 }

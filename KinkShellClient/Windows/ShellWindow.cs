@@ -32,7 +32,7 @@ namespace KinkShellClient.Windows
 
         public override void Draw()
         {   
-            ImGui.SetNextWindowSize(new Vector2(600, 300), ImGuiCond.Always);
+            ImGui.SetNextWindowSize(new Vector2(500, 500), ImGuiCond.Always);
 
             if (ImGui.Begin(this.WindowName))
             {
@@ -71,26 +71,29 @@ namespace KinkShellClient.Windows
         private void DrawUIChatWindow()
         {
             var width = ImGui.GetWindowWidth();
-            ImGui.BeginChild("ChatWindow", new Vector2(width-10, 150), true);
+            ImGui.BeginChild("ChatWindow", new Vector2(width-15, 175), true);
 
             foreach(var message in State.Session.Messages)
             {
-                ImGui.TextWrapped($"{message.DisplayName}: {message.Message}");
+                var time = message.DateTime.ToLocalTime().ToString("t");
+                ImGui.TextWrapped($"[{time}] {message.DisplayName}: {message.Message}");
             }
 
             ImGui.EndChild();
 
-            ImGui.InputText("", State.stringByteBuffer, (uint)State.stringByteBuffer.Length);
-            ImGui.SameLine();
+            ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X);
 
-            if(ImGui.Button("Send"))
+            if (ImGui.InputText("", ref State.stringBuffer, 500, ImGuiInputTextFlags.EnterReturnsTrue))
             {
-                var message = Encoding.UTF8.GetString(State.stringByteBuffer, 0, State.stringByteBuffer.Length);
-                
-                if(message.Length > 0)
+                var message = State.stringBuffer.Trim();
+
+                if (message.Length > 0)
                 {
-                    // TODO send message
+                    _ = ShellWindowUtilities.SendChat(Plugin, State.Session, message);
                     State.ResetStringBuffer();
+
+                    ImGui.SetWindowFocus();
+                    ImGui.SetKeyboardFocusHere(-1);
                 }
             }
         }
