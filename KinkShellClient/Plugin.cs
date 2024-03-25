@@ -1,4 +1,5 @@
-﻿using Dalamud.IoC;
+﻿using CatboyEngineering.KinkShell.Toy;
+using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using KinkShellClient.Network;
@@ -15,12 +16,15 @@ namespace KinkShellClient
         public UIHandler UIHandler { get; }
         public ConnectionHandler ConnectionHandler { get; }
         public HTTPHandler HTTP { get; }
-        public XivCommonBase Common { get; set; }
+        public XivCommonBase Common { get; }
+        public ToyController ToyController { get; }
+        public IPluginLog Logger { get; set; }
 
         public Plugin(
             [RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
-            [RequiredVersion("1.0")] ICommandManager commandManager, [RequiredVersion("1.0")] IChatGui chatGui)
+            [RequiredVersion("1.0")] ICommandManager commandManager, [RequiredVersion("1.0")] IPluginLog pluginLog)
         {
+            this.Logger = pluginLog;
             this.Common = new(pluginInterface);
             this.PluginInterface = pluginInterface;
 
@@ -31,6 +35,8 @@ namespace KinkShellClient
             CommandHandler = new CommandHandler(this, commandManager);
             UIHandler = new UIHandler(this, this.PluginInterface);
             ConnectionHandler = new ConnectionHandler(this);
+
+            ToyController = new ToyController(this);
         }
 
         public void Dispose()

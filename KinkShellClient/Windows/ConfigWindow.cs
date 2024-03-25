@@ -77,24 +77,11 @@ namespace KinkShellClient.Windows
         {
             if (ImGui.BeginTabItem("Intiface"))
             {
-                // TODO: in progress
-                var shellServer = "";
-                var shellUser = "";
-                var shellPass = "";
+                var intifaceServer = this.WorkingCopy.IntifaceServerAddress;
 
-                if (ImGui.InputText("Address", ref shellServer, 64))
+                if (ImGui.InputText("Address", ref intifaceServer, 64))
                 {
-                    
-                }
-
-                if (ImGui.InputText("Username", ref shellUser, 64))
-                {
-
-                }
-
-                if (ImGui.InputText("Password", ref shellPass, 64, ImGuiInputTextFlags.Password))
-                {
-                    
+                    this.WorkingCopy.IntifaceServerAddress = intifaceServer;
                 }
 
                 ImGui.EndTabItem();

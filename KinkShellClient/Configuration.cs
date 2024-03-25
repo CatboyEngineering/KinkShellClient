@@ -15,6 +15,7 @@ namespace KinkShellClient
         public string KinkShellServerAddress { get; set; } = "localhost";
         public string KinkShellServerUsername { get; set; } = "";
         public string KinkShellServerPassword { get; set; } = "";
+        public string IntifaceServerAddress { get; set; } = "localhost:12345";
 
         [NonSerialized]
         public AccountAuthenticatedResponse KinkShellAuthenticatedUserData;
@@ -42,6 +43,7 @@ namespace KinkShellClient
             clone.KinkShellServerAddress = this.KinkShellServerAddress;
             clone.KinkShellServerUsername = this.KinkShellServerUsername;
             clone.KinkShellServerPassword = this.KinkShellServerPassword;
+            clone.IntifaceServerAddress = this.IntifaceServerAddress;
 
             return clone;
         }
@@ -51,6 +53,7 @@ namespace KinkShellClient
             this.KinkShellServerAddress = configuration.KinkShellServerAddress;
             this.KinkShellServerUsername = configuration.KinkShellServerUsername;
             this.KinkShellServerPassword = configuration.KinkShellServerPassword;
+            this.IntifaceServerAddress = configuration.IntifaceServerAddress;
         }
     }
 }

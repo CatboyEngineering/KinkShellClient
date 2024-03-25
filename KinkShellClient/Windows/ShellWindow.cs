@@ -85,6 +85,9 @@ namespace KinkShellClient.Windows
 
             ImGui.EndChild();
 
+            ImGui.Spacing();
+
+            ImGui.Text("Send Chat:");
             ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X);
 
             if (ImGui.InputText("", ref State.stringBuffer, 500, ImGuiInputTextFlags.EnterReturnsTrue))

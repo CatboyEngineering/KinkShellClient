@@ -17,6 +17,7 @@ namespace KinkShellClient.Windows.Utilities
             {
                 window.State.IsAuthenticated = true;
                 await GetUserShells(plugin, window);
+                await plugin.ToyController.Connect();
             }
             else
             {

@@ -1,5 +1,4 @@
-﻿using Dalamud.Interface.Internal;
-using Dalamud.Interface.Windowing;
+﻿using Dalamud.Interface.Windowing;
 using Dalamud.Utility;
 using ImGuiNET;
 using KinkShellClient.ShellData;
@@ -7,7 +6,6 @@ using KinkShellClient.Windows.Utilities;
 using System;
 using System.Numerics;
 using System.Text;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace KinkShellClient.Windows
 {
@@ -21,6 +19,12 @@ namespace KinkShellClient.Windows
         {
             this.Plugin = plugin;
             State = new MainWindowState(plugin);
+        }
+
+        public override void OnClose()
+        {
+            base.OnClose();
+            _ = Plugin.ToyController.Disconnect();
         }
 
         public override void Draw()
@@ -151,6 +155,12 @@ namespace KinkShellClient.Windows
                         BuildUIPopupEditShell(shell);
                     }
                 }
+            }
+
+            // TODO testing
+            foreach(var toy in Plugin.ToyController.Client.Devices)
+            {
+                ImGui.Text("Connected to " + toy.Name);
             }
         }
 
@@ -295,6 +305,7 @@ namespace KinkShellClient.Windows
             if (ImGui.Button("Log Out"))
             {
                 _ = MainWindowUtilities.LogOut(Plugin, this);
+                _ = Plugin.ToyController.Disconnect();
             }
         }
 

@@ -1,10 +1,12 @@
-﻿using FFXIVClientStructs.Havok;
+﻿using CatboyEngineering.KinkShell.Models.API.WebSocket;
+using FFXIVClientStructs.Havok;
 using KinkShellClient.Models;
 using KinkShellClient.Models.API.Request;
 using KinkShellClient.Models.API.Response;
 using KinkShellClient.Models.API.WebSocket;
 using KinkShellClient.ShellData;
 using KinkShellClient.Utilities;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -163,7 +165,8 @@ namespace KinkShellClient.Network
 
                 var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
                 
-                HandleWebSocketResponse(message, session);
+                // We won't await the code to handle this request; continue the loop
+                _ = HandleWebSocketResponse(message, session);
             }
         }
 
@@ -197,8 +200,7 @@ namespace KinkShellClient.Network
             await Plugin.HTTP.SendWebSocketMessage(shellSession, connectMessage);
         }
 
-        // TODO need to work on this
-        private void HandleWebSocketResponse(string message, ShellSession session)
+        private async Task HandleWebSocketResponse(string message, ShellSession session)
         {
             var messageBody = JObject.Parse(message);
             var response = APIRequestMapper.MapRequestToModel<ShellSocketMessage>(messageBody);
@@ -207,9 +209,11 @@ namespace KinkShellClient.Network
             {
                 var baseResponse = response.Value;
 
+                Plugin.Logger.Debug($"Received Shell message [{baseResponse.MessageType}]");
                 switch (baseResponse.MessageType)
                 {
                     case ShellSocketMessageType.COMMAND:
+                        await HandleUserCommandMessage(baseResponse, session);
                         break;
                     case ShellSocketMessageType.CONNECT:
                         // We won't be receiving these messages
@@ -247,6 +251,19 @@ namespace KinkShellClient.Network
                     DateTime = request.Value.DateTime,
                     Message = request.Value.MessageText
                 });
+            }
+        }
+
+        private async Task HandleUserCommandMessage(ShellSocketMessage message, ShellSession session)
+        {
+            var request = APIRequestMapper.MapRequestToModel<ShellSocketCommandRequest>(message.MessageData);
+
+            if (request != null)
+            {
+                if (Plugin.ToyController.Client.Devices.Length > 0)
+                {
+                    await Plugin.ToyController.IssueCommand(Plugin.ToyController.Client.Devices[0], request.Value.Command);
+                }
             }
         }
     }
