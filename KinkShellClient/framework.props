@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+	<PropertyGroup Condition=" '$(Product)' != '' ">
+		<AssemblyName Condition=" '$(AssemblyName)' == '' ">$(Product)</AssemblyName>
+		<PackageId Condition=" '$(PackageId)' == '' ">$(Product)</PackageId>
+		<Title Condition=" '$(Title)' == '' ">$(Product)</Title>
+		<PackageProjectUrl Condition=" '$(PackageProjectUrl)' == '' ">https://github.com/CatboyEngineering/$(Product)</PackageProjectUrl>
+	</PropertyGroup>
+
+	<PropertyGroup><!-- these properties are LOCKED and applied UNCONDITIONALLY -->
+		<RootNamespace>CatboyEngineering.$(PackageId)</RootNamespace>
+		<Nullable>enable</Nullable>
+		<NullableContextOptions>enable</NullableContextOptions>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+		<LangVersion>11</LangVersion>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<OutputPath>bin\$(Configuration)\</OutputPath>
+		<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+		<GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+		<PublishRelease>true</PublishRelease>
+		<DisableImplicitFrameworkDefines>false</DisableImplicitFrameworkDefines>
+		<AnalysisMode>Recommended</AnalysisMode>
+		<AnalysisModeSecurity>All</AnalysisModeSecurity>
+		<AnalysisModeGlobalization>None</AnalysisModeGlobalization>
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+		<ImplicitUsings>false</ImplicitUsings>
+		<NoWarn>CA1805,CA1852,CA1707,$(NoWarn)</NoWarn>
+	</PropertyGroup>
+
+	<Choose>
+		<When Condition=" '$(Authors)' == '' ">
+			<PropertyGroup>
+				<Authors>CatboyEngineering</Authors>
+			</PropertyGroup>
+		</When>
+		<When Condition=" ! $([System.Text.RegularExpressions.Regex]::IsMatch($(Authors.ToLower()), '\bcatboyengineering\b')) ">
+			<PropertyGroup>
+				<Authors>CatboyEngineering, $(Authors)</Authors>
+			</PropertyGroup>
+		</When>
+	</Choose>
+
+	<PropertyGroup>
+		<Copyright Condition=" '$(Copyright)' == '' ">Copyleft $(Authors)</Copyright>
+		<RepositoryUrl Condition=" '$(RepositoryUrl)' == '' ">$(PackageProjectUrl).git</RepositoryUrl>
+		<Platforms Condition=" '$(Platforms)' == '' ">x64</Platforms>
+		<PlatformTarget Condition=" '$(PlatformTarget)' == '' ">x64</PlatformTarget>
+		<TargetFramework Condition=" '$(TargetFramework)' == '' ">net7</TargetFramework>
+		<AssemblyVersion Condition=" '$(AssemblyVersion)' == '' ">$(Version)</AssemblyVersion>
+		<AssemblyFileVersion Condition=" '$(AssemblyFileVersion)' == '' ">$(AssemblyVersion)</AssemblyFileVersion>
+	</PropertyGroup>
+
+	<Choose>
+		<When Condition=" '$(OutputType.ToLower())' == 'library' ">
+			<PropertyGroup>
+				<Deterministic Condition=" '$(Deterministic)' == '' ">true</Deterministic>
+				<CopyLocalLockFileAssemblies Condition=" '$(CopyLocalLockFileAssemblies)' == '' ">false</CopyLocalLockFileAssemblies>
+				<ProduceReferenceAssembly Condition=" '$(ProduceReferenceAssembly)' == '' ">true</ProduceReferenceAssembly>
+			</PropertyGroup>
+		</When>
+		<Otherwise>
+			<PropertyGroup>
+				<Deterministic Condition=" '$(Deterministic)' == '' ">false</Deterministic>
+				<CopyLocalLockFileAssemblies Condition=" '$(CopyLocalLockFileAssemblies)' == '' ">true</CopyLocalLockFileAssemblies>
+				<ProduceReferenceAssembly Condition=" '$(ProduceReferenceAssembly)' == '' ">false</ProduceReferenceAssembly>
+			</PropertyGroup>
+		</Otherwise>
+	</Choose>
+
+	<PropertyGroup>
+		<!-- this is non-exhaustive, but includes the CI systems I'm aware of and will be updated as I discover more -->
+		<ContinuousIntegrationBuild Condition=" '$(GITHUB_ACTIONS)' == 'true' ">true</ContinuousIntegrationBuild>
+		<ContinuousIntegrationBuild Condition=" '$(TF_BUILD)' == 'true' ">true</ContinuousIntegrationBuild>
+	</PropertyGroup>
+
+	<Choose>
+		<When Condition=" '$(Configuration.ToLower())' == 'debug' ">
+			<PropertyGroup>
+				<DebugSymbols>true</DebugSymbols>
+				<DebugType>embedded</DebugType>
+				<Optimize>false</Optimize>
+				<CopyDebugSymbolFilesFromPackages>true</CopyDebugSymbolFilesFromPackages>
+				<DefineConstants>DEBUG;TRACE</DefineConstants>
+				<SourceRevisionId Condition=" '$(SourceRevisionId)' != '' ">$(SourceRevisionId).debug</SourceRevisionId>
+				<SourceRevisionId Condition=" '$(SourceRevisionId)' == '' ">debug</SourceRevisionId>
+			</PropertyGroup>
+		</When>
+		<When Condition=" '$(Configuration.ToLower())' == 'stripped' ">
+			<PropertyGroup>
+				<DebugSymbols>false</DebugSymbols>
+				<DebugType>none</DebugType>
+				<Optimize>true</Optimize>
+				<CopyDebugSymbolFilesFromPackages>false</CopyDebugSymbolFilesFromPackages>
+				<DefineConstants>RELEASE;STRIPPED</DefineConstants>
+			</PropertyGroup>
+		</When>
+		<Otherwise>
+			<PropertyGroup>
+				<DebugSymbols>true</DebugSymbols>
+				<DebugType>portable</DebugType>
+				<Optimize>true</Optimize>
+				<CopyDebugSymbolFilesFromPackages>false</CopyDebugSymbolFilesFromPackages>
+				<DefineConstants>RELEASE;TRACE</DefineConstants>
+			</PropertyGroup>
+		</Otherwise>
+	</Choose>
+
+	<ItemGroup>
+		<None Remove="framework.props" />
+		<None Remove=".gitignore" />
+		<None Remove="README.md" />
+		<None Remove="LICENSE" />
+	</ItemGroup>
+
+</Project>

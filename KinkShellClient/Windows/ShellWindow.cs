@@ -2,6 +2,7 @@
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
@@ -89,7 +90,16 @@ namespace KinkShellClient.Windows
 
                 if (message.Length > 0)
                 {
-                    _ = ShellWindowUtilities.SendChat(Plugin, State.Session, message);
+                    if(message.StartsWith("/"))
+                    {
+                        string content = Plugin.Common.Functions.Chat.SanitiseText(message);
+                        Plugin.Common.Functions.Chat.SendMessage(content);
+                    }
+                    else
+                    {
+                        _ = ShellWindowUtilities.SendChat(Plugin, State.Session, message);
+                    }                    
+
                     State.ResetStringBuffer();
 
                     ImGui.SetWindowFocus();
