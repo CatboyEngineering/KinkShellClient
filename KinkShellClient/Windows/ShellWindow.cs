@@ -29,6 +29,9 @@ namespace KinkShellClient.Windows
             base.OnClose();
 
             _ = ShellWindowUtilities.DisconnectFromShellWebSocket(Plugin, State.KinkShell);
+            State = new ShellWindowState(Plugin, State.KinkShell);
+
+            Plugin.UIHandler.RemoveShellWindow(this);
         }
 
         public override void Draw()

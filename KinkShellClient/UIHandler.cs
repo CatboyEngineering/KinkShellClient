@@ -57,6 +57,16 @@ namespace KinkShellClient
             }
         }
 
+        public void RemoveShellWindow(ShellWindow window)
+        {
+            if(ShellWindows.Contains(window))
+            {
+                WindowSystem.RemoveWindow(window);
+            }
+
+            ShellWindows.Remove(window);
+        }
+
         private void DrawUI()
         {
             this.WindowSystem.Draw();

@@ -17,15 +17,12 @@ namespace KinkShellClient
         public HTTPHandler HTTP { get; }
         public XivCommonBase Common { get; set; }
 
-        public IChatGui ChatGUI { get; set; }
-
         public Plugin(
             [RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
             [RequiredVersion("1.0")] ICommandManager commandManager, [RequiredVersion("1.0")] IChatGui chatGui)
         {
             this.Common = new(pluginInterface);
             this.PluginInterface = pluginInterface;
-            this.ChatGUI = chatGui;
 
             this.Configuration = this.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             this.Configuration.Initialize(this.PluginInterface);
