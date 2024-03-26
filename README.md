@@ -1,6 +1,8 @@
 # KinkShell (beta)
 ###### Disclaimer: This plugin is currently in development. Not all features may work as expected, and user support is limited.
 
+> To track project progress and upcoming features, visit the [project tracker](https://github.com/users/CatboyEngineering/projects/1/views/1)
+
 ## What is KinkShell?
 Welcome to KinkShell, a new Dalamud mod for FFXIV that aims to enhance your roleplaying experience by connecting you with other KinkShell users in a more intimate way.
 
