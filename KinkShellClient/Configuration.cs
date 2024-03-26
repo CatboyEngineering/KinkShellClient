@@ -18,7 +18,7 @@ namespace CatboyEngineering.KinkShellClient
         public string KinkShellServerUsername { get; set; } = "";
         public string KinkShellServerPassword { get; set; } = "";
         public string IntifaceServerAddress { get; set; } = "localhost:12345";
-        public List<StoredShellCommand> SavedPatterns { get; set; } = new List<StoredShellCommand> { DefaultPatterns.Ripple, DefaultPatterns.Shockwave };
+        public List<StoredShellCommand> SavedPatterns { get; set; } = new List<StoredShellCommand>();
 
         [NonSerialized]
         public AccountAuthenticatedResponse KinkShellAuthenticatedUserData;
@@ -47,6 +47,7 @@ namespace CatboyEngineering.KinkShellClient
             clone.KinkShellServerUsername = this.KinkShellServerUsername;
             clone.KinkShellServerPassword = this.KinkShellServerPassword;
             clone.IntifaceServerAddress = this.IntifaceServerAddress;
+            clone.SavedPatterns = this.SavedPatterns;
 
             return clone;
         }
@@ -57,6 +58,7 @@ namespace CatboyEngineering.KinkShellClient
             this.KinkShellServerUsername = configuration.KinkShellServerUsername;
             this.KinkShellServerPassword = configuration.KinkShellServerPassword;
             this.IntifaceServerAddress = configuration.IntifaceServerAddress;
+            this.SavedPatterns = configuration.SavedPatterns;
         }
     }
 }

@@ -95,6 +95,20 @@ namespace CatboyEngineering.KinkShellClient.Windows
             var settingsTextWidth = ImGui.CalcTextSize("Connect").X;
             ImGui.SetCursorPosX((windowWidth - settingsTextWidth) * 0.5f);
             DrawUIConnectButton();
+
+            ImGui.Spacing();
+
+            if(ImGui.Button("Pattern Builder"))
+            {
+                Plugin.UIHandler.PatternBuilderWindow.IsOpen = true;
+            }
+
+            ImGui.SameLine();
+
+            if (ImGui.Button("Open Config"))
+            {
+                Plugin.UIHandler.ConfigWindow.IsOpen = true;
+            }
         }
 
         private void DrawUIWindowLoggedInHomepage()

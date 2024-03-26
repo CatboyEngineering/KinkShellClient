@@ -1,4 +1,5 @@
 ﻿using CatboyEngineering.KinkShellClient.ShellData;
+using CatboyEngineering.KinkShellClient.Toy;
 using CatboyEngineering.KinkShellClient.Windows.Utilities;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
@@ -79,7 +80,18 @@ namespace CatboyEngineering.KinkShellClient.Windows
                 ImGui.Text($"Selected {userList[State.intBuffer]}");
             }
 
+            // TODO: These two foreach loops are causing Dalamud to crash. ImGui does not like the buttons.
+            // Do these patterns need IDs?
             foreach (var pattern in Plugin.Configuration.SavedPatterns)
+            {
+                if (ImGui.Button(pattern.Name))
+                {
+                    var targets = ShellWindowUtilities.GetTargetList(State.intBuffer, userList, State.Session);
+                    _ = ShellWindowUtilities.SendCommand(Plugin, State.Session, targets, pattern);
+                }
+            }
+
+            foreach (var pattern in DefaultPatterns.Defaults)
             {
                 if (ImGui.Button(pattern.Name))
                 {

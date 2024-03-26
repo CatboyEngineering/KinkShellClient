@@ -19,6 +19,7 @@ namespace CatboyEngineering.KinkShellClient
 
         public ConfigWindow ConfigWindow { get; init; }
         public MainWindow MainWindow { get; init; }
+        public PatternBuilderWindow PatternBuilderWindow { get; set; }
 
         public List<ShellWindow> ShellWindows { get; init; }
 
@@ -29,10 +30,12 @@ namespace CatboyEngineering.KinkShellClient
 
             ConfigWindow = new ConfigWindow(this.Plugin);
             MainWindow = new MainWindow(this.Plugin);
+            PatternBuilderWindow = new PatternBuilderWindow(this.Plugin);
             ShellWindows = new List<ShellWindow>();
 
             WindowSystem.AddWindow(ConfigWindow);
             WindowSystem.AddWindow(MainWindow);
+            WindowSystem.AddWindow(PatternBuilderWindow);
 
             this.PluginInterface.UiBuilder.Draw += DrawUI;
             this.PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
@@ -83,6 +86,7 @@ namespace CatboyEngineering.KinkShellClient
 
             ConfigWindow.Dispose();
             MainWindow.Dispose();
+            PatternBuilderWindow.Dispose();
         }
     }
 }
