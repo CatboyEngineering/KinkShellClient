@@ -1,4 +1,6 @@
-﻿using Dalamud.Configuration;
+﻿using CatboyEngineering.KinkShell.Models.Toy;
+using CatboyEngineering.KinkShell.Toy;
+using Dalamud.Configuration;
 using Dalamud.Plugin;
 using KinkShellClient.Models.API.Response;
 using KinkShellClient.ShellData;
@@ -16,6 +18,7 @@ namespace KinkShellClient
         public string KinkShellServerUsername { get; set; } = "";
         public string KinkShellServerPassword { get; set; } = "";
         public string IntifaceServerAddress { get; set; } = "localhost:12345";
+        public List<StoredShellCommand> SavedPatterns { get; set; } = new List<StoredShellCommand> { DefaultPatterns.Ripple, DefaultPatterns.Shockwave };
 
         [NonSerialized]
         public AccountAuthenticatedResponse KinkShellAuthenticatedUserData;

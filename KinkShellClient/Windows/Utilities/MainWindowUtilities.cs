@@ -74,6 +74,19 @@ namespace KinkShellClient.Windows.Utilities
             }
         }
 
+        public static async Task DeleteShell(Plugin plugin, MainWindow window, KinkShell kinkShell)
+        {
+            window.State.ClearErrors();
+
+            var result = await plugin.ConnectionHandler.DeleteShell(kinkShell.ShellID);
+
+            if (result != HttpStatusCode.OK)
+            {
+                window.State.OnError("Error deleting the shell");
+                FixStateIfUnauthenticated(result, window);
+            }
+        }
+
         public static async Task UpdateShellUsers(Plugin plugin, MainWindow window, Guid shell, List<Guid> users)
         {
             window.State.ClearErrors();

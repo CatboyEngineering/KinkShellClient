@@ -107,6 +107,7 @@ namespace KinkShellClient.Windows
             ImGui.Spacing();
 
             DrawUISectionShellList();
+            DrawUIConnectedToys();
             DrawUILogOutButton();
         }
 
@@ -156,11 +157,20 @@ namespace KinkShellClient.Windows
                     }
                 }
             }
+        }
 
-            // TODO testing
-            foreach(var toy in Plugin.ToyController.Client.Devices)
+        private void DrawUIConnectedToys()
+        {
+            ImGui.Spacing();
+
+            foreach (var toy in Plugin.ToyController.Client.Devices)
             {
-                ImGui.Text("Connected to " + toy.Name);
+                ImGui.BulletText("Connected to " + toy.Name);
+            }
+
+            if(ImGui.Button("Rescan Intiface"))
+            {
+                _ = Plugin.ToyController.Scan();
             }
         }
 
@@ -170,12 +180,12 @@ namespace KinkShellClient.Windows
             {
                 DrawUICenteredText("New Kinkshell");
                 ImGui.Spacing();
-                ImGui.InputText("Shell name", State.stringByteBuffer, (uint)State.stringByteBuffer.Length);
+                ImGui.InputText("Shell name", ref State.stringBuffer, 64);
 
                 if (ImGui.Button("Create Shell"))
                 {
-                    var newShellName = Encoding.UTF8.GetString(State.stringByteBuffer, 0, State.stringByteBuffer.Length);
-                    
+                    var newShellName = State.stringBuffer.Trim();
+
                     if (newShellName.Length > 0)
                     {
                         State.ResetStringBuffer();
@@ -205,12 +215,12 @@ namespace KinkShellClient.Windows
                 ImGui.Spacing();
 
                 ImGui.Text("New User ID:");
-                ImGui.InputText("", State.stringByteBuffer, (uint)State.stringByteBuffer.Length);
+                ImGui.InputText("", ref State.stringBuffer, 40, ImGuiInputTextFlags.EnterReturnsTrue);
                 ImGui.SameLine();
 
                 if (ImGui.Button("Add"))
                 {
-                    var newUser = Encoding.UTF8.GetString(State.stringByteBuffer, 0, 36);
+                    var newUser = State.stringBuffer.Trim();
 
                     if (newUser.Length > 0 && Guid.TryParse(newUser, out Guid newGuid))
                     {
@@ -275,7 +285,18 @@ namespace KinkShellClient.Windows
                     ImGui.CloseCurrentPopup();
                 }
 
-                if (State.HasError)
+                ImGui.SameLine();
+                if (ImGui.Button("Delete Shell"))
+                {
+                    _ = MainWindowUtilities.DeleteShell(Plugin, this, kinkShell);
+
+                    State.GuidsToAdd.Clear();
+                    State.GuidsToDelete.Clear();
+
+                    ImGui.CloseCurrentPopup();
+                }
+
+                    if (State.HasError)
                 {
                     DrawUIErrorText(State.ErrorText);
                 }

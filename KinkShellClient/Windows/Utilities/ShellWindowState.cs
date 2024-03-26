@@ -8,8 +8,8 @@ namespace KinkShellClient.Windows.Utilities
         public KinkShell KinkShell { get; set; }
         public ShellSession Session { get; set; }
 
-        public byte[] stringByteBuffer;
         public string stringBuffer;
+        public int intBuffer = 0;
 
         public ShellWindowState(Plugin plugin, KinkShell kinkShell)
         {
@@ -26,7 +26,7 @@ namespace KinkShellClient.Windows.Utilities
 
         public void ResetStringBuffer()
         {
-            stringByteBuffer = new byte[500];
+            intBuffer = 0;
             stringBuffer = "";
         }
     }

@@ -4,10 +4,9 @@ using System.Collections.Generic;
 
 namespace CatboyEngineering.KinkShell.Models.API.WebSocket
 {
-    public struct ShellSocketCommandRequest
+    public struct ShellSocketCommandResponse
     {
         public Guid ShellID { get; set; }
-        public List<Guid> Targets { get; set; }
         public ShellCommand Command { get; set; }
     }
 }

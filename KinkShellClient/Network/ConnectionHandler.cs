@@ -1,4 +1,5 @@
 ﻿using CatboyEngineering.KinkShell.Models.API.WebSocket;
+using CatboyEngineering.KinkShell.Models.Toy;
 using FFXIVClientStructs.Havok;
 using KinkShellClient.Models;
 using KinkShellClient.Models.API.Request;
@@ -10,6 +11,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.WebSockets;
 using System.Text;
@@ -94,6 +96,20 @@ namespace KinkShellClient.Network
                 var shell = Plugin.Configuration.Shells.Find(s => s.ShellID == shellID);
 
                 shell.Users = response.Result.Value.Users;
+            }
+
+            return response.StatusCode;
+        }
+
+        public async Task<HttpStatusCode> DeleteShell(Guid shellID)
+        {
+            var response = await Plugin.HTTP.Delete<KinkShell>($"shell/{shellID}");
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var shell = Plugin.Configuration.Shells.Find(s => s.ShellID == shellID);
+
+                Plugin.Configuration.Shells.Remove(shell);
             }
 
             return response.StatusCode;
@@ -200,6 +216,25 @@ namespace KinkShellClient.Network
             await Plugin.HTTP.SendWebSocketMessage(shellSession, connectMessage);
         }
 
+        public async Task SendShellCommand(ShellSession shellSession, List<Guid> targets, StoredShellCommand storedShellCommand)
+        {
+            var connectMessage = new ShellSocketMessage
+            {
+                MessageType = ShellSocketMessageType.COMMAND,
+                MessageData = JObject.FromObject(new ShellSocketCommandRequest
+                {
+                    ShellID = shellSession.KinkShell.ShellID,
+                    Targets = targets,
+                    Command = new ShellCommand
+                    {
+                        Instructions = storedShellCommand.Instructions
+                    }
+                })
+            };
+
+            await Plugin.HTTP.SendWebSocketMessage(shellSession, connectMessage);
+        }
+
         private async Task HandleWebSocketResponse(string message, ShellSession session)
         {
             var messageBody = JObject.Parse(message);
@@ -256,7 +291,7 @@ namespace KinkShellClient.Network
 
         private async Task HandleUserCommandMessage(ShellSocketMessage message, ShellSession session)
         {
-            var request = APIRequestMapper.MapRequestToModel<ShellSocketCommandRequest>(message.MessageData);
+            var request = APIRequestMapper.MapRequestToModel<ShellSocketCommandResponse>(message.MessageData);
 
             if (request != null)
             {

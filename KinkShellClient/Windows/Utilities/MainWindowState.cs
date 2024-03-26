@@ -16,7 +16,7 @@ namespace KinkShellClient.Windows.Utilities
         public List<Guid> GuidsToAdd { get; set; }
         public List<Guid> GuidsToDelete { get; set; }
 
-        public byte[] stringByteBuffer;
+        public string stringBuffer;
 
         public MainWindowState(Plugin plugin)
         {
@@ -48,7 +48,7 @@ namespace KinkShellClient.Windows.Utilities
 
         public void ResetStringBuffer()
         {
-            stringByteBuffer = new byte[40];
+            stringBuffer = "";
         }
 
         public void OnError(string error)

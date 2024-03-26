@@ -1,7 +1,9 @@
-﻿using Dalamud.Interface.Windowing;
+﻿using CatboyEngineering.KinkShell.Models.Toy;
+using Dalamud.Interface.Windowing;
 using KinkShellClient.ShellData;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -21,9 +23,35 @@ namespace KinkShellClient.Windows.Utilities
             await plugin.ConnectionHandler.SendShellChatMessage(session, message);
         }
 
+        public static async Task SendCommand(Plugin plugin, ShellSession session, List<Guid> targets, StoredShellCommand storedShellCommand)
+        {
+            await plugin.ConnectionHandler.SendShellCommand(session, targets, storedShellCommand);
+        }
+
         public static async Task DisconnectFromShellWebSocket(Plugin plugin, KinkShell kinkShell)
         {
             await plugin.ConnectionHandler.CloseConnection(kinkShell);
+        }
+
+        public static string[] GetListOfUsers(ShellSession session)
+        {
+            var userList = session.ConnectedUsers.Select(cu => cu.DisplayName).ToList();
+
+            userList.Insert(0, "Everyone");
+
+            return userList.ToArray();
+        }
+
+        public static List<Guid> GetTargetList(int selected, string[] list, ShellSession session)
+        {
+            if(selected == 0)
+            {
+                return session.ConnectedUsers.Select(cu => cu.AccountID).ToList();
+            }
+            else
+            {
+                return new List<Guid> { session.ConnectedUsers.Find(cu => cu.DisplayName.Equals(list[selected])).AccountID };
+            }
         }
     }
 }

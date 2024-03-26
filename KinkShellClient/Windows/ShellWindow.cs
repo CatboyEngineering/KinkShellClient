@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
@@ -65,11 +66,34 @@ namespace KinkShellClient.Windows
             }
 
             ImGui.Spacing();
-            // TODO: intiface actions
-            ImGui.Text("PLACEHOLDER FOR INTIFACE ACTIONS");
+            
+            DrawUIPatternCenter();
+
             ImGui.Spacing();
 
             DrawUIChatWindow();
+        }
+
+        private void DrawUIPatternCenter()
+        {
+            var width = ImGui.GetWindowWidth();
+            ImGui.BeginChild("ToyControlCenter", new Vector2(width - 15, 100), true);
+
+            var userList = ShellWindowUtilities.GetListOfUsers(State.Session);
+            if (ImGui.Combo("Target", ref State.intBuffer, userList, userList.Length)) {
+                ImGui.Text($"Selected {userList[State.intBuffer]}");
+            }
+
+            foreach (var pattern in Plugin.Configuration.SavedPatterns)
+            {
+                if (ImGui.Button(pattern.Name))
+                {
+                    var targets = ShellWindowUtilities.GetTargetList(State.intBuffer, userList, State.Session);
+                    _ = ShellWindowUtilities.SendCommand(Plugin, State.Session, targets, pattern);
+                }
+            }
+
+            ImGui.EndChild();
         }
 
         private void DrawUIChatWindow()
