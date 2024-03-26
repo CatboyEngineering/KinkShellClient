@@ -23,10 +23,7 @@ namespace CatboyEngineering.KinkShellClient.Network
         public HTTPHandler(Plugin plugin)
         {
             Plugin = plugin;
-            Http = new HttpClient()
-            {
-                BaseAddress = new Uri("http://" + Plugin.Configuration.KinkShellServerAddress + "/v1/")
-            };
+            Http = new HttpClient();
         }
 
         public async Task<APIResponse<T>> Get<T>(string uri) where T : struct
@@ -84,6 +81,7 @@ namespace CatboyEngineering.KinkShellClient.Network
 
         private async Task<APIResponse<T>> GetHTTP<T>(HttpMethod method, string uri, JObject? body) where T : struct
         {
+            uri = $"https://{Plugin.Configuration.KinkShellServerAddress}/v1/{uri}";
             StringContent stringContent = null;
 
             if (body != null)
