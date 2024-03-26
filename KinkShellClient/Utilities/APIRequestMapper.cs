@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace KinkShellClient.Utilities
+namespace CatboyEngineering.KinkShellClient.Utilities
 {
     public static class APIRequestMapper
     {

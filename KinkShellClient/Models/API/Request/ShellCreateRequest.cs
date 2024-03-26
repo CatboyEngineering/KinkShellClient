@@ -1,4 +1,4 @@
-﻿namespace KinkShellClient.Models.API.Request
+﻿namespace CatboyEngineering.KinkShellClient.Models.API.Request
 {
     public struct ShellCreateRequest
     {

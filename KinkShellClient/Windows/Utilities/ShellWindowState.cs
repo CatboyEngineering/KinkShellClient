@@ -1,6 +1,6 @@
-﻿using KinkShellClient.ShellData;
+﻿using CatboyEngineering.KinkShellClient.ShellData;
 
-namespace KinkShellClient.Windows.Utilities
+namespace CatboyEngineering.KinkShellClient.Windows.Utilities
 {
     public class ShellWindowState
     {

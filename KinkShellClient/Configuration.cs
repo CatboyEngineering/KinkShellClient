@@ -1,13 +1,13 @@
-﻿using CatboyEngineering.KinkShell.Models.Toy;
-using CatboyEngineering.KinkShell.Toy;
+﻿using CatboyEngineering.KinkShellClient.Models.API.Response;
+using CatboyEngineering.KinkShellClient.Models.Toy;
+using CatboyEngineering.KinkShellClient.ShellData;
+using CatboyEngineering.KinkShellClient.Toy;
 using Dalamud.Configuration;
 using Dalamud.Plugin;
-using KinkShellClient.Models.API.Response;
-using KinkShellClient.ShellData;
 using System;
 using System.Collections.Generic;
 
-namespace KinkShellClient
+namespace CatboyEngineering.KinkShellClient
 {
     [Serializable]
     public class Configuration : IPluginConfiguration

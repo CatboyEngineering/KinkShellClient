@@ -1,13 +1,13 @@
 ﻿using Dalamud.Game.Command;
 using Dalamud.Plugin.Services;
-using KinkShellClient.Windows;
+using CatboyEngineering.KinkShellClient.Windows;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KinkShellClient
+namespace CatboyEngineering.KinkShellClient
 {
     public class CommandHandler : IDisposable
     {

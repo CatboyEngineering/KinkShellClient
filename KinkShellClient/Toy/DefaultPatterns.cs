@@ -1,11 +1,7 @@
-﻿using CatboyEngineering.KinkShell.Models.Toy;
-using System;
+﻿using CatboyEngineering.KinkShellClient.Models.Toy;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace CatboyEngineering.KinkShell.Toy
+namespace CatboyEngineering.KinkShellClient.Toy
 {
     public static class DefaultPatterns
     {

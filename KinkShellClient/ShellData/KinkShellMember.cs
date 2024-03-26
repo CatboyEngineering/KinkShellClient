@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KinkShellClient.ShellData
+namespace CatboyEngineering.KinkShellClient.ShellData
 {
     public struct KinkShellMember
     {

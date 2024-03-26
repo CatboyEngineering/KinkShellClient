@@ -1,11 +1,11 @@
-﻿using CatboyEngineering.KinkShell.Toy;
+﻿using CatboyEngineering.KinkShellClient.Network;
+using CatboyEngineering.KinkShellClient.Toy;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
-using KinkShellClient.Network;
 using XivCommon;
 
-namespace KinkShellClient
+namespace CatboyEngineering.KinkShellClient
 {
     public sealed class Plugin : IDalamudPlugin
     {
@@ -19,6 +19,8 @@ namespace KinkShellClient
         public XivCommonBase Common { get; }
         public ToyController ToyController { get; }
         public IPluginLog Logger { get; set; }
+
+        public string Name => "KinkShellClient";
 
         public Plugin(
             [RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,

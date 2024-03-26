@@ -1,13 +1,11 @@
-﻿using CatboyEngineering.KinkShell.Models.Toy;
-using Dalamud.Interface.Windowing;
-using KinkShellClient.ShellData;
+﻿using CatboyEngineering.KinkShellClient.Models.Toy;
+using CatboyEngineering.KinkShellClient.ShellData;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 
-namespace KinkShellClient.Windows.Utilities
+namespace CatboyEngineering.KinkShellClient.Windows.Utilities
 {
     public class ShellWindowUtilities
     {

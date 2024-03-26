@@ -1,14 +1,10 @@
 ﻿using Buttplug.Client;
 using Buttplug.Client.Connectors.WebsocketConnector;
-using CatboyEngineering.KinkShell.Models.Toy;
-using KinkShellClient;
+using CatboyEngineering.KinkShellClient.Models.Toy;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace CatboyEngineering.KinkShell.Toy
+namespace CatboyEngineering.KinkShellClient.Toy
 {
     public class ToyController
     {

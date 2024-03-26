@@ -1,8 +1,8 @@
-﻿using KinkShellClient.Models;
+﻿using CatboyEngineering.KinkShellClient.Models;
 using System.Collections.Generic;
 using System.Net.WebSockets;
 
-namespace KinkShellClient.ShellData
+namespace CatboyEngineering.KinkShellClient.ShellData
 {
     public class ShellSession
     {

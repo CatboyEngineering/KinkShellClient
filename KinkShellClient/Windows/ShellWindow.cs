@@ -1,16 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-using Dalamud.Game.Text.SeStringHandling;
-using Dalamud.Interface.Utility;
+﻿using CatboyEngineering.KinkShellClient.ShellData;
+using CatboyEngineering.KinkShellClient.Windows.Utilities;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
-using KinkShellClient.ShellData;
-using KinkShellClient.Windows.Utilities;
+using System;
+using System.Numerics;
 
-namespace KinkShellClient.Windows
+namespace CatboyEngineering.KinkShellClient.Windows
 {
     public class ShellWindow : Window, IDisposable
     {

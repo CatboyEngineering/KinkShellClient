@@ -1,25 +1,20 @@
-﻿using CatboyEngineering.KinkShell.Models.API.WebSocket;
-using CatboyEngineering.KinkShell.Models.Toy;
-using FFXIVClientStructs.Havok;
-using KinkShellClient.Models;
-using KinkShellClient.Models.API.Request;
-using KinkShellClient.Models.API.Response;
-using KinkShellClient.Models.API.WebSocket;
-using KinkShellClient.ShellData;
-using KinkShellClient.Utilities;
-using Newtonsoft.Json;
+﻿using CatboyEngineering.KinkShellClient.Models;
+using CatboyEngineering.KinkShellClient.Models.API.Request;
+using CatboyEngineering.KinkShellClient.Models.API.Response;
+using CatboyEngineering.KinkShellClient.Models.API.WebSocket;
+using CatboyEngineering.KinkShellClient.Models.Toy;
+using CatboyEngineering.KinkShellClient.ShellData;
+using CatboyEngineering.KinkShellClient.Utilities;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using static System.Collections.Specialized.BitVector32;
 
-namespace KinkShellClient.Network
+namespace CatboyEngineering.KinkShellClient.Network
 {
     public class ConnectionHandler
     {

@@ -1,8 +1,7 @@
-﻿using CatboyEngineering.KinkShell.Models.Toy;
+﻿using CatboyEngineering.KinkShellClient.Models.Toy;
 using System;
-using System.Collections.Generic;
 
-namespace CatboyEngineering.KinkShell.Models.API.WebSocket
+namespace CatboyEngineering.KinkShellClient.Models.API.WebSocket
 {
     public struct ShellSocketCommandResponse
     {

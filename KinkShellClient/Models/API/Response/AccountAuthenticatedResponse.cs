@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace KinkShellClient.Models.API.Response
+namespace CatboyEngineering.KinkShellClient.Models.API.Response
 {
     public struct AccountAuthenticatedResponse
     {

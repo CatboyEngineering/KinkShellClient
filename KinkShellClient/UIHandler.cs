@@ -1,14 +1,14 @@
 ﻿using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
-using KinkShellClient.ShellData;
-using KinkShellClient.Windows;
+using CatboyEngineering.KinkShellClient.ShellData;
+using CatboyEngineering.KinkShellClient.Windows;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KinkShellClient
+namespace CatboyEngineering.KinkShellClient
 {
     public class UIHandler : IDisposable
     {

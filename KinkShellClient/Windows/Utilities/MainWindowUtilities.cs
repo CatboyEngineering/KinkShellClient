@@ -1,11 +1,11 @@
 ﻿using Dalamud.Interface.Windowing;
-using KinkShellClient.ShellData;
+using CatboyEngineering.KinkShellClient.ShellData;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace KinkShellClient.Windows.Utilities
+namespace CatboyEngineering.KinkShellClient.Windows.Utilities
 {
     public class MainWindowUtilities
     {

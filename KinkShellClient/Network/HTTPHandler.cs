@@ -1,6 +1,6 @@
-﻿using KinkShellClient.Models.API.WebSocket;
-using KinkShellClient.ShellData;
-using KinkShellClient.Utilities;
+﻿using CatboyEngineering.KinkShellClient.Models.API.WebSocket;
+using CatboyEngineering.KinkShellClient.ShellData;
+using CatboyEngineering.KinkShellClient.Utilities;
 using Lumina.Excel.GeneratedSheets2;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -13,7 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using static System.Net.WebRequestMethods;
 
-namespace KinkShellClient.Network
+namespace CatboyEngineering.KinkShellClient.Network
 {
     public class HTTPHandler
     {

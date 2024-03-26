@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace KinkShellClient.ShellData
+namespace CatboyEngineering.KinkShellClient.ShellData
 {
     public struct KinkShell
     {

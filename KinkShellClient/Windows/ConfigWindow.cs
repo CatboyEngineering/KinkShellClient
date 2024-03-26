@@ -3,7 +3,7 @@ using System.Numerics;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
 
-namespace KinkShellClient.Windows
+namespace CatboyEngineering.KinkShellClient.Windows
 {
     public class ConfigWindow : Window, IDisposable
     {

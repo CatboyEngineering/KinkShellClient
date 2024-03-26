@@ -1,13 +1,13 @@
 ﻿using Dalamud.Interface.Windowing;
 using Dalamud.Utility;
 using ImGuiNET;
-using KinkShellClient.ShellData;
-using KinkShellClient.Windows.Utilities;
+using CatboyEngineering.KinkShellClient.ShellData;
+using CatboyEngineering.KinkShellClient.Windows.Utilities;
 using System;
 using System.Numerics;
 using System.Text;
 
-namespace KinkShellClient.Windows
+namespace CatboyEngineering.KinkShellClient.Windows
 {
     public class MainWindow : Window, IDisposable
     {

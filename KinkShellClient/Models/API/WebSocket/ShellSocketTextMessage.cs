@@ -1,8 +1,8 @@
-﻿using KinkShellClient.ShellData;
+﻿using CatboyEngineering.KinkShellClient.ShellData;
 using System;
 using System.Collections.Generic;
 
-namespace KinkShellClient.Models.API.WebSocket
+namespace CatboyEngineering.KinkShellClient.Models.API.WebSocket
 {
     public struct ShellSocketTextMessage
     {

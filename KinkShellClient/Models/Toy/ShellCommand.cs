@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CatboyEngineering.KinkShell.Models.Toy
+namespace CatboyEngineering.KinkShellClient.Models.Toy
 {
     public struct ShellCommand
     {

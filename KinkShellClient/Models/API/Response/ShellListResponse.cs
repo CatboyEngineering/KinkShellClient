@@ -1,7 +1,7 @@
-﻿using KinkShellClient.ShellData;
+﻿using CatboyEngineering.KinkShellClient.ShellData;
 using System.Collections.Generic;
 
-namespace KinkShellClient.Models.API.Response
+namespace CatboyEngineering.KinkShellClient.Models.API.Response
 {
     public struct ShellListResponse
     {
