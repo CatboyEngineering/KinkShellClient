@@ -101,7 +101,9 @@ namespace CatboyEngineering.KinkShellClient.Windows
             {
                 var selfTextColor = this.WorkingCopy.SelfTextColor;
 
-                if (ImGui.ColorPicker4("Chat Color", ref selfTextColor))
+                ImGui.Text("Your Chat Message Color:");
+
+                if (ImGui.ColorPicker4("##ChatColorPicker", ref selfTextColor))
                 {
                     this.WorkingCopy.SelfTextColor = selfTextColor;
                 }

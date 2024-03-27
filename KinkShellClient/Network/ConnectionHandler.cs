@@ -210,7 +210,6 @@ namespace CatboyEngineering.KinkShellClient.Network
                 })
             };
 
-
             await Plugin.HTTP.SendWebSocketMessage(shellSession, connectMessage);
         }
 

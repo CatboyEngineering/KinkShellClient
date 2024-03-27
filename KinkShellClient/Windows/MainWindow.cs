@@ -24,7 +24,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
         public override void OnClose()
         {
             base.OnClose();
-            _ = Plugin.ToyController.Disconnect();
+            DisconnectAll();
         }
 
         public override void Draw()
@@ -171,20 +171,56 @@ namespace CatboyEngineering.KinkShellClient.Windows
                     }
                 }
             }
+
+            ImGui.Unindent();
         }
 
         private void DrawUIConnectedToys()
         {
             ImGui.Spacing();
 
-            foreach (var toy in Plugin.ToyController.Client.Devices)
+            if (Plugin.ToyController.Client != null)
             {
-                ImGui.BulletText("Connected to " + toy.Name);
-            }
+                if (Plugin.ToyController.Client.Connected)
+                {
+                    ImGui.Text("Intiface Connected!");
 
-            if(ImGui.Button("Rescan Intiface"))
+                    var width = ImGui.GetWindowWidth();
+                    ImGui.BeginChild("IntifaceWindow", new Vector2(width - 15, 75), true);
+
+                    if (Plugin.ToyController.Client.Devices.Length > 0)
+                    {
+                        foreach (var toy in Plugin.ToyController.Client.Devices)
+                        {
+                            ImGui.BulletText("Connected to " + toy.Name);
+                        }
+                    }
+                    else
+                    {
+                        ImGui.Text("No Connected Devices");
+                    }
+
+                    if (ImGui.Button("Re-scan"))
+                    {
+                        _ = Plugin.ToyController.Scan();
+                    }
+
+                    ImGui.EndChild();
+                }
+                else
+                {
+                    ImGui.Text("Intiface not connected");
+                    ImGui.SameLine();
+
+                    if (ImGui.Button("Retry"))
+                    {
+                        _ = Plugin.ToyController.Connect();
+                    }
+                }
+            }
+            else
             {
-                _ = Plugin.ToyController.Scan();
+                ImGui.Text("Intiface connecting...");
             }
         }
 
@@ -335,12 +371,11 @@ namespace CatboyEngineering.KinkShellClient.Windows
             // Put logout button in right corner.
             var buttonTextWidth = ImGui.CalcTextSize("Log Out").X;
             var windowWidth = ImGui.GetWindowSize().X;
-            ImGui.SetCursorPosX((windowWidth - buttonTextWidth) * 0.75f);
+            ImGui.SetCursorPosX((windowWidth - buttonTextWidth) * 0.90f);
 
             if (ImGui.Button("Log Out"))
             {
-                _ = MainWindowUtilities.LogOut(Plugin, this);
-                _ = Plugin.ToyController.Disconnect();
+                DisconnectAll();
             }
         }
 
@@ -364,6 +399,12 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
             ImGui.SetCursorPosX((windowWidth - textWidth) * 0.5f);
             ImGui.Text(text);
+        }
+
+        private void DisconnectAll()
+        {
+            _ = MainWindowUtilities.LogOut(Plugin, this);
+            _ = Plugin.ToyController.Disconnect();
         }
     }
 }
