@@ -1,4 +1,5 @@
 ﻿using CatboyEngineering.KinkShellClient.ShellData;
+using CatboyEngineering.KinkShellClient.Toy;
 using CatboyEngineering.KinkShellClient.Windows.Utilities;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
@@ -32,7 +33,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
         public override void Draw()
         {   
-            ImGui.SetNextWindowSize(new Vector2(500, 500), ImGuiCond.Always);
+            ImGui.SetNextWindowSize(new Vector2(500, 600), ImGuiCond.Always);
 
             if (ImGui.Begin(this.WindowName))
             {
@@ -72,16 +73,16 @@ namespace CatboyEngineering.KinkShellClient.Windows
         private void DrawUIPatternCenter()
         {
             var width = ImGui.GetWindowWidth();
-            ImGui.BeginChild("ToyControlCenter", new Vector2(width - 15, 100), true);
+            ImGui.BeginChild("ToyControlCenter", new Vector2(width - 15, 150), true);
 
             var userList = ShellWindowUtilities.GetListOfUsers(State.Session);
             if (ImGui.Combo("Target", ref State.intBuffer, userList, userList.Length)) {
                 ImGui.Text($"Selected {userList[State.intBuffer]}");
             }
 
-            foreach (var pattern in Plugin.Configuration.SavedPatterns)
+            foreach (var pattern in ShellWindowUtilities.GetAvailableShellCommands(Plugin))
             {
-                if (ImGui.Button(pattern.Name))
+                if (ImGui.Button($"{pattern.Name}"))
                 {
                     var targets = ShellWindowUtilities.GetTargetList(State.intBuffer, userList, State.Session);
                     _ = ShellWindowUtilities.SendCommand(Plugin, State.Session, targets, pattern);
@@ -93,13 +94,23 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
         private void DrawUIChatWindow()
         {
+            ImGui.Text("Chat:");
             var width = ImGui.GetWindowWidth();
             ImGui.BeginChild("ChatWindow", new Vector2(width-15, 175), true);
 
             foreach(var message in State.Session.Messages)
             {
                 var time = message.DateTime.ToLocalTime().ToString("t");
+
+                ImGui.PushStyleColor(ImGuiCol.Text, message.TextColor);
                 ImGui.TextWrapped($"[{time}] {message.DisplayName}: {message.Message}");
+                ImGui.PopStyleColor();
+            }
+
+            if(State.Session.ScrollMessages)
+            {
+                ImGui.SetScrollHereY();
+                State.Session.ScrollMessages = false;
             }
 
             ImGui.EndChild();
