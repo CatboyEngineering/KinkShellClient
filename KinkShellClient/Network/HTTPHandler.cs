@@ -53,7 +53,7 @@ namespace CatboyEngineering.KinkShellClient.Network
 
         public async Task<ClientWebSocket> ConnectWebSocket(string uri, ShellSession shellSession)
         {
-            var fqdn = "wss://" + Plugin.Configuration.KinkShellServerAddress + "/" + uri;
+            var fqdn = $"{(Plugin.Configuration.KinkShellSecure ? "wss" : "ws")}://{Plugin.Configuration.KinkShellServerAddress}/{uri}";
             var ws = new ClientWebSocket();
 
             ws.Options.SetRequestHeader("Authorization", $"Bearer {Plugin.Configuration.KinkShellAuthenticatedUserData.AuthToken}");
@@ -81,7 +81,7 @@ namespace CatboyEngineering.KinkShellClient.Network
 
         private async Task<APIResponse<T>> GetHTTP<T>(HttpMethod method, string uri, JObject? body) where T : struct
         {
-            uri = $"https://{Plugin.Configuration.KinkShellServerAddress}/v1/{uri}";
+            uri = $"{(Plugin.Configuration.KinkShellSecure ? "https" : "http")}://{Plugin.Configuration.KinkShellServerAddress}/v1/{uri}";
             StringContent stringContent = null;
 
             if (body != null)

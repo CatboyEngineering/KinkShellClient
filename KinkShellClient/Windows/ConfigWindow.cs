@@ -23,7 +23,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
         public override void Draw()
         {   
-            ImGui.SetNextWindowSize(new Vector2(410, 190), ImGuiCond.Always);
+            ImGui.SetNextWindowSize(new Vector2(400, 425), ImGuiCond.Always);
 
             if (ImGui.Begin("KinkShell Configuration"))
             {
@@ -42,6 +42,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
             {
                 DrawUIKinkshellServerTabItem();
                 DrawUIIntifaceServerTabItem();
+                DrawUIChatSettingsTabItem();
                 ImGui.EndTabBar();
             }
         }
@@ -53,6 +54,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
                 var shellServer = this.WorkingCopy.KinkShellServerAddress;
                 var shellUser = this.WorkingCopy.KinkShellServerUsername;
                 var shellPass = this.WorkingCopy.KinkShellServerPassword;
+                var secure = this.WorkingCopy.KinkShellSecure;
 
                 if (ImGui.InputText("Server Address", ref shellServer, 64))
                 {
@@ -69,6 +71,11 @@ namespace CatboyEngineering.KinkShellClient.Windows
                     this.WorkingCopy.KinkShellServerPassword = shellPass;
                 }
 
+                if(ImGui.Checkbox("Secure", ref secure))
+                {
+                    this.WorkingCopy.KinkShellSecure = secure;
+                }
+
                 ImGui.EndTabItem();
             }
         }
@@ -82,6 +89,21 @@ namespace CatboyEngineering.KinkShellClient.Windows
                 if (ImGui.InputText("Address", ref intifaceServer, 64))
                 {
                     this.WorkingCopy.IntifaceServerAddress = intifaceServer;
+                }
+
+                ImGui.EndTabItem();
+            }
+        }
+
+        private void DrawUIChatSettingsTabItem()
+        {
+            if (ImGui.BeginTabItem("Chat Settings"))
+            {
+                var selfTextColor = this.WorkingCopy.SelfTextColor;
+
+                if (ImGui.ColorPicker4("Chat Color", ref selfTextColor))
+                {
+                    this.WorkingCopy.SelfTextColor = selfTextColor;
                 }
 
                 ImGui.EndTabItem();

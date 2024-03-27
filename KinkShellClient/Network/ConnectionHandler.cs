@@ -5,6 +5,7 @@ using CatboyEngineering.KinkShellClient.Models.API.WebSocket;
 using CatboyEngineering.KinkShellClient.Models.Toy;
 using CatboyEngineering.KinkShellClient.ShellData;
 using CatboyEngineering.KinkShellClient.Utilities;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -204,9 +205,11 @@ namespace CatboyEngineering.KinkShellClient.Network
                 {
                     ShellID = shellSession.KinkShell.ShellID,
                     DateTime = DateTime.UtcNow,
-                    MessageText = message
+                    MessageText = message,
+                    TextColor = Plugin.Configuration.SelfTextColor
                 })
             };
+
 
             await Plugin.HTTP.SendWebSocketMessage(shellSession, connectMessage);
         }
@@ -279,7 +282,8 @@ namespace CatboyEngineering.KinkShellClient.Network
                 {
                     DisplayName = request.Value.UserFrom.DisplayName,
                     DateTime = request.Value.DateTime,
-                    Message = request.Value.MessageText
+                    Message = request.Value.MessageText,
+                    TextColor = request.Value.TextColor
                 });
             }
         }

@@ -101,7 +101,10 @@ namespace CatboyEngineering.KinkShellClient.Windows
             foreach(var message in State.Session.Messages)
             {
                 var time = message.DateTime.ToLocalTime().ToString("t");
+
+                ImGui.PushStyleColor(ImGuiCol.Text, message.TextColor);
                 ImGui.TextWrapped($"[{time}] {message.DisplayName}: {message.Message}");
+                ImGui.PopStyleColor();
             }
 
             if(State.Session.ScrollMessages)

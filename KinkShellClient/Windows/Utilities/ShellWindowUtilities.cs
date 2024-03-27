@@ -1,9 +1,12 @@
-﻿using CatboyEngineering.KinkShellClient.Models.Toy;
+﻿using CatboyEngineering.KinkShellClient.Models;
+using CatboyEngineering.KinkShellClient.Models.Toy;
 using CatboyEngineering.KinkShellClient.ShellData;
 using CatboyEngineering.KinkShellClient.Toy;
+using ImGuiNET;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 
 namespace CatboyEngineering.KinkShellClient.Windows.Utilities
