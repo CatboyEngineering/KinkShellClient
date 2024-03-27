@@ -1,10 +1,6 @@
 ﻿using CatboyEngineering.KinkShellClient.Models.Toy;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CatboyEngineering.KinkShellClient.Windows.Utilities
 {
@@ -14,7 +10,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
         {
             try
             {
-                return window.State.WorkingCommandCopy[window.State.intBuffer];
+                return window.State.WorkingCommandCopy[window.State.selectedPattern];
             }
             catch (Exception)
             {
@@ -45,7 +41,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
 
             window.Plugin.Configuration.SavedPatterns.Add(newPattern);
             window.State.SetDefauts();
-            window.State.intBuffer = window.Plugin.Configuration.SavedPatterns.IndexOf(newPattern);
+            window.State.selectedPattern = window.Plugin.Configuration.SavedPatterns.IndexOf(newPattern);
         }
 
         public static void SavePattern(PatternBuilderWindow window, StoredShellCommand storedShellCommand)

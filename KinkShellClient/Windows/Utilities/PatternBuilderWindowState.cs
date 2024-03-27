@@ -1,9 +1,5 @@
 ﻿using CatboyEngineering.KinkShellClient.Models.Toy;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CatboyEngineering.KinkShellClient.Windows.Utilities
 {
@@ -14,6 +10,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
 
         public string stringBuffer;
         public int intBuffer = 0;
+        public int selectedPattern;
         public List<PatternStateItem> patternStateItems;
 
         public PatternBuilderWindowState(Plugin plugin)
@@ -35,6 +32,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
         public void SetDefauts()
         {
             ResetBuffers();
+            selectedPattern = -1;
             patternStateItems = new List<PatternStateItem>();
             WorkingCommandCopy = new List<StoredShellCommand>(Plugin.Configuration.SavedPatterns);
         }

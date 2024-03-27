@@ -1,11 +1,12 @@
-﻿using System;
-using System.Linq;
-using System.Numerics;
-using CatboyEngineering.KinkShellClient.Models.Toy;
+﻿using CatboyEngineering.KinkShellClient.Models.Toy;
 using CatboyEngineering.KinkShellClient.Windows.Utilities;
 using Dalamud.Interface.Windowing;
 using Dalamud.Utility;
 using ImGuiNET;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 
 namespace CatboyEngineering.KinkShellClient.Windows
 {
@@ -28,7 +29,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
         public override void Draw()
         {
-            ImGui.SetNextWindowSize(new Vector2(800, 600), ImGuiCond.Always);
+            ImGui.SetNextWindowSize(new Vector2(600, 800), ImGuiCond.Always);
 
             if (ImGui.Begin("Pattern Builder"))
             {
@@ -49,15 +50,33 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
         private void DrawUISectionSelectPattern()
         {
-            ImGui.Text("Select a pattern");
-            if (ImGui.Combo("", ref State.intBuffer, State.WorkingCommandCopy.Select(c => c.Name).ToArray(), State.WorkingCommandCopy.Count))
-            {
-                var selectedPattern = PatternBuilderWindowUtilities.GetSelectedPattern(this);
+            ImGui.Text("Edit Pattern:");
 
-                if (selectedPattern != null)
+            var itemList = State.WorkingCommandCopy.Select(c => c.Name).ToArray();
+            var label = State.selectedPattern >= 0 ? itemList[State.selectedPattern] : "- Select Pattern -";
+
+            if (ImGui.BeginCombo("##selectPattern", label))
+            {
+                for (int i= 0; i<itemList.Length; i++)
                 {
-                    State.LoadPatternSteps(selectedPattern.Value);
+                    var selected = State.selectedPattern == i;
+
+                    if (ImGui.Selectable(State.WorkingCommandCopy[i].Name, selected))
+                    {
+                        State.selectedPattern = i;
+
+                        var selectedPattern = PatternBuilderWindowUtilities.GetSelectedPattern(this);
+
+                        State.LoadPatternSteps(selectedPattern.Value);
+                    }
+
+                    if (selected)
+                    {
+                        ImGui.SetItemDefaultFocus();
+                    }
                 }
+
+                ImGui.EndCombo();
             }
 
             ImGui.SameLine();
@@ -82,7 +101,8 @@ namespace CatboyEngineering.KinkShellClient.Windows
             if (ImGui.BeginPopup("kinkshell_createpattern_dialog"))
             {
                 ImGui.Text("New Pattern Name:");
-                if (ImGui.InputText("Pattern Name", ref State.stringBuffer, 64, ImGuiInputTextFlags.EnterReturnsTrue))
+                ImGui.SetKeyboardFocusHere(1);
+                if (ImGui.InputText("##NewPatternName", ref State.stringBuffer, 64, ImGuiInputTextFlags.EnterReturnsTrue))
                 {
                     var newPatternName = State.stringBuffer.Trim();
 
@@ -103,13 +123,13 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
             if (ImGui.Button("Add Step"))
             {
-                selectedPattern?.Instructions.Add(new Pattern
+                State.patternStateItems.Add(new PatternStateItem(new Pattern
                 {
                     PatternType = PatternType.VIBRATE,
                     Intensity = 0.5,
                     Duration = 1000,
                     Delay = 1000,
-                });
+                }));
             }
 
             ImGui.SameLine();
@@ -126,7 +146,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
             if (selectedPattern != null)
             {
-                foreach (var pattern in State.patternStateItems)
+                foreach (var pattern in new List<PatternStateItem>(State.patternStateItems))
                 {
                     DrawUIPatternStep(pattern);
                 }
@@ -135,7 +155,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
         private void DrawUIPatternStep(PatternStateItem pattern)
         {
-            ImGui.BeginChild($"PatternStep##{pattern.TrackingID}", new Vector2(200, 150), true);
+            ImGui.BeginChild($"PatternStep##{pattern.TrackingID}", new Vector2(200, 125), true);
 
             if (ImGui.Combo("", ref pattern.patternIntBuffer, Enum.GetNames<PatternType>(), 4))
             {
@@ -149,19 +169,39 @@ namespace CatboyEngineering.KinkShellClient.Windows
                 State.patternStateItems.Remove(pattern);
             }
 
-            if (ImGui.InputDouble("I", ref pattern.intensityDoubleBuffer))
+            if (ImGui.InputDouble("Intensity", ref pattern.intensityDoubleBuffer, 0.05, 0.25, "%.2f"))
             {
+                if(pattern.intensityDoubleBuffer > 1)
+                {
+                    pattern.intensityDoubleBuffer = 1;
+                }
+
+                if (pattern.intensityDoubleBuffer < 0)
+                {
+                    pattern.intensityDoubleBuffer = 0;
+                }
+
                 pattern.NewIntensity = pattern.intensityDoubleBuffer;
             }
 
-            if (ImGui.InputInt("T", ref pattern.durationIntBuffer))
+            if (ImGui.InputDouble("Seconds", ref pattern.durationDoubleBuffer, 0.05, 0.25, "%.3f"))
             {
-                pattern.NewDuration = pattern.durationIntBuffer;
+                if (pattern.durationDoubleBuffer < 0)
+                {
+                    pattern.durationDoubleBuffer = 0;
+                }
+
+                pattern.NewDuration = (int)(pattern.durationDoubleBuffer * 1000);
             }
 
-            if (ImGui.InputInt("D", ref pattern.delayIntBuffer))
+            if (ImGui.InputDouble("Pause", ref pattern.delayDoubleBuffer, 0.05, 0.25, "%.3f"))
             {
-                pattern.NewDelay = pattern.delayIntBuffer;
+                if (pattern.delayDoubleBuffer < 0)
+                {
+                    pattern.delayDoubleBuffer = 0;
+                }
+
+                pattern.NewDelay = (int)(pattern.delayDoubleBuffer * 1000);
             }
 
             ImGui.EndChild();
