@@ -1,5 +1,6 @@
 ﻿using CatboyEngineering.KinkShellClient.Models.Toy;
 using CatboyEngineering.KinkShellClient.ShellData;
+using CatboyEngineering.KinkShellClient.Toy;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,6 +51,17 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
             {
                 return new List<Guid> { session.ConnectedUsers.Find(cu => cu.DisplayName.Equals(list[selected])).AccountID };
             }
+        }
+
+        public static List<StoredShellCommand> GetAvailableShellCommands(Plugin plugin)
+        {
+            var list = new List<StoredShellCommand>();
+
+            list.AddRange(plugin.Configuration.SavedPatterns);
+            list.Add(DefaultPatterns.Ripple);
+            list.Add(DefaultPatterns.Shockwave);
+
+            return list;
         }
     }
 }

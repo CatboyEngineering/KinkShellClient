@@ -275,7 +275,7 @@ namespace CatboyEngineering.KinkShellClient.Network
 
             if (request != null)
             {
-                session.Messages.Add(new ChatMessage
+                session.NewMessage(new ChatMessage
                 {
                     DisplayName = request.Value.UserFrom.DisplayName,
                     DateTime = request.Value.DateTime,

@@ -5,8 +5,6 @@ namespace CatboyEngineering.KinkShellClient.Toy
 {
     public static class DefaultPatterns
     {
-        public static readonly List<StoredShellCommand> Defaults = new List<StoredShellCommand> { Ripple, Shockwave };
-
         public static readonly StoredShellCommand Ripple = new()
         {
             Name = "Ripple",

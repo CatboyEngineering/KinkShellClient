@@ -12,6 +12,7 @@ namespace CatboyEngineering.KinkShellClient.ShellData
         public List<KinkShellMember> ConnectedUsers { get; }
         public ShellConnectionStatus Status { get; set; }
         public List<ChatMessage> Messages { get; set; }
+        public bool ScrollMessages { get; set; }
 
         public ShellSession(KinkShell kinkShell)
         {
@@ -19,6 +20,13 @@ namespace CatboyEngineering.KinkShellClient.ShellData
             Status = ShellConnectionStatus.CLOSED;
             ConnectedUsers = new List<KinkShellMember>();
             Messages = new List<ChatMessage>();
+            ScrollMessages = false;
+        }
+
+        public void NewMessage(ChatMessage message)
+        {
+            ScrollMessages = true;
+            this.Messages.Add(message);
         }
     }
 }
