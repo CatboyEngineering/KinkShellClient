@@ -53,7 +53,7 @@ namespace CatboyEngineering.KinkShellClient.Network
 
         public async Task<ClientWebSocket> ConnectWebSocket(string uri, ShellSession shellSession)
         {
-            var fqdn = "ws://" + Plugin.Configuration.KinkShellServerAddress + "/" + uri;
+            var fqdn = "wss://" + Plugin.Configuration.KinkShellServerAddress + "/" + uri;
             var ws = new ClientWebSocket();
 
             ws.Options.SetRequestHeader("Authorization", $"Bearer {Plugin.Configuration.KinkShellAuthenticatedUserData.AuthToken}");
