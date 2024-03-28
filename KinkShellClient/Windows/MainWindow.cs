@@ -170,6 +170,15 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
                         BuildUIPopupEditShell(shell);
                     }
+                    else
+                    {
+                        ImGui.SameLine();
+
+                        if(ImGui.Button($"Leave##{shell.ShellID}"))
+                        {
+                            _ = MainWindowUtilities.DeleteLeaveShell(Plugin, this, shell);
+                        }
+                    }
                 }
             }
 
@@ -353,7 +362,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
                 ImGui.SameLine();
                 if (ImGui.Button("Delete Shell"))
                 {
-                    _ = MainWindowUtilities.DeleteShell(Plugin, this, kinkShell);
+                    _ = MainWindowUtilities.DeleteLeaveShell(Plugin, this, kinkShell);
 
                     State.UsersToAdd.Clear();
                     State.GuidsToDelete.Clear();

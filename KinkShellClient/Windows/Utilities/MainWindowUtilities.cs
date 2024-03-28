@@ -75,7 +75,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
             }
         }
 
-        public static async Task DeleteShell(Plugin plugin, MainWindow window, KinkShell kinkShell)
+        public static async Task DeleteLeaveShell(Plugin plugin, MainWindow window, KinkShell kinkShell)
         {
             window.State.ClearErrors();
 
@@ -83,7 +83,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
 
             if (result != HttpStatusCode.OK)
             {
-                window.State.OnError("Error deleting the shell");
+                window.State.OnError("Error removing the shell");
                 FixStateIfUnauthenticated(result, window);
             }
         }
