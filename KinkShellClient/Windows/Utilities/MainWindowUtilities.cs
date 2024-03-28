@@ -22,7 +22,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
             }
             else
             {
-                window.State.OnError("Incorrect login");
+                window.State.OnError("Incorrect login or outdated client");
             }
         }
 
