@@ -39,6 +39,7 @@ namespace CatboyEngineering.KinkShellClient
 
             this.PluginInterface.UiBuilder.Draw += DrawUI;
             this.PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
+            this.PluginInterface.UiBuilder.OpenMainUi += OpenMainWindow;
         }
 
         public ShellWindow CreateShellWindow(ShellSession shellSession)
@@ -73,6 +74,11 @@ namespace CatboyEngineering.KinkShellClient
         private void DrawUI()
         {
             this.WindowSystem.Draw();
+        }
+
+        public void OpenMainWindow()
+        {
+            MainWindow.IsOpen = true;
         }
 
         public void DrawConfigUI()

@@ -1,4 +1,5 @@
-﻿using CatboyEngineering.KinkShellClient.ShellData;
+﻿using CatboyEngineering.KinkShellClient.Models;
+using CatboyEngineering.KinkShellClient.ShellData;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,10 +14,11 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
         public bool IsAuthenticated { get; set; }
         public bool HasError { get; set; }
         public string ErrorText { get; set; }
-        public List<Guid> GuidsToAdd { get; set; }
+        public List<ShellNewUser> UsersToAdd { get; set; }
         public List<Guid> GuidsToDelete { get; set; }
 
         public string stringBuffer;
+        public bool canSendCommands;
 
         public MainWindowState(Plugin plugin)
         {
@@ -25,13 +27,18 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
             SetDefauts();
         }
 
-        public List<Guid> GetShellMembers(KinkShell kinkShell)
+        public List<ShellNewUser> GetShellMembers(KinkShell kinkShell)
         {
-            var shellMembers = new List<Guid>();
+            var shellMembers = new List<ShellNewUser>();
 
-            shellMembers.AddRange(kinkShell.Users.Select(u => u.AccountID));
-            shellMembers.RemoveAll(GuidsToDelete.Contains);
-            shellMembers.AddRange(GuidsToAdd);
+            kinkShell.Users.ForEach(u => shellMembers.Add(new ShellNewUser
+            {
+                UserID = u.AccountID,
+                SendCommands = u.SendCommands
+            }));
+
+            shellMembers.RemoveAll(user => GuidsToDelete.Contains(user.UserID));
+            shellMembers.AddRange(UsersToAdd);
 
             return shellMembers;
         }
@@ -39,16 +46,17 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
         public void SetDefauts()
         {
             IsAuthenticated = false;
-            GuidsToAdd = new List<Guid>();
+            UsersToAdd = new List<ShellNewUser>();
             GuidsToDelete = new List<Guid>();
 
             ClearErrors();
-            ResetStringBuffer();
+            ResetBuffers();
         }
 
-        public void ResetStringBuffer()
+        public void ResetBuffers()
         {
             stringBuffer = "";
+            canSendCommands = false;
         }
 
         public void OnError(string error)

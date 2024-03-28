@@ -3,6 +3,7 @@ using CatboyEngineering.KinkShellClient.Models.Toy;
 using CatboyEngineering.KinkShellClient.ShellData;
 using CatboyEngineering.KinkShellClient.Toy;
 using ImGuiNET;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -65,6 +66,11 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
             list.Add(DefaultPatterns.Shockwave);
 
             return list;
+        }
+
+        public static KinkShellMember GetSelf(Plugin plugin, ShellSession shellSession)
+        {
+            return shellSession.ConnectedUsers.Find(u => u.AccountID == plugin.Configuration.KinkShellAuthenticatedUserData.AccountID);
         }
     }
 }

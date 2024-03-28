@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using CatboyEngineering.KinkShellClient.Models;
 
 namespace CatboyEngineering.KinkShellClient.Windows.Utilities
 {
@@ -21,7 +22,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
             }
             else
             {
-                window.State.OnError("Incorrect login");
+                window.State.OnError("Incorrect login or outdated client");
             }
         }
 
@@ -74,7 +75,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
             }
         }
 
-        public static async Task DeleteShell(Plugin plugin, MainWindow window, KinkShell kinkShell)
+        public static async Task DeleteLeaveShell(Plugin plugin, MainWindow window, KinkShell kinkShell)
         {
             window.State.ClearErrors();
 
@@ -82,12 +83,12 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
 
             if (result != HttpStatusCode.OK)
             {
-                window.State.OnError("Error deleting the shell");
+                window.State.OnError("Error removing the shell");
                 FixStateIfUnauthenticated(result, window);
             }
         }
 
-        public static async Task UpdateShellUsers(Plugin plugin, MainWindow window, Guid shell, List<Guid> users)
+        public static async Task UpdateShellUsers(Plugin plugin, MainWindow window, Guid shell, List<ShellNewUser> users)
         {
             window.State.ClearErrors();
 
