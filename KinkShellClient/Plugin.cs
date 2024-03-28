@@ -3,6 +3,7 @@ using CatboyEngineering.KinkShellClient.Toy;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
+using System.Reflection;
 using XivCommon;
 
 namespace CatboyEngineering.KinkShellClient
@@ -20,6 +21,7 @@ namespace CatboyEngineering.KinkShellClient
         public ToyController ToyController { get; }
         public IPluginLog Logger { get; set; }
 
+        public static readonly string Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? string.Empty;
         public string Name => "KinkShellClient";
 
         public Plugin(

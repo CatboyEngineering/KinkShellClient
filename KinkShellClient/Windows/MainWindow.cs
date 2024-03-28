@@ -6,6 +6,7 @@ using CatboyEngineering.KinkShellClient.Windows.Utilities;
 using System;
 using System.Numerics;
 using System.Text;
+using CatboyEngineering.KinkShellClient.Models;
 
 namespace CatboyEngineering.KinkShellClient.Windows
 {
@@ -238,7 +239,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
                     if (newShellName.Length > 0)
                     {
-                        State.ResetStringBuffer();
+                        State.ResetBuffers();
                         _ = MainWindowUtilities.CreateShell(Plugin, this, newShellName);
                         ImGui.CloseCurrentPopup();
                     }
@@ -266,16 +267,21 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
                 ImGui.Text("New User ID:");
                 ImGui.InputText("", ref State.stringBuffer, 40, ImGuiInputTextFlags.EnterReturnsTrue);
+                ImGui.Checkbox("Allow Commands?", ref State.canSendCommands);
                 ImGui.SameLine();
 
-                if (ImGui.Button("Add"))
+                if (ImGui.Button("Add User"))
                 {
                     var newUser = State.stringBuffer.Trim();
 
                     if (newUser.Length > 0 && Guid.TryParse(newUser, out Guid newGuid))
                     {
-                        State.GuidsToAdd.Add(newGuid);
-                        State.ResetStringBuffer();
+                        State.UsersToAdd.Add(new ShellNewUser
+                        {
+                            UserID = newGuid,
+                            SendCommands = State.canSendCommands
+                        });
+                        State.ResetBuffers();
                     }
                     else
                     {
@@ -283,22 +289,28 @@ namespace CatboyEngineering.KinkShellClient.Windows
                     }
                 }
 
-                foreach(var userToAdd in State.GuidsToAdd)
+                ImGui.Spacing();
+                ImGui.BeginChild("##ShellUserEditList", new Vector2(625, 175), true);
+
+                foreach (var userToAdd in State.UsersToAdd)
                 {
-                    ImGui.Text(userToAdd.ToString());
-                    ImGui.SameLine();
-                    ImGui.Spacing();
+                    ImGui.Text(userToAdd.UserID.ToString());
                     ImGui.SameLine();
                     ImGui.Text("(pending)");
+                    ImGui.SameLine();
+
+                    DrawUICommandsEnabled(userToAdd.SendCommands);
                 }
 
                 foreach (var currentUser in kinkShell.Users)
                 {
                     ImGui.Text(currentUser.AccountID.ToString());
                     ImGui.SameLine();
-                    ImGui.Spacing();
-                    ImGui.SameLine();
                     ImGui.Text($"({currentUser.DisplayName})");
+                    ImGui.SameLine();
+
+                    DrawUICommandsEnabled(currentUser.SendCommands);
+
                     ImGui.SameLine();
 
                     if (!State.GuidsToDelete.Contains(currentUser.AccountID))
@@ -314,10 +326,13 @@ namespace CatboyEngineering.KinkShellClient.Windows
                     }
                 }
 
-                if(ImGui.Button("Cancel"))
+                ImGui.EndChild();
+                ImGui.Spacing();
+
+                if (ImGui.Button("Cancel"))
                 {
-                    State.ResetStringBuffer();
-                    State.GuidsToAdd.Clear();
+                    State.ResetBuffers();
+                    State.UsersToAdd.Clear();
                     State.GuidsToDelete.Clear();
 
                     ImGui.CloseCurrentPopup();
@@ -325,11 +340,11 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
                 ImGui.SameLine();
 
-                if (ImGui.Button("Save"))
+                if (ImGui.Button("Save Changes"))
                 {
                     _ = MainWindowUtilities.UpdateShellUsers(Plugin, this, kinkShell.ShellID, State.GetShellMembers(kinkShell));
 
-                    State.GuidsToAdd.Clear();
+                    State.UsersToAdd.Clear();
                     State.GuidsToDelete.Clear();
 
                     ImGui.CloseCurrentPopup();
@@ -340,7 +355,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
                 {
                     _ = MainWindowUtilities.DeleteShell(Plugin, this, kinkShell);
 
-                    State.GuidsToAdd.Clear();
+                    State.UsersToAdd.Clear();
                     State.GuidsToDelete.Clear();
 
                     ImGui.CloseCurrentPopup();
@@ -352,6 +367,22 @@ namespace CatboyEngineering.KinkShellClient.Windows
                 }
 
                 ImGui.EndPopup();
+            }
+        }
+
+        private void DrawUICommandsEnabled(bool enabled)
+        {
+            if (enabled)
+            {
+                ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0f, 1f, 0f, 1f));
+                ImGui.Text($"[Commands enabled]");
+                ImGui.PopStyleColor();
+            }
+            else
+            {
+                ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1f, 0f, 0f, 1f));
+                ImGui.Text($"[Commands disabled]");
+                ImGui.PopStyleColor();
             }
         }
 

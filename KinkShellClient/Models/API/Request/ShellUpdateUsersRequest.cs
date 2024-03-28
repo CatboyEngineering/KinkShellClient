@@ -5,6 +5,6 @@ namespace CatboyEngineering.KinkShellClient.Models.API.Request
 {
     public struct ShellUpdateUsersRequest
     {
-        public List<Guid> Users { get; set; }
+        public List<ShellNewUser> Users { get; set; }
     }
 }

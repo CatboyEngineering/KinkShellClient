@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using CatboyEngineering.KinkShellClient.Models;
 
 namespace CatboyEngineering.KinkShellClient.Windows.Utilities
 {
@@ -87,7 +88,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
             }
         }
 
-        public static async Task UpdateShellUsers(Plugin plugin, MainWindow window, Guid shell, List<Guid> users)
+        public static async Task UpdateShellUsers(Plugin plugin, MainWindow window, Guid shell, List<ShellNewUser> users)
         {
             window.State.ClearErrors();
 

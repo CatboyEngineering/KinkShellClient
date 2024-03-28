@@ -35,7 +35,8 @@ namespace CatboyEngineering.KinkShellClient.Network
             var request = new AccountLoginRequest
             {
                 Username = Plugin.Configuration.KinkShellServerUsername,
-                Password = Plugin.Configuration.KinkShellServerPassword
+                Password = Plugin.Configuration.KinkShellServerPassword,
+                ClientVersionString = Plugin.Version
             };
 
             var response = await Plugin.HTTP.Post<AccountAuthenticatedResponse>("account", JObject.FromObject(request));
@@ -78,7 +79,7 @@ namespace CatboyEngineering.KinkShellClient.Network
             return response.StatusCode;
         }
 
-        public async Task<HttpStatusCode> UpdateShell(Guid shellID, List<Guid> users)
+        public async Task<HttpStatusCode> UpdateShell(Guid shellID, List<ShellNewUser> users)
         {
             var request = new ShellUpdateUsersRequest
             {

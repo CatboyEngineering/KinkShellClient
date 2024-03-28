@@ -62,8 +62,11 @@ namespace CatboyEngineering.KinkShellClient.Windows
             }
 
             ImGui.Spacing();
-            
-            DrawUIPatternCenter();
+
+            if (ShellWindowUtilities.GetSelf(Plugin, State.Session).SendCommands)
+            {
+                DrawUIPatternCenter();
+            }
 
             ImGui.Spacing();
 
@@ -72,6 +75,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
         private void DrawUIPatternCenter()
         {
+            ImGui.Text("Command center:");
             var width = ImGui.GetWindowWidth();
             ImGui.BeginChild("ToyControlCenter", new Vector2(width - 15, 150), true);
 
