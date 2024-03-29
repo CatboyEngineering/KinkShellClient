@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CatboyEngineering.KinkShellClient.Toy
 {
-    public class ToyController
+    public class ToyController : IDisposable
     {
         public Plugin Plugin { get; init; }
         public ButtplugWebsocketConnector Connector { get; private set; }
@@ -113,6 +113,14 @@ namespace CatboyEngineering.KinkShellClient.Toy
                 }
 
                 StopRequested = false;
+            }
+        }
+
+        public void Dispose()
+        {
+            if(Client.Connected)
+            {
+                Client.DisconnectAsync();
             }
         }
     }

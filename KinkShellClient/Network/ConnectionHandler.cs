@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace CatboyEngineering.KinkShellClient.Network
 {
-    public class ConnectionHandler
+    public class ConnectionHandler : IDisposable
     {
         // Organizes each connection this client has to the KinkShell server
         public List<ShellSession> Connections { get; }
@@ -305,6 +305,18 @@ namespace CatboyEngineering.KinkShellClient.Network
             else
             {
                 Plugin.Logger.Info("Rejected toy command due to user preferences.");
+            }
+        }
+
+        public void Dispose()
+        {
+            foreach(var connection in Connections)
+            {
+                if(connection.WebSocket != null)
+                {
+                    connection.WebSocket.Abort();
+                    connection.WebSocket.Dispose();
+                }
             }
         }
     }
