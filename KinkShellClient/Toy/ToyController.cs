@@ -37,7 +37,7 @@ namespace CatboyEngineering.KinkShellClient.Toy
             if (Client.Connected)
             {
                 await Client.StartScanningAsync();
-                await Task.Delay(5000);
+                await Task.Delay(3000);
                 await Client.StopScanningAsync();
             }
         }

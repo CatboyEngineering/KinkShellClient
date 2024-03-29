@@ -134,9 +134,20 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
             ImGui.SameLine();
 
-            if (ImGui.Button("Refresh"))
+            if (!State.isRequestInFlight)
             {
-                _ = MainWindowUtilities.GetUserShells(Plugin, this);
+                if (ImGui.Button("Refresh"))
+                {
+                    var task = MainWindowUtilities.GetUserShells(Plugin, this);
+
+                    _ = MainWindowUtilities.HandleWithIndicator(State, task, 500);
+                }
+            }
+            else
+            {
+                ImGui.BeginDisabled();
+                ImGui.Button("Refreshing...");
+                ImGui.EndDisabled();
             }
 
             BuildUIPopupCreateShell();
@@ -423,9 +434,21 @@ namespace CatboyEngineering.KinkShellClient.Windows
         {
             if (!Plugin.Configuration.KinkShellServerUsername.IsNullOrEmpty())
             {
-                if (ImGui.Button("Connect"))
+                if (!State.isRequestInFlight)
                 {
-                    _ = MainWindowUtilities.LogInAndRetrieve(Plugin, this);
+                    if (ImGui.Button("Connect"))
+                    {
+                        var task = MainWindowUtilities.LogInAndRetrieve(Plugin, this);
+
+                        _ = Plugin.ToyController.Connect();
+                        _ = MainWindowUtilities.HandleWithIndicator(State, task);
+                    }
+                }
+                else
+                {
+                    ImGui.BeginDisabled();
+                    ImGui.Button("Connecting...");
+                    ImGui.EndDisabled();
                 }
             }
         }

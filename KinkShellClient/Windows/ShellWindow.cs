@@ -81,27 +81,32 @@ namespace CatboyEngineering.KinkShellClient.Windows
             ImGui.BeginChild("ToyControlCenter", new Vector2(width - 15, 150), true);
 
             var userList = ShellWindowUtilities.GetListOfUsers(State.Session);
-            if (ImGui.Combo("Target", ref State.intBuffer, userList, userList.Length)) {
+            if (ImGui.Combo("Target", ref State.intBuffer, userList, userList.Length))
+            {
                 ImGui.Text($"Selected {userList[State.intBuffer]}");
             }
 
 
-            if(!State.onCooldown)
+            if (State.onCooldown)
             {
-                foreach (var pattern in ShellWindowUtilities.GetAvailableShellCommands(Plugin))
+                ImGui.BeginDisabled();
+            }
+
+            foreach (var pattern in ShellWindowUtilities.GetAvailableShellCommands(Plugin))
+            {
+                if (ImGui.Button($"{pattern.Name}"))
                 {
-                    if (ImGui.Button($"{pattern.Name}"))
-                    {
-                        var targets = ShellWindowUtilities.GetTargetList(State.intBuffer, userList, State.Session);
-                        _ = ShellWindowUtilities.SendCommand(Plugin, State.Session, targets, pattern);
-                        _ = ShellWindowUtilities.Cooldown(this);
-                    }
+                    var targets = ShellWindowUtilities.GetTargetList(State.intBuffer, userList, State.Session);
+                    _ = ShellWindowUtilities.SendCommand(Plugin, State.Session, targets, pattern);
+                    _ = ShellWindowUtilities.Cooldown(this);
                 }
             }
-            else
+
+            if (State.onCooldown)
             {
-                ImGui.Text("Please wait...");
+                ImGui.EndDisabled();
             }
+
 
             ImGui.EndChild();
         }
