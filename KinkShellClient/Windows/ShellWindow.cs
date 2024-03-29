@@ -33,7 +33,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
         public override void Draw()
         {   
-            ImGui.SetNextWindowSize(new Vector2(500, 600), ImGuiCond.Always);
+            ImGui.SetNextWindowSize(new Vector2(500, 675), ImGuiCond.Always);
 
             if (ImGui.Begin(this.WindowName))
             {
@@ -85,13 +85,22 @@ namespace CatboyEngineering.KinkShellClient.Windows
                 ImGui.Text($"Selected {userList[State.intBuffer]}");
             }
 
-            foreach (var pattern in ShellWindowUtilities.GetAvailableShellCommands(Plugin))
+
+            if(!State.onCooldown)
             {
-                if (ImGui.Button($"{pattern.Name}"))
+                foreach (var pattern in ShellWindowUtilities.GetAvailableShellCommands(Plugin))
                 {
-                    var targets = ShellWindowUtilities.GetTargetList(State.intBuffer, userList, State.Session);
-                    _ = ShellWindowUtilities.SendCommand(Plugin, State.Session, targets, pattern);
+                    if (ImGui.Button($"{pattern.Name}"))
+                    {
+                        var targets = ShellWindowUtilities.GetTargetList(State.intBuffer, userList, State.Session);
+                        _ = ShellWindowUtilities.SendCommand(Plugin, State.Session, targets, pattern);
+                        _ = ShellWindowUtilities.Cooldown(this);
+                    }
                 }
+            }
+            else
+            {
+                ImGui.Text("Please wait...");
             }
 
             ImGui.EndChild();
@@ -151,6 +160,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
         private void DrawUISafetyWindow()
         {
+            ImGui.Spacing();
             ImGui.Text("Safety Center:");
             var width = ImGui.GetWindowWidth();
             ImGui.BeginChild("##SafetyCenterWindow", new Vector2(width - 15, 75), true);
@@ -163,7 +173,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
                 State.Session.SelfUserReceiveCommands = State.receiveCommands;
             }
 
-            if(ImGui.Button("Stop Current Patterns##StopPatterns"))
+            if(ImGui.Button("Stop Current Pattern##StopPattern"))
             {
                 Plugin.ToyController.StopAllDevices();
             }

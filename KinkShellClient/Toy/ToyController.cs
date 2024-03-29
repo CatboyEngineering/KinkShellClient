@@ -11,10 +11,12 @@ namespace CatboyEngineering.KinkShellClient.Toy
         public Plugin Plugin { get; init; }
         public ButtplugWebsocketConnector Connector { get; private set; }
         public ButtplugClient Client { get; private set; }
+        public bool StopRequested { get; set; }
 
         public ToyController(Plugin plugin)
         {
             Plugin = plugin;
+            StopRequested = false;
         }
 
         public async Task Connect()
@@ -50,9 +52,11 @@ namespace CatboyEngineering.KinkShellClient.Toy
 
         public void StopAllDevices()
         {
+            StopRequested = true;
+
             if (Client.Connected)
             {
-                foreach(var device in Client.Devices)
+                foreach (var device in Client.Devices)
                 {
                     _ = device.Stop();
                 }
@@ -63,10 +67,16 @@ namespace CatboyEngineering.KinkShellClient.Toy
         {
             if (Client.Connected)
             {
-                Plugin.Logger.Debug("Translating Shell command to Intiface");
+                Plugin.Logger.Info("Translating Shell command to Intiface.");
 
                 foreach (var pattern in command.Instructions)
                 {
+                    if (StopRequested)
+                    {
+                        Plugin.Logger.Info("User requested to stop current command.");
+                        break;
+                    }
+
                     try
                     {
                         switch (pattern.PatternType)
@@ -96,11 +106,13 @@ namespace CatboyEngineering.KinkShellClient.Toy
                     }
                     catch (Exception ex)
                     {
-                        Plugin.Logger.Warning(ex, "KinkShell Device Compatibility");
+                        Plugin.Logger.Warning(ex, "KinkShell device incompatible");
                         // Possible that the device does not support the command, or
                         // something happened to the connection.
                     }
                 }
+
+                StopRequested = false;
             }
         }
     }
