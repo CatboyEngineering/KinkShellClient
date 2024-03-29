@@ -19,6 +19,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
 
         public string stringBuffer;
         public bool canSendCommands;
+        public bool isRequestInFlight;
 
         public MainWindowState(Plugin plugin)
         {
@@ -48,6 +49,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
             IsAuthenticated = false;
             UsersToAdd = new List<ShellNewUser>();
             GuidsToDelete = new List<Guid>();
+            isRequestInFlight = false;
 
             ClearErrors();
             ResetBuffers();

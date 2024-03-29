@@ -33,7 +33,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
         public override void Draw()
         {   
-            ImGui.SetNextWindowSize(new Vector2(500, 600), ImGuiCond.Always);
+            ImGui.SetNextWindowSize(new Vector2(500, 675), ImGuiCond.Always);
 
             if (ImGui.Begin(this.WindowName))
             {
@@ -71,17 +71,25 @@ namespace CatboyEngineering.KinkShellClient.Windows
             ImGui.Spacing();
 
             DrawUIChatWindow();
+            DrawUISafetyWindow();
         }
 
         private void DrawUIPatternCenter()
         {
-            ImGui.Text("Command center:");
+            ImGui.Text("Command Center:");
             var width = ImGui.GetWindowWidth();
             ImGui.BeginChild("ToyControlCenter", new Vector2(width - 15, 150), true);
 
             var userList = ShellWindowUtilities.GetListOfUsers(State.Session);
-            if (ImGui.Combo("Target", ref State.intBuffer, userList, userList.Length)) {
+            if (ImGui.Combo("Target", ref State.intBuffer, userList, userList.Length))
+            {
                 ImGui.Text($"Selected {userList[State.intBuffer]}");
+            }
+
+
+            if (State.onCooldown)
+            {
+                ImGui.BeginDisabled();
             }
 
             foreach (var pattern in ShellWindowUtilities.GetAvailableShellCommands(Plugin))
@@ -90,8 +98,15 @@ namespace CatboyEngineering.KinkShellClient.Windows
                 {
                     var targets = ShellWindowUtilities.GetTargetList(State.intBuffer, userList, State.Session);
                     _ = ShellWindowUtilities.SendCommand(Plugin, State.Session, targets, pattern);
+                    _ = ShellWindowUtilities.Cooldown(this);
                 }
             }
+
+            if (State.onCooldown)
+            {
+                ImGui.EndDisabled();
+            }
+
 
             ImGui.EndChild();
         }
@@ -146,6 +161,29 @@ namespace CatboyEngineering.KinkShellClient.Windows
                     ImGui.SetKeyboardFocusHere(-1);
                 }
             }
+        }
+
+        private void DrawUISafetyWindow()
+        {
+            ImGui.Spacing();
+            ImGui.Text("Safety Center:");
+            var width = ImGui.GetWindowWidth();
+            ImGui.BeginChild("##SafetyCenterWindow", new Vector2(width - 15, 75), true);
+
+            ImGui.Text("Receive Intiface Commands:");
+            ImGui.SameLine();
+
+            if(ImGui.Checkbox("##ReceiveCommands", ref State.receiveCommands))
+            {
+                State.Session.SelfUserReceiveCommands = State.receiveCommands;
+            }
+
+            if(ImGui.Button("Stop Current Pattern##StopPattern"))
+            {
+                Plugin.ToyController.StopAllDevices();
+            }
+
+            ImGui.EndChild();
         }
     }
 }

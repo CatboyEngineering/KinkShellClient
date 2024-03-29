@@ -1,13 +1,9 @@
-﻿using CatboyEngineering.KinkShellClient.Models;
-using CatboyEngineering.KinkShellClient.Models.Toy;
+﻿using CatboyEngineering.KinkShellClient.Models.Toy;
 using CatboyEngineering.KinkShellClient.ShellData;
 using CatboyEngineering.KinkShellClient.Toy;
-using ImGuiNET;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using System.Threading.Tasks;
 
 namespace CatboyEngineering.KinkShellClient.Windows.Utilities
@@ -29,6 +25,15 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
         public static async Task SendCommand(Plugin plugin, ShellSession session, List<Guid> targets, StoredShellCommand storedShellCommand)
         {
             await plugin.ConnectionHandler.SendShellCommand(session, targets, storedShellCommand);
+        }
+
+        public static async Task Cooldown(ShellWindow shellWindow)
+        {
+            shellWindow.State.onCooldown = true;
+
+            await Task.Delay(1000);
+
+            shellWindow.State.onCooldown = false;
         }
 
         public static async Task DisconnectFromShellWebSocket(Plugin plugin, KinkShell kinkShell)

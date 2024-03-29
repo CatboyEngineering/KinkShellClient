@@ -48,6 +48,8 @@ namespace CatboyEngineering.KinkShellClient
         {
             CommandHandler.Dispose();
             UIHandler.Dispose();
+            ConnectionHandler.Dispose();
+            ToyController.Dispose();
         }
     }
 }

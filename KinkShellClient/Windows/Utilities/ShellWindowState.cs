@@ -10,6 +10,8 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
 
         public string stringBuffer;
         public int intBuffer = 0;
+        public bool receiveCommands;
+        public bool onCooldown;
 
         public ShellWindowState(Plugin plugin, KinkShell kinkShell)
         {
@@ -21,6 +23,8 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
 
         public void SetDefauts()
         {
+            receiveCommands = Session == null || Session.SelfUserReceiveCommands;
+            onCooldown = false;
             ResetStringBuffer();
         }
 

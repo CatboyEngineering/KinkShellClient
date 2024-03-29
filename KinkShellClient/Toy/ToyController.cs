@@ -6,15 +6,17 @@ using System.Threading.Tasks;
 
 namespace CatboyEngineering.KinkShellClient.Toy
 {
-    public class ToyController
+    public class ToyController : IDisposable
     {
         public Plugin Plugin { get; init; }
         public ButtplugWebsocketConnector Connector { get; private set; }
         public ButtplugClient Client { get; private set; }
+        public bool StopRequested { get; set; }
 
         public ToyController(Plugin plugin)
         {
             Plugin = plugin;
+            StopRequested = false;
         }
 
         public async Task Connect()
@@ -35,7 +37,7 @@ namespace CatboyEngineering.KinkShellClient.Toy
             if (Client.Connected)
             {
                 await Client.StartScanningAsync();
-                await Task.Delay(5000);
+                await Task.Delay(3000);
                 await Client.StopScanningAsync();
             }
         }
@@ -48,14 +50,33 @@ namespace CatboyEngineering.KinkShellClient.Toy
             }
         }
 
+        public void StopAllDevices()
+        {
+            StopRequested = true;
+
+            if (Client.Connected)
+            {
+                foreach (var device in Client.Devices)
+                {
+                    _ = device.Stop();
+                }
+            }
+        }
+
         public async Task IssueCommand(ButtplugClientDevice device, ShellCommand command)
         {
             if (Client.Connected)
             {
-                Plugin.Logger.Debug("Translating Shell command to Intiface");
+                Plugin.Logger.Info("Translating Shell command to Intiface.");
 
                 foreach (var pattern in command.Instructions)
                 {
+                    if (StopRequested)
+                    {
+                        Plugin.Logger.Info("User requested to stop current command.");
+                        break;
+                    }
+
                     try
                     {
                         switch (pattern.PatternType)
@@ -85,11 +106,21 @@ namespace CatboyEngineering.KinkShellClient.Toy
                     }
                     catch (Exception ex)
                     {
-                        Plugin.Logger.Warning(ex, "KinkShell Device Compatibility");
+                        Plugin.Logger.Warning(ex, "KinkShell device incompatible");
                         // Possible that the device does not support the command, or
                         // something happened to the connection.
                     }
                 }
+
+                StopRequested = false;
+            }
+        }
+
+        public void Dispose()
+        {
+            if(Client.Connected)
+            {
+                Client.DisconnectAsync();
             }
         }
     }

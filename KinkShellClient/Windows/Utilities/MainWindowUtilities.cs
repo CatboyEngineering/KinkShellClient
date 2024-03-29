@@ -10,15 +10,27 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
 {
     public class MainWindowUtilities
     {
+        public static async Task HandleWithIndicator(MainWindowState state, Task task, int delay = 0)
+        {
+            state.isRequestInFlight = true;
+
+            await task.ContinueWith(t =>
+            {
+                Task.Delay(delay).ContinueWith(t =>
+                {
+                    state.isRequestInFlight = false;
+                });
+            });
+        }
+
         public static async Task LogInAndRetrieve(Plugin plugin, MainWindow window)
         {
             var result = await plugin.ConnectionHandler.Authenticate();
 
             if(result == HttpStatusCode.OK)
             {
-                window.State.IsAuthenticated = true;
                 await GetUserShells(plugin, window);
-                await plugin.ToyController.Connect();
+                window.State.IsAuthenticated = true;
             }
             else
             {
