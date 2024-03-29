@@ -242,7 +242,7 @@ namespace CatboyEngineering.KinkShellClient.Network
             {
                 var baseResponse = response.Value;
 
-                Plugin.Logger.Debug($"Received Shell message [{baseResponse.MessageType}]");
+                Plugin.Logger.Info($"Received Shell message [{baseResponse.MessageType}]");
                 switch (baseResponse.MessageType)
                 {
                     case ShellSocketMessageType.COMMAND:
@@ -278,7 +278,7 @@ namespace CatboyEngineering.KinkShellClient.Network
 
             if (request != null)
             {
-                session.NewMessage(new ChatMessage
+                session.ReceivedNewMessage(new ChatMessage
                 {
                     DisplayName = request.Value.UserFrom.DisplayName,
                     DateTime = request.Value.DateTime,
@@ -290,14 +290,21 @@ namespace CatboyEngineering.KinkShellClient.Network
 
         private async Task HandleUserCommandMessage(ShellSocketMessage message, ShellSession session)
         {
-            var request = APIRequestMapper.MapRequestToModel<ShellSocketCommandResponse>(message.MessageData);
-
-            if (request != null)
+            if (session.SelfUserReceiveCommands)
             {
-                if (Plugin.ToyController.Client.Devices.Length > 0)
+                var request = APIRequestMapper.MapRequestToModel<ShellSocketCommandResponse>(message.MessageData);
+
+                if (request != null)
                 {
-                    await Plugin.ToyController.IssueCommand(Plugin.ToyController.Client.Devices[0], request.Value.Command);
+                    if (Plugin.ToyController.Client.Devices.Length > 0)
+                    {
+                        await Plugin.ToyController.IssueCommand(Plugin.ToyController.Client.Devices[0], request.Value.Command);
+                    }
                 }
+            }
+            else
+            {
+                Plugin.Logger.Info("Rejected toy command due to user preferences.");
             }
         }
     }

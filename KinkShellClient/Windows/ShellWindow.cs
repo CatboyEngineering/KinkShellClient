@@ -71,11 +71,12 @@ namespace CatboyEngineering.KinkShellClient.Windows
             ImGui.Spacing();
 
             DrawUIChatWindow();
+            DrawUISafetyWindow();
         }
 
         private void DrawUIPatternCenter()
         {
-            ImGui.Text("Command center:");
+            ImGui.Text("Command Center:");
             var width = ImGui.GetWindowWidth();
             ImGui.BeginChild("ToyControlCenter", new Vector2(width - 15, 150), true);
 
@@ -146,6 +147,28 @@ namespace CatboyEngineering.KinkShellClient.Windows
                     ImGui.SetKeyboardFocusHere(-1);
                 }
             }
+        }
+
+        private void DrawUISafetyWindow()
+        {
+            ImGui.Text("Safety Center:");
+            var width = ImGui.GetWindowWidth();
+            ImGui.BeginChild("##SafetyCenterWindow", new Vector2(width - 15, 75), true);
+
+            ImGui.Text("Receive Intiface Commands:");
+            ImGui.SameLine();
+
+            if(ImGui.Checkbox("##ReceiveCommands", ref State.receiveCommands))
+            {
+                State.Session.SelfUserReceiveCommands = State.receiveCommands;
+            }
+
+            if(ImGui.Button("Stop Current Patterns##StopPatterns"))
+            {
+                Plugin.ToyController.StopAllDevices();
+            }
+
+            ImGui.EndChild();
         }
     }
 }

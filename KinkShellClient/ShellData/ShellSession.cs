@@ -6,13 +6,13 @@ namespace CatboyEngineering.KinkShellClient.ShellData
 {
     public class ShellSession
     {
-        // An individual connection from this client to a KinkShell on the server (WebSocket)
         public KinkShell KinkShell { get; }
         public ClientWebSocket WebSocket { get; set; }
         public List<KinkShellMember> ConnectedUsers { get; }
         public ShellConnectionStatus Status { get; set; }
         public List<ChatMessage> Messages { get; set; }
         public bool ScrollMessages { get; set; }
+        public bool SelfUserReceiveCommands { get; set; }
 
         public ShellSession(KinkShell kinkShell)
         {
@@ -21,9 +21,10 @@ namespace CatboyEngineering.KinkShellClient.ShellData
             ConnectedUsers = new List<KinkShellMember>();
             Messages = new List<ChatMessage>();
             ScrollMessages = false;
+            SelfUserReceiveCommands = true;
         }
 
-        public void NewMessage(ChatMessage message)
+        public void ReceivedNewMessage(ChatMessage message)
         {
             ScrollMessages = true;
             this.Messages.Add(message);

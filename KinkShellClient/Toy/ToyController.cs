@@ -48,6 +48,17 @@ namespace CatboyEngineering.KinkShellClient.Toy
             }
         }
 
+        public void StopAllDevices()
+        {
+            if (Client.Connected)
+            {
+                foreach(var device in Client.Devices)
+                {
+                    _ = device.Stop();
+                }
+            }
+        }
+
         public async Task IssueCommand(ButtplugClientDevice device, ShellCommand command)
         {
             if (Client.Connected)
