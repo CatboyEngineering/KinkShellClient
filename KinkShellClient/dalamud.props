@@ -15,7 +15,7 @@
 	<Import Project="framework.props" />
 
 	<PropertyGroup>
-		<DalamudLibPath>$(AppData)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
+		<DalamudLibPath>lib\</DalamudLibPath>
 	</PropertyGroup>
 
 	<ItemGroup>
