@@ -47,10 +47,17 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
         private void DrawUIWindowBody()
         {
-            if(ImGui.Button("Leave"))
+            if(ImGui.Button("Leave Session"))
             {
                 _ = ShellWindowUtilities.DisconnectFromShellWebSocket(Plugin, State.KinkShell);
                 this.IsOpen = false;
+            }
+
+            ImGui.SameLine();
+
+            if (ImGui.Button("Pattern Builder"))
+            {
+                Plugin.UIHandler.PatternBuilderWindow.IsOpen = true;
             }
 
             ImGui.Spacing();

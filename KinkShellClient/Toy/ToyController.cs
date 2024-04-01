@@ -21,7 +21,7 @@ namespace CatboyEngineering.KinkShellClient.Toy
 
         public async Task Connect()
         {
-            Connector = new ButtplugWebsocketConnector(new Uri($"ws://{Plugin.Configuration.IntifaceServerAddress}"));
+            Connector = new ButtplugWebsocketConnector(new Uri($"{Plugin.Configuration.IntifaceServerAddress}"));
             Client = new ButtplugClient("KinkShell Client");
 
             try
@@ -118,9 +118,12 @@ namespace CatboyEngineering.KinkShellClient.Toy
 
         public void Dispose()
         {
-            if(Client.Connected)
+            if (Client != null)
             {
-                Client.DisconnectAsync();
+                if (Client.Connected)
+                {
+                    Client.DisconnectAsync();
+                }
             }
         }
     }

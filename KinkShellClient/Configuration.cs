@@ -14,15 +14,18 @@ namespace CatboyEngineering.KinkShellClient
     [Serializable]
     public class Configuration : IPluginConfiguration
     {
-        public int Version { get; set; } = 0;
-
         public string KinkShellServerAddress { get; set; } = "localhost";
         public string KinkShellServerUsername { get; set; } = "";
         public string KinkShellServerPassword { get; set; } = "";
         public bool KinkShellSecure { get; set; } = true;
-        public string IntifaceServerAddress { get; set; } = "localhost:12345";
+        public string IntifaceServerAddress { get; set; } = "ws://localhost:12345";
         public List<StoredShellCommand> SavedPatterns { get; set; } = new List<StoredShellCommand>();
         public Vector4 SelfTextColor { get; set; } = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+
+        public int Version { get; set; } = 1;
+
+        [NonSerialized]
+        private readonly int CurrentVersion = 1;
 
         [NonSerialized]
         public AccountAuthenticatedResponse KinkShellAuthenticatedUserData;
@@ -36,6 +39,8 @@ namespace CatboyEngineering.KinkShellClient
         public void Initialize(DalamudPluginInterface pluginInterface)
         {
             this.PluginInterface = pluginInterface;
+
+            PerformVersionUpdates();
         }
 
         public void Save()
@@ -67,6 +72,19 @@ namespace CatboyEngineering.KinkShellClient
             this.SavedPatterns = configuration.SavedPatterns;
             this.SelfTextColor = configuration.SelfTextColor;
             this.KinkShellSecure = configuration.KinkShellSecure;
+        }
+
+        private void PerformVersionUpdates()
+        {
+            if(Version == 0)
+            {
+                // This update moves the Intiface server protocol into the configuration.
+                Version = CurrentVersion;
+
+                IntifaceServerAddress = "ws://" + IntifaceServerAddress;
+
+                Save();
+            }
         }
     }
 }

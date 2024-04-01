@@ -181,7 +181,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
                     {
                         ImGui.SameLine();
 
-                        if(ImGui.Button($"Leave##{shell.ShellID}"))
+                        if(ImGui.Button($"Remove##{shell.ShellID}"))
                         {
                             _ = MainWindowUtilities.DeleteLeaveShell(Plugin, this, shell);
                         }
