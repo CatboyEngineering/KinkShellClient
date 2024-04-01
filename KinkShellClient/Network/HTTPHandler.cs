@@ -24,6 +24,8 @@ namespace CatboyEngineering.KinkShellClient.Network
         {
             Plugin = plugin;
             Http = new HttpClient();
+
+            Http.DefaultRequestHeaders.Add("X-Captcha-Token", Plugin.Configuration.CaptchaToken);
         }
 
         public async Task<APIResponse<T>> Get<T>(string uri) where T : struct
