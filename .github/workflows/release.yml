@@ -1,0 +1,33 @@
+name: Release Build
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '8.0.202'
+          include-prerelease: true
+
+      - name: Make deploy folder
+        run: |
+         mkdir deploy
+
+      - name: Build Client
+        run: |
+         dotnet build KinkShellClient --configuration "Release" -o deploy
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v2
+        with:
+          name: KinkShellClient
+          path: deploy/KinkShellClient/latest.zip
