@@ -28,6 +28,9 @@ namespace CatboyEngineering.KinkShellClient
         private readonly int CurrentVersion = 1;
 
         [NonSerialized]
+        public readonly string CaptchaToken = "DalamudClient";
+
+        [NonSerialized]
         public AccountAuthenticatedResponse KinkShellAuthenticatedUserData;
 
         [NonSerialized]
