@@ -1,0 +1,23 @@
+name: Pull Request Build
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '8.0.202'
+          include-prerelease: true
+
+      - name: Build Client
+        run: |
+         dotnet build --configuration "Release"
