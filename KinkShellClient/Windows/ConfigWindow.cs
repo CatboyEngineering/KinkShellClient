@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using System.Text.RegularExpressions;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
 
@@ -9,6 +10,8 @@ namespace CatboyEngineering.KinkShellClient.Windows
     {
         private Configuration Configuration;
         private Configuration WorkingCopy;
+        private readonly Regex WebServerProtocol = new("^(https?)(:\\/\\/)");
+        private readonly Regex IntifacePath = new("^(wss?)(:\\/\\/)[\\w\\d]+[:.\\w\\d/]+$");
 
         public ConfigWindow(Plugin plugin) : base("KinkShell Configuration", ImGuiWindowFlags.NoResize)
         {
@@ -58,7 +61,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
                 if (ImGui.InputText("Server Address", ref shellServer, 64))
                 {
-                    this.WorkingCopy.KinkShellServerAddress = shellServer;
+                    this.WorkingCopy.KinkShellServerAddress = WebServerProtocol.Replace(shellServer, "");
                 }
 
                 if (ImGui.InputText("Server Username", ref shellUser, 64))
@@ -88,7 +91,10 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
                 if (ImGui.InputText("Address", ref intifaceServer, 64))
                 {
-                    this.WorkingCopy.IntifaceServerAddress = intifaceServer;
+                    if(IntifacePath.IsMatch(intifaceServer))
+                    {
+                        this.WorkingCopy.IntifaceServerAddress = intifaceServer;
+                    }
                 }
 
                 ImGui.EndTabItem();
