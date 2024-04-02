@@ -8,6 +8,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
 {
     public class ConfigWindow : Window, IDisposable
     {
+        private Plugin plugin;
         private Configuration Configuration;
         private Configuration WorkingCopy;
         private readonly Regex WebServerProtocol = new("^(https?)(:\\/\\/)");
@@ -16,6 +17,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
         public ConfigWindow(Plugin plugin) : base("KinkShell Configuration", ImGuiWindowFlags.NoResize)
         {
             this.Configuration = plugin.Configuration;
+            this.plugin = plugin;
         }
 
         public override void OnOpen()
@@ -54,29 +56,35 @@ namespace CatboyEngineering.KinkShellClient.Windows
         {
             if (ImGui.BeginTabItem("KinkShell Server"))
             {
-                var shellServer = this.WorkingCopy.KinkShellServerAddress;
                 var shellUser = this.WorkingCopy.KinkShellServerUsername;
                 var shellPass = this.WorkingCopy.KinkShellServerPassword;
-                var secure = this.WorkingCopy.KinkShellSecure;
 
-                if (ImGui.InputText("Server Address", ref shellServer, 64))
+                if (plugin.IsDev)
                 {
-                    this.WorkingCopy.KinkShellServerAddress = WebServerProtocol.Replace(shellServer, "");
+                    var shellServer = this.WorkingCopy.KinkShellServerAddress;
+                    var secure = this.WorkingCopy.KinkShellSecure;
+
+                    if (ImGui.InputText("Server Address", ref shellServer, 64))
+                    {
+                        this.WorkingCopy.KinkShellServerAddress = WebServerProtocol.Replace(shellServer, "");
+                    }
+
+                    if (ImGui.Checkbox("Secure", ref secure))
+                    {
+                        this.WorkingCopy.KinkShellSecure = secure;
+                    }
                 }
 
-                if (ImGui.InputText("Server Username", ref shellUser, 64))
+                ImGui.Text("KinkShell Username:");
+                if (ImGui.InputText("##KSUsername", ref shellUser, 64))
                 {
                     this.WorkingCopy.KinkShellServerUsername = shellUser;
                 }
 
-                if (ImGui.InputText("Server Password", ref shellPass, 64, ImGuiInputTextFlags.Password))
+                ImGui.Text("KinkShell Password:");
+                if (ImGui.InputText("##KSPassword", ref shellPass, 64, ImGuiInputTextFlags.Password))
                 {
                     this.WorkingCopy.KinkShellServerPassword = shellPass;
-                }
-
-                if(ImGui.Checkbox("Secure", ref secure))
-                {
-                    this.WorkingCopy.KinkShellSecure = secure;
                 }
 
                 ImGui.EndTabItem();
