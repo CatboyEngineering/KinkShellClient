@@ -14,7 +14,7 @@ namespace CatboyEngineering.KinkShellClient
     [Serializable]
     public class Configuration : IPluginConfiguration
     {
-        public string KinkShellServerAddress { get; set; } = "localhost";
+        public string KinkShellServerAddress { get; set; } = "kinkshell.catboy.engineering";
         public string KinkShellServerUsername { get; set; } = "";
         public string KinkShellServerPassword { get; set; } = "";
         public bool KinkShellSecure { get; set; } = true;

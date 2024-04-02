@@ -12,6 +12,7 @@ namespace CatboyEngineering.KinkShellClient
     {
         private DalamudPluginInterface PluginInterface { get; }
         public Configuration Configuration { get; }
+        public bool IsDev { get; set; }
 
         public CommandHandler CommandHandler { get; }
         public UIHandler UIHandler { get; }
@@ -35,6 +36,8 @@ namespace CatboyEngineering.KinkShellClient
 
             this.Configuration = this.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             this.Configuration.Initialize(this.PluginInterface);
+
+            IsDev = pluginInterface.IsDev;
 
             HTTP = new HTTPHandler(this);
             CommandHandler = new CommandHandler(this, commandManager);
