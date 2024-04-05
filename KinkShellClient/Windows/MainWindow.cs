@@ -254,15 +254,9 @@ namespace CatboyEngineering.KinkShellClient.Windows
                 DrawUICenteredText("New Kinkshell");
                 ImGui.Spacing();
                 ImGui.Text("New KinkShell Name:");
+                ImGui.SetKeyboardFocusHere(0);
 
-                if(ImGui.InputText("##NewKinkShellName", ref State.stringBuffer, 64, ImGuiInputTextFlags.EnterReturnsTrue))
-                {
-                    IssueCreateShell();
-                }
-
-                ImGui.SameLine();
-
-                if (ImGui.Button("Create Shell"))
+                if (ImGui.InputText("##NewKinkShellName", ref State.stringBuffer, 64, ImGuiInputTextFlags.EnterReturnsTrue))
                 {
                     IssueCreateShell();
                 }
