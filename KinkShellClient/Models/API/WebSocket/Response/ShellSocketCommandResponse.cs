@@ -1,7 +1,7 @@
 ﻿using CatboyEngineering.KinkShellClient.Models.Toy;
 using System;
 
-namespace CatboyEngineering.KinkShellClient.Models.API.WebSocket
+namespace CatboyEngineering.KinkShellClient.Models.API.WebSocket.Response
 {
     public struct ShellSocketCommandResponse
     {

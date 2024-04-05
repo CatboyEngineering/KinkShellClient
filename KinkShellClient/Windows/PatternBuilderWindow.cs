@@ -1,4 +1,6 @@
 ﻿using CatboyEngineering.KinkShellClient.Models.Toy;
+using CatboyEngineering.KinkShellClient.Windows.States;
+using CatboyEngineering.KinkShellClient.Windows.States.Models;
 using CatboyEngineering.KinkShellClient.Windows.Utilities;
 using Dalamud.Interface.Windowing;
 using Dalamud.Utility;

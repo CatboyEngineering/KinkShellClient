@@ -1,4 +1,5 @@
-﻿using CatboyEngineering.KinkShellClient.ShellData;
+﻿using CatboyEngineering.KinkShellClient.Models;
+using CatboyEngineering.KinkShellClient.Models.Shell;
 
 namespace CatboyEngineering.KinkShellClient.Windows.Utilities
 {
@@ -7,15 +8,17 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
         public Plugin Plugin { get; set; }
         public KinkShell KinkShell { get; set; }
         public ShellSession Session { get; set; }
+        public ShellWindow Window { get; set; }
 
         public string stringBuffer;
         public int intBuffer = 0;
         public bool receiveCommands;
         public bool onCooldown;
 
-        public ShellWindowState(Plugin plugin, KinkShell kinkShell)
+        public ShellWindowState(Plugin plugin, KinkShell kinkShell, ShellWindow window)
         {
             Plugin = plugin;
+            Window = window;
 
             SetDefauts();
             KinkShell = kinkShell;  

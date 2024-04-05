@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace CatboyEngineering.KinkShellClient.Models
 {
-    public struct ShellNewUser
+    public struct KinkShellMember
     {
-        public Guid UserID { get; set; }
+        public Guid AccountID { get; set; }
+        public string DisplayName { get; set; }
         public bool SendCommands { get; set; }
     }
 }

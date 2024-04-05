@@ -1,5 +1,4 @@
-﻿using CatboyEngineering.KinkShellClient.ShellData;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace CatboyEngineering.KinkShellClient.Models.API.Response
 {

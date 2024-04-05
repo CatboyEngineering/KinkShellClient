@@ -1,12 +1,12 @@
 ﻿using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
-using CatboyEngineering.KinkShellClient.ShellData;
 using CatboyEngineering.KinkShellClient.Windows;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CatboyEngineering.KinkShellClient.Models.Shell;
 
 namespace CatboyEngineering.KinkShellClient
 {

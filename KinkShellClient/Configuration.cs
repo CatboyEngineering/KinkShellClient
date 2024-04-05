@@ -1,7 +1,6 @@
 ﻿using CatboyEngineering.KinkShellClient.Models;
 using CatboyEngineering.KinkShellClient.Models.API.Response;
 using CatboyEngineering.KinkShellClient.Models.Toy;
-using CatboyEngineering.KinkShellClient.ShellData;
 using CatboyEngineering.KinkShellClient.Toy;
 using Dalamud.Configuration;
 using Dalamud.Plugin;

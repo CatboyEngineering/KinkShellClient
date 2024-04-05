@@ -1,4 +1,5 @@
-﻿using CatboyEngineering.KinkShellClient.ShellData;
+﻿using CatboyEngineering.KinkShellClient.Models;
+using CatboyEngineering.KinkShellClient.Models.Shell;
 using CatboyEngineering.KinkShellClient.Toy;
 using CatboyEngineering.KinkShellClient.Windows.Utilities;
 using Dalamud.Interface.Windowing;
@@ -16,7 +17,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
         public ShellWindow(Plugin plugin, KinkShell kinkShell, ShellSession session) : base(kinkShell.ShellName, ImGuiWindowFlags.NoResize)
         {
             Plugin = plugin;
-            State = new ShellWindowState(plugin, kinkShell);
+            State = new ShellWindowState(plugin, kinkShell, this);
 
             State.Session = session;
         }
@@ -26,7 +27,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
             base.OnClose();
 
             _ = ShellWindowUtilities.DisconnectFromShellWebSocket(Plugin, State.KinkShell);
-            State = new ShellWindowState(Plugin, State.KinkShell);
+            State = new ShellWindowState(Plugin, State.KinkShell, this);
 
             Plugin.UIHandler.RemoveShellWindow(this);
         }

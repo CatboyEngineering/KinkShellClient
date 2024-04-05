@@ -1,7 +1,8 @@
 ﻿using CatboyEngineering.KinkShellClient.Models.Toy;
+using CatboyEngineering.KinkShellClient.Windows.States.Models;
 using System.Collections.Generic;
 
-namespace CatboyEngineering.KinkShellClient.Windows.Utilities
+namespace CatboyEngineering.KinkShellClient.Windows.States
 {
     public class PatternBuilderWindowState
     {
@@ -15,7 +16,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
 
         public PatternBuilderWindowState(Plugin plugin)
         {
-            this.Plugin = plugin;
+            Plugin = plugin;
 
             SetDefauts();
         }

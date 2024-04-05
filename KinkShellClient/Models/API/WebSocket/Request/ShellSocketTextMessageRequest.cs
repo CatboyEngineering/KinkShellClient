@@ -1,11 +1,9 @@
-﻿using CatboyEngineering.KinkShellClient.ShellData;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Numerics;
 
-namespace CatboyEngineering.KinkShellClient.Models.API.WebSocket
+namespace CatboyEngineering.KinkShellClient.Models.API.WebSocket.Request
 {
-    public struct ShellSocketTextMessage
+    public struct ShellSocketTextMessageRequest
     {
         public Guid ShellID { get; set; }
         public DateTime DateTime { get; set; }

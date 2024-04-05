@@ -1,5 +1,6 @@
-﻿using CatboyEngineering.KinkShellClient.Models.API.WebSocket;
-using CatboyEngineering.KinkShellClient.ShellData;
+﻿using CatboyEngineering.KinkShellClient.Models.API.Response;
+using CatboyEngineering.KinkShellClient.Models.API.WebSocket;
+using CatboyEngineering.KinkShellClient.Models.Shell;
 using CatboyEngineering.KinkShellClient.Utilities;
 using Lumina.Excel.GeneratedSheets2;
 using Newtonsoft.Json;

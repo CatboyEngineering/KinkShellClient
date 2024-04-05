@@ -6,7 +6,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CatboyEngineering.KinkShellClient.Network
+namespace CatboyEngineering.KinkShellClient.Models.API.Response
 {
     public struct APIResponse<T> where T : struct
     {

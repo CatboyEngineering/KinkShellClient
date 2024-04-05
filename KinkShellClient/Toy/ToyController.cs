@@ -21,8 +21,11 @@ namespace CatboyEngineering.KinkShellClient.Toy
 
         public async Task Connect()
         {
-            Connector = new ButtplugWebsocketConnector(new Uri($"{Plugin.Configuration.IntifaceServerAddress}"));
-            Client = new ButtplugClient("KinkShell Client");
+            await Task.Run(() =>
+            {
+                Connector = new ButtplugWebsocketConnector(new Uri($"{Plugin.Configuration.IntifaceServerAddress}"));
+                Client = new ButtplugClient("KinkShell Client");
+            });
 
             try
             {

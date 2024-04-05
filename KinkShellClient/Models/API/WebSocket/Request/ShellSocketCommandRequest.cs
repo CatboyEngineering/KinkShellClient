@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace CatboyEngineering.KinkShellClient.Models.API.WebSocket
+namespace CatboyEngineering.KinkShellClient.Models.API.WebSocket.Request
 {
     public struct ShellSocketCommandRequest
     {

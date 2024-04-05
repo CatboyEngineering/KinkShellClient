@@ -2,9 +2,12 @@
 using CatboyEngineering.KinkShellClient.Models.API.Request;
 using CatboyEngineering.KinkShellClient.Models.API.Response;
 using CatboyEngineering.KinkShellClient.Models.API.WebSocket;
+using CatboyEngineering.KinkShellClient.Models.API.WebSocket.Request;
+using CatboyEngineering.KinkShellClient.Models.API.WebSocket.Response;
+using CatboyEngineering.KinkShellClient.Models.Shell;
 using CatboyEngineering.KinkShellClient.Models.Toy;
-using CatboyEngineering.KinkShellClient.ShellData;
 using CatboyEngineering.KinkShellClient.Utilities;
+using CatboyEngineering.KinkShellClient.Windows;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -81,7 +84,7 @@ namespace CatboyEngineering.KinkShellClient.Network
 
         public async Task<HttpStatusCode> UpdateShell(Guid shellID, List<ShellNewUser> users)
         {
-            var request = new ShellUpdateUsersRequest
+            var request = new ShellAdjustUsersRequest
             {
                 Users = users
             };
@@ -139,11 +142,18 @@ namespace CatboyEngineering.KinkShellClient.Network
             }
         }
 
-        public async Task OpenConnection(ShellSession shellSession)
+        public async Task OpenConnection(ShellWindow window)
         {
-            var socket = await Plugin.HTTP.ConnectWebSocket("ws", shellSession);
+            try
+            {
+                var socket = await Plugin.HTTP.ConnectWebSocket("ws", window.State.Session);
 
-            await ListenWebSocket(socket, shellSession);
+                await ListenWebSocket(socket, window);
+            }
+            catch
+            {
+                window.OnClose();
+            }
         }
 
         public async Task CloseConnection(KinkShell kinkShell)
@@ -152,13 +162,20 @@ namespace CatboyEngineering.KinkShellClient.Network
 
             if (session != null && session.WebSocket != null)
             {
-                await session.WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Client disconnected safely.", CancellationToken.None);
-                Connections.Remove(session);
+                try
+                {
+                    await session.WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Client disconnected safely.", CancellationToken.None);
+                }
+                catch { }
             }
+
+            Connections.Remove(session);
         }
 
-        private async Task ListenWebSocket(ClientWebSocket ws, ShellSession session)
+        private async Task ListenWebSocket(ClientWebSocket ws, ShellWindow window)
         {
+            var session = window.State.Session;
+
             if (session.Status == ShellConnectionStatus.CONNECTING)
             {
                 await SendShellConnectRequest(session);
@@ -171,8 +188,9 @@ namespace CatboyEngineering.KinkShellClient.Network
             {
                 var result = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
 
-                if (result.MessageType == WebSocketMessageType.Close || session.Status == Models.ShellConnectionStatus.CLOSED)
+                if (result.MessageType == WebSocketMessageType.Close || session.Status == ShellConnectionStatus.CLOSED)
                 {
+                    window.OnClose();
                     break;
                 }
 
@@ -202,7 +220,7 @@ namespace CatboyEngineering.KinkShellClient.Network
             var connectMessage = new ShellSocketMessage
             {
                 MessageType = ShellSocketMessageType.TEXT,
-                MessageData = JObject.FromObject(new ShellSocketTextMessage
+                MessageData = JObject.FromObject(new ShellSocketTextMessageRequest
                 {
                     ShellID = shellSession.KinkShell.ShellID,
                     DateTime = DateTime.UtcNow,
@@ -263,7 +281,7 @@ namespace CatboyEngineering.KinkShellClient.Network
 
         private void HandleUserConnectedMessage(ShellSocketMessage message, ShellSession session)
         {
-            var request = APIRequestMapper.MapRequestToModel<ShellSocketConnectResponse>(message.MessageData);
+            var request = APIRequestMapper.MapRequestToModel<ShellSocketConnectedUsersResponse>(message.MessageData);
 
             if (request != null)
             {
@@ -274,7 +292,7 @@ namespace CatboyEngineering.KinkShellClient.Network
 
         private void HandleUserTextMessage(ShellSocketMessage message, ShellSession session)
         {
-            var request = APIRequestMapper.MapRequestToModel<ShellSocketTextResponse>(message.MessageData);
+            var request = APIRequestMapper.MapRequestToModel<ShellSocketTextMessageResponse>(message.MessageData);
 
             if (request != null)
             {
