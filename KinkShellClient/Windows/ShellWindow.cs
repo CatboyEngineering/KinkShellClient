@@ -16,7 +16,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
         public ShellWindow(Plugin plugin, KinkShell kinkShell, ShellSession session) : base(kinkShell.ShellName, ImGuiWindowFlags.NoResize)
         {
             Plugin = plugin;
-            State = new ShellWindowState(plugin, kinkShell);
+            State = new ShellWindowState(plugin, kinkShell, this);
 
             State.Session = session;
         }
@@ -26,7 +26,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
             base.OnClose();
 
             _ = ShellWindowUtilities.DisconnectFromShellWebSocket(Plugin, State.KinkShell);
-            State = new ShellWindowState(Plugin, State.KinkShell);
+            State = new ShellWindowState(Plugin, State.KinkShell, this);
 
             Plugin.UIHandler.RemoveShellWindow(this);
         }

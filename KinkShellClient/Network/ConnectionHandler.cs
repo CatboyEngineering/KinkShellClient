@@ -5,6 +5,7 @@ using CatboyEngineering.KinkShellClient.Models.API.WebSocket;
 using CatboyEngineering.KinkShellClient.Models.Toy;
 using CatboyEngineering.KinkShellClient.ShellData;
 using CatboyEngineering.KinkShellClient.Utilities;
+using CatboyEngineering.KinkShellClient.Windows;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -139,11 +140,18 @@ namespace CatboyEngineering.KinkShellClient.Network
             }
         }
 
-        public async Task OpenConnection(ShellSession shellSession)
+        public async Task OpenConnection(ShellWindow window)
         {
-            var socket = await Plugin.HTTP.ConnectWebSocket("ws", shellSession);
+            try
+            {
+                var socket = await Plugin.HTTP.ConnectWebSocket("ws", window.State.Session);
 
-            await ListenWebSocket(socket, shellSession);
+                await ListenWebSocket(socket, window);
+            }
+            catch
+            {
+                window.OnClose();
+            }
         }
 
         public async Task CloseConnection(KinkShell kinkShell)
@@ -152,13 +160,20 @@ namespace CatboyEngineering.KinkShellClient.Network
 
             if (session != null && session.WebSocket != null)
             {
-                await session.WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Client disconnected safely.", CancellationToken.None);
-                Connections.Remove(session);
+                try
+                {
+                    await session.WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Client disconnected safely.", CancellationToken.None);
+                }
+                catch { }
             }
+
+            Connections.Remove(session);
         }
 
-        private async Task ListenWebSocket(ClientWebSocket ws, ShellSession session)
+        private async Task ListenWebSocket(ClientWebSocket ws, ShellWindow window)
         {
+            var session = window.State.Session;
+
             if (session.Status == ShellConnectionStatus.CONNECTING)
             {
                 await SendShellConnectRequest(session);
@@ -171,8 +186,9 @@ namespace CatboyEngineering.KinkShellClient.Network
             {
                 var result = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
 
-                if (result.MessageType == WebSocketMessageType.Close || session.Status == Models.ShellConnectionStatus.CLOSED)
+                if (result.MessageType == WebSocketMessageType.Close || session.Status == ShellConnectionStatus.CLOSED)
                 {
+                    window.OnClose();
                     break;
                 }
 

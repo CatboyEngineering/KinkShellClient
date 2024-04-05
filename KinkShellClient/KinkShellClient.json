@@ -6,8 +6,9 @@
   "Tags": [ "kink", "buttplug", "toys", "sync", "erp", "nsfw" ],
   "InternalName": "KinkShellClient",
   "RepoUrl": "https://github.com/CatboyEngineering/KinkShellClient",
+  "IconUrl": "https://github.com/CatboyEngineering/Plugins/raw/main/assets/img/KSLogoSmall.png",
   "ApplicableVersion": "any",
   "DalamudApiLevel": 9,
   "LoadPriority": 0,
-  "AssemblyVersion": "0.0.6.7"
+  "AssemblyVersion": "0.0.6.8"
 }
