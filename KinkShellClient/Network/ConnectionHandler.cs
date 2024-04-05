@@ -2,8 +2,10 @@
 using CatboyEngineering.KinkShellClient.Models.API.Request;
 using CatboyEngineering.KinkShellClient.Models.API.Response;
 using CatboyEngineering.KinkShellClient.Models.API.WebSocket;
+using CatboyEngineering.KinkShellClient.Models.API.WebSocket.Request;
+using CatboyEngineering.KinkShellClient.Models.API.WebSocket.Response;
+using CatboyEngineering.KinkShellClient.Models.Shell;
 using CatboyEngineering.KinkShellClient.Models.Toy;
-using CatboyEngineering.KinkShellClient.ShellData;
 using CatboyEngineering.KinkShellClient.Utilities;
 using CatboyEngineering.KinkShellClient.Windows;
 using Newtonsoft.Json;
@@ -82,7 +84,7 @@ namespace CatboyEngineering.KinkShellClient.Network
 
         public async Task<HttpStatusCode> UpdateShell(Guid shellID, List<ShellNewUser> users)
         {
-            var request = new ShellUpdateUsersRequest
+            var request = new ShellAdjustUsersRequest
             {
                 Users = users
             };
@@ -218,7 +220,7 @@ namespace CatboyEngineering.KinkShellClient.Network
             var connectMessage = new ShellSocketMessage
             {
                 MessageType = ShellSocketMessageType.TEXT,
-                MessageData = JObject.FromObject(new ShellSocketTextMessage
+                MessageData = JObject.FromObject(new ShellSocketTextMessageRequest
                 {
                     ShellID = shellSession.KinkShell.ShellID,
                     DateTime = DateTime.UtcNow,
@@ -279,7 +281,7 @@ namespace CatboyEngineering.KinkShellClient.Network
 
         private void HandleUserConnectedMessage(ShellSocketMessage message, ShellSession session)
         {
-            var request = APIRequestMapper.MapRequestToModel<ShellSocketConnectResponse>(message.MessageData);
+            var request = APIRequestMapper.MapRequestToModel<ShellSocketConnectedUsersResponse>(message.MessageData);
 
             if (request != null)
             {
@@ -290,7 +292,7 @@ namespace CatboyEngineering.KinkShellClient.Network
 
         private void HandleUserTextMessage(ShellSocketMessage message, ShellSession session)
         {
-            var request = APIRequestMapper.MapRequestToModel<ShellSocketTextResponse>(message.MessageData);
+            var request = APIRequestMapper.MapRequestToModel<ShellSocketTextMessageResponse>(message.MessageData);
 
             if (request != null)
             {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CatboyEngineering.KinkShellClient.Models.API.WebSocket
+namespace CatboyEngineering.KinkShellClient.Models.API.WebSocket.Request
 {
     public struct ShellSocketConnectRequest
     {

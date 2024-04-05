@@ -1,12 +1,12 @@
 ﻿using CatboyEngineering.KinkShellClient.Models;
-using CatboyEngineering.KinkShellClient.ShellData;
+using CatboyEngineering.KinkShellClient.Models.Shell;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CatboyEngineering.KinkShellClient.Windows.Utilities
+namespace CatboyEngineering.KinkShellClient.Windows.States
 {
     public class MainWindowState
     {

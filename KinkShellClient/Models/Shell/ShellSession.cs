@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net.WebSockets;
 
-namespace CatboyEngineering.KinkShellClient.ShellData
+namespace CatboyEngineering.KinkShellClient.Models.Shell
 {
     public class ShellSession
     {
@@ -27,7 +27,7 @@ namespace CatboyEngineering.KinkShellClient.ShellData
         public void ReceivedNewMessage(ChatMessage message)
         {
             ScrollMessages = true;
-            this.Messages.Add(message);
+            Messages.Add(message);
         }
     }
 }

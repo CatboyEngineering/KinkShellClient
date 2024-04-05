@@ -1,4 +1,5 @@
-﻿using CatboyEngineering.KinkShellClient.ShellData;
+﻿using CatboyEngineering.KinkShellClient.Models;
+using CatboyEngineering.KinkShellClient.Models.Shell;
 
 namespace CatboyEngineering.KinkShellClient.Windows.Utilities
 {

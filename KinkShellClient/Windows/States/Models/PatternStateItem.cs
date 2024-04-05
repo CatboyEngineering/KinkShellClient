@@ -1,7 +1,7 @@
 ﻿using CatboyEngineering.KinkShellClient.Models.Toy;
 using System;
 
-namespace CatboyEngineering.KinkShellClient.Windows.Utilities
+namespace CatboyEngineering.KinkShellClient.Windows.States.Models
 {
     public class PatternStateItem
     {
@@ -27,10 +27,10 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
             NewDuration = pattern.Duration;
             NewDelay = pattern.Delay;
 
-            patternIntBuffer = ((int)pattern.PatternType);
+            patternIntBuffer = (int)pattern.PatternType;
             intensityDoubleBuffer = pattern.Intensity;
-            durationDoubleBuffer = (double)(pattern.Duration / 1000d);
-            delayDoubleBuffer = (double)(pattern.Delay / 1000d);
+            durationDoubleBuffer = pattern.Duration / 1000d;
+            delayDoubleBuffer = pattern.Delay / 1000d;
         }
     }
 }

@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CatboyEngineering.KinkShellClient.ShellData
+namespace CatboyEngineering.KinkShellClient.Models.Shell
 {
-    public struct KinkShellMember
+    public struct ShellNewUser
     {
-        public Guid AccountID { get; set; }
-        public string DisplayName { get; set; }
+        public Guid UserID { get; set; }
         public bool SendCommands { get; set; }
     }
 }

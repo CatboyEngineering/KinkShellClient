@@ -1,5 +1,6 @@
-﻿using CatboyEngineering.KinkShellClient.Models.Toy;
-using CatboyEngineering.KinkShellClient.ShellData;
+﻿using CatboyEngineering.KinkShellClient.Models;
+using CatboyEngineering.KinkShellClient.Models.Shell;
+using CatboyEngineering.KinkShellClient.Models.Toy;
 using CatboyEngineering.KinkShellClient.Toy;
 using System;
 using System.Collections.Generic;
