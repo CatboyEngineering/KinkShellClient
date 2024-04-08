@@ -13,7 +13,7 @@ namespace CatboyEngineering.KinkShellClient
     [Serializable]
     public class Configuration : IPluginConfiguration
     {
-        public string KinkShellServerAddress { get; set; } = "kinkshell.catboy.engineering";
+        public string KinkShellServerAddress { get; set; } = "api.catboy.engineering";
         public string KinkShellServerUsername { get; set; } = "";
         public string KinkShellServerPassword { get; set; } = "";
         public bool KinkShellSecure { get; set; } = true;
@@ -90,9 +90,10 @@ namespace CatboyEngineering.KinkShellClient
 
             if (Version == 1)
             {
-                // This update changes the schema for stored patterns.
+                // This update changes the schema for stored patterns and the API URL
                 Version = CurrentVersion;
 
+                KinkShellServerAddress = "api.catboy.engineering";
                 SavedPatterns.Clear();
 
                 Save();
