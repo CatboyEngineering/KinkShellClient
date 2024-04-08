@@ -8,10 +8,12 @@ using CatboyEngineering.KinkShellClient.Models.Shell;
 using CatboyEngineering.KinkShellClient.Models.Toy;
 using CatboyEngineering.KinkShellClient.Utilities;
 using CatboyEngineering.KinkShellClient.Windows;
+using Dalamud.Game.ClientState.Statuses;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.WebSockets;
 using System.Text;
@@ -209,7 +211,7 @@ namespace CatboyEngineering.KinkShellClient.Network
                 MessageData = JObject.FromObject(new ShellSocketConnectRequest
                 {
                     ShellID = shellSession.KinkShell.ShellID,
-                    Toys = Plugin.ToyController.ConnectedToys
+                    Toys = Plugin.ToyController.ConnectedToys.ToArray()
                 })
             };
 
@@ -250,7 +252,7 @@ namespace CatboyEngineering.KinkShellClient.Network
             await Plugin.HTTP.SendWebSocketMessage(shellSession, connectMessage);
         }
 
-        public async Task SendShellCommand(ShellSession shellSession, List<Guid> targets, StoredShellCommand storedShellCommand)
+        public async Task SendShellCommand(ShellSession shellSession, List<Guid> targets, Guid toyID, StoredShellCommand storedShellCommand)
         {
             var connectMessage = new ShellSocketMessage
             {
@@ -259,6 +261,7 @@ namespace CatboyEngineering.KinkShellClient.Network
                 {
                     ShellID = shellSession.KinkShell.ShellID,
                     Targets = targets,
+                    ToyID = toyID,
                     Command = new ShellCommand
                     {
                         CommandName = storedShellCommand.Name,
@@ -294,7 +297,7 @@ namespace CatboyEngineering.KinkShellClient.Network
                         HandleUserConnectedMessage(baseResponse, session);
                         break;
                     case ShellSocketMessageType.STATUS:
-                        // TODO handle displaying a user's toy status. Process / store the data models like it was an info response.
+                        HandleUserStatusMessage(baseResponse, session);
                         break;
                     default:
                         HandleUserTextMessage(baseResponse, session);
@@ -311,6 +314,21 @@ namespace CatboyEngineering.KinkShellClient.Network
             {
                 session.ConnectedUsers.Clear();
                 session.ConnectedUsers.AddRange(request.Value.ConnectedUsers);
+            }
+
+            // TODO: issue: null device name?
+        }
+
+        private void HandleUserStatusMessage(ShellSocketMessage message, ShellSession session)
+        {
+            var request = APIRequestMapper.MapRequestToModel<ShellSocketStatusResponse>(message.MessageData);
+
+            if (request != null)
+            {
+                var user = session.ConnectedUsers.Find(cu => cu.AccountID == request.Value.UserID);
+
+                user.RunningCommands.Clear();
+                user.RunningCommands.AddRange(request.Value.RunningCommands);
             }
         }
 
@@ -338,11 +356,13 @@ namespace CatboyEngineering.KinkShellClient.Network
 
                 if (request != null)
                 {
-                    if (Plugin.ToyController.ConnectedToys.Length > 0)
+                    if (Plugin.ToyController.ConnectedToys.Exists(ct => ct.DeviceInstanceID == request.Value.ToyID))
                     {
+                        var toy = Plugin.ToyController.ConnectedToys.Find(ct => ct.DeviceInstanceID == request.Value.ToyID);
+
                         // TODO elsewhere: where do we put the code for when the command ends, or if the user stops it? Or when another user stops it?
                         await SendShellStatusRequest(session, request.Value.Command, ShellSocketCommandStatus.RUNNING);
-                        await Plugin.ToyController.IssueCommand(Plugin.ToyController.Client.Devices[0], request.Value.Command);
+                        await Plugin.ToyController.IssueCommand(toy, request.Value.Command);
                     }
                 }
             }

@@ -14,10 +14,12 @@ namespace CatboyEngineering.KinkShellClient.Toy
         public int Oscillate { get; }
         public int Rotate { get; }
         public int Vibrate { get; }
+        public uint Index { get; }
 
         public ToyProperties(ButtplugClientDevice device) {
-            DisplayName = device.DisplayName;
+            DisplayName = device.Name;
             DeviceInstanceID = Guid.NewGuid();
+            Index = device.Index;
 
             Constrict = device.GenericAcutatorAttributes(ActuatorType.Constrict).Count;
             Inflate = device.GenericAcutatorAttributes(ActuatorType.Inflate).Count;

@@ -23,9 +23,9 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
             await plugin.ConnectionHandler.SendShellChatMessage(session, message);
         }
 
-        public static async Task SendCommand(Plugin plugin, ShellSession session, List<Guid> targets, StoredShellCommand storedShellCommand)
+        public static async Task SendCommand(Plugin plugin, ShellSession session, List<Guid> targets, Guid toyID, StoredShellCommand storedShellCommand)
         {
-            await plugin.ConnectionHandler.SendShellCommand(session, targets, storedShellCommand);
+            await plugin.ConnectionHandler.SendShellCommand(session, targets, toyID, storedShellCommand);
         }
 
         public static async Task Cooldown(ShellWindow shellWindow)
@@ -42,7 +42,8 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
             await plugin.ConnectionHandler.CloseConnection(kinkShell);
         }
 
-        public static string[] GetListOfUsers(ShellSession session)
+        // TODO this is probably deprecated now.
+        public static string[] GetListOfUsers(Plugin plugin, ShellSession session)
         {
             var userList = session.ConnectedUsers.Select(cu => cu.DisplayName).ToList();
 

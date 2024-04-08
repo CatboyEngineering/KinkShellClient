@@ -8,6 +8,7 @@ namespace CatboyEngineering.KinkShellClient.Models.API.WebSocket.Request
     {
         public Guid ShellID { get; set; }
         public List<Guid> Targets { get; set; }
+        public Guid ToyID { get; set; }
         public ShellCommand Command { get; set; }
     }
 }

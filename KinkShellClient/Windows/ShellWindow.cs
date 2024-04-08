@@ -1,10 +1,13 @@
 ﻿using CatboyEngineering.KinkShellClient.Models;
 using CatboyEngineering.KinkShellClient.Models.Shell;
+using CatboyEngineering.KinkShellClient.Models.Toy;
 using CatboyEngineering.KinkShellClient.Toy;
 using CatboyEngineering.KinkShellClient.Windows.Utilities;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 namespace CatboyEngineering.KinkShellClient.Windows
@@ -88,35 +91,80 @@ namespace CatboyEngineering.KinkShellClient.Windows
             var width = ImGui.GetWindowWidth();
             ImGui.BeginChild("ToyControlCenter", new Vector2(width - 15, 150), true);
 
-            var userList = ShellWindowUtilities.GetListOfUsers(State.Session);
-            if (ImGui.Combo("Target", ref State.intBuffer, userList, userList.Length))
+            foreach(var user in State.Session.ConnectedUsers)
             {
-                ImGui.Text($"Selected {userList[State.intBuffer]}");
+                DrawUIUserCommand(user);
             }
-
-
-            if (State.onCooldown)
-            {
-                ImGui.BeginDisabled();
-            }
-
-            foreach (var pattern in ShellWindowUtilities.GetAvailableShellCommands(Plugin))
-            {
-                if (ImGui.Button($"{pattern.Name}"))
-                {
-                    var targets = ShellWindowUtilities.GetTargetList(State.intBuffer, userList, State.Session);
-                    _ = ShellWindowUtilities.SendCommand(Plugin, State.Session, targets, pattern);
-                    _ = ShellWindowUtilities.Cooldown(this);
-                }
-            }
-
-            if (State.onCooldown)
-            {
-                ImGui.EndDisabled();
-            }
-
 
             ImGui.EndChild();
+        }
+
+        private void DrawUIUserCommand(KinkShellMember user)
+        {
+            ImGui.BeginChild($"{user.DisplayName}", new Vector2(250, 150), true);
+            DrawPopupCommandUser(user);
+
+            ImGui.Text(user.DisplayName);
+
+            // TODO would be cool to keep the Everyone option. Or, if not, change the List to be a single GUID
+            if(ImGui.Button("Send Command"))
+            {
+                ImGui.OpenPopup($"command_user_{user.AccountID}");
+            }
+
+            ImGui.Text("Running commands:");
+            foreach(var runningCommand in user.RunningCommands)
+            {
+                ImGui.BulletText($"{runningCommand.CommandName}##{runningCommand.CommandInstanceID}");
+            }
+
+            ImGui.EndChild();
+        }
+
+        private void DrawPopupCommandUser(KinkShellMember user)
+        {
+            if (ImGui.BeginPopup($"command_user_{user.AccountID}"))
+            {
+                ImGui.Text($"Command {user.DisplayName}");
+
+                ImGui.Text("Toy:");
+                ImGui.SameLine();
+
+                foreach(var toy in user.Toys)
+                {
+                    ImGui.Text("Toy: " + toy.DisplayName);
+                }
+
+                // TODO: following line fails with "Value cannot be null: parameter chars
+                //ImGui.Combo("##UserToyCombo", ref State.intBuffer, user.Toys.Select(t => t.DisplayName).ToArray(), user.Toys.Length);
+
+                if (State.onCooldown)
+                {
+                    ImGui.BeginDisabled();
+                }
+
+                // TODO
+                // gray out buttons that aren't able to be run based on what this user has connected
+                // patterns may need a UsesVibrate() function to equal toy's Vibrate > 0
+                foreach (var pattern in ShellWindowUtilities.GetAvailableShellCommands(Plugin))
+                {
+                    if (ImGui.Button($"{pattern.Name}"))
+                    {
+                        var targets = new List<Guid>() { user.AccountID };
+                        var toy = user.Toys[State.intBuffer];
+
+                        _ = ShellWindowUtilities.SendCommand(Plugin, State.Session, targets, toy.DeviceInstanceID, pattern);
+                        _ = ShellWindowUtilities.Cooldown(this);
+                    }
+                }
+
+                if (State.onCooldown)
+                {
+                    ImGui.EndDisabled();
+                }
+
+                ImGui.EndPopup();
+            }
         }
 
         private void DrawUIChatWindow()

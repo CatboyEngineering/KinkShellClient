@@ -1,8 +1,11 @@
 ﻿using Buttplug.Client;
 using Buttplug.Client.Connectors.WebsocketConnector;
+using Buttplug.Core.Messages;
 using CatboyEngineering.KinkShellClient.Models.Toy;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using static Buttplug.Core.Messages.ScalarCmd;
 
 namespace CatboyEngineering.KinkShellClient.Toy
 {
@@ -12,12 +15,13 @@ namespace CatboyEngineering.KinkShellClient.Toy
         public ButtplugWebsocketConnector Connector { get; private set; }
         public ButtplugClient Client { get; private set; }
         public bool StopRequested { get; set; }
-        public ToyProperties[] ConnectedToys { get; set; }
+        public List<ToyProperties> ConnectedToys { get; set; }
 
         public ToyController(Plugin plugin)
         {
             Plugin = plugin;
             StopRequested = false;
+            ConnectedToys = new List<ToyProperties>();
         }
 
         public async Task Connect()
@@ -44,11 +48,11 @@ namespace CatboyEngineering.KinkShellClient.Toy
                 await Task.Delay(3000);
                 await Client.StopScanningAsync();
 
-                ConnectedToys = new ToyProperties[Client.Devices.Length];
+                ConnectedToys.Clear();
 
-                for(var i=0; i<Client.Devices.Length; i++)
+                foreach (var toy in Client.Devices)
                 {
-                    ConnectedToys[i] = new ToyProperties(Client.Devices[i]);
+                    ConnectedToys.Add(new ToyProperties(toy));
                 }
             }
         }
@@ -74,11 +78,12 @@ namespace CatboyEngineering.KinkShellClient.Toy
             }
         }
 
-        public async Task IssueCommand(ButtplugClientDevice device, ShellCommand command)
+        public async Task IssueCommand(ToyProperties toy, ShellCommand command)
         {
             if (Client.Connected)
             {
                 Plugin.Logger.Info("Translating Shell command to Intiface.");
+                var device = Client.Devices[toy.Index];
 
                 foreach (var pattern in command.Instructions)
                 {
@@ -88,38 +93,50 @@ namespace CatboyEngineering.KinkShellClient.Toy
                         break;
                     }
 
-                    try
+                    if (pattern.IsValid())
                     {
-                        switch (pattern.PatternType)
+                        try
                         {
-                            case PatternType.LINEAR:
-                                await device.LinearAsync((uint)pattern.Duration, pattern.VibrateIntensity);
-                                break;
-                            case PatternType.ROTATE:
-                                await device.RotateAsync(pattern.VibrateIntensity, true);
-                                await Task.Delay(pattern.Duration);
-                                await device.RotateAsync(0, true);
-                                break;
-                            case PatternType.OSCILLATE:
-                                await device.OscillateAsync(pattern.VibrateIntensity);
-                                await Task.Delay(pattern.Duration);
-                                await device.OscillateAsync(0);
-                                break;
-                            default:
-                                await device.VibrateAsync(pattern.VibrateIntensity);
-                                await Task.Delay(pattern.Duration);
-                                await device.VibrateAsync(0);
+                            switch (pattern.PatternType)
+                            {
+                                case PatternType.CONSTRICT:
+                                    await device.ScalarAsync(new ScalarSubcommand(toy.Index, pattern.ConstrictAmount.Value, ActuatorType.Constrict));
+                                    await Task.Delay(pattern.Duration);
+                                    break;
+                                case PatternType.INFLATE:
+                                    await device.ScalarAsync(new ScalarSubcommand(toy.Index, pattern.InflateAmount.Value, ActuatorType.Inflate));
+                                    await Task.Delay(pattern.Duration);
+                                    break;
+                                case PatternType.LINEAR:
+                                    await device.LinearAsync((uint)pattern.Duration, pattern.LinearPosition.Value);
+                                    break;
+                                case PatternType.OSCILLATE:
+                                    await device.OscillateAsync(pattern.OscillateIntensity);
+                                    await Task.Delay(pattern.Duration);
+                                    break;
+                                case PatternType.ROTATE:
+                                    await device.RotateAsync(pattern.RotateSpeed.Value, pattern.RotateClockwise.Value);
+                                    await Task.Delay(pattern.Duration);
+                                    break;
+                                case PatternType.VIBRATE:
+                                    await device.VibrateAsync(pattern.VibrateIntensity);
+                                    await Task.Delay(pattern.Duration);
+                                    break;
+                                default:
+                                    await device.Stop();
+                                    await Task.Delay(pattern.Duration);
 
-                                break;
+                                    break;
+                            }
                         }
-
-                        await Task.Delay(pattern.Delay);
+                        catch (Exception ex)
+                        {
+                            Plugin.Logger.Warning(ex, "KinkShell command error");
+                        }
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        Plugin.Logger.Warning(ex, "KinkShell device incompatible");
-                        // Possible that the device does not support the command, or
-                        // something happened to the connection.
+                        Plugin.Logger.Warning("Received an invalid command!");
                     }
                 }
 
