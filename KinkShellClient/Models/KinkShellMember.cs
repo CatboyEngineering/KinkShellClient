@@ -1,4 +1,5 @@
-﻿using CatboyEngineering.KinkShellClient.Toy;
+﻿using CatboyEngineering.KinkShellClient.Models.Shell;
+using CatboyEngineering.KinkShellClient.Toy;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,5 +14,6 @@ namespace CatboyEngineering.KinkShellClient.Models
         public string DisplayName { get; set; }
         public bool SendCommands { get; set; }
         public ToyProperties[] Toys { get; set; }
+        public List<RunningCommand> RunningCommands { get; set; }
     }
 }

@@ -216,15 +216,16 @@ namespace CatboyEngineering.KinkShellClient.Network
             await Plugin.HTTP.SendWebSocketMessage(shellSession, connectMessage);
         }
 
-        private async Task SendShellCommandStatusRequest(ShellSession shellSession, Guid commandInstanceID, ShellSocketCommandStatus status)
+        private async Task SendShellStatusRequest(ShellSession shellSession, ShellCommand command, ShellSocketCommandStatus status)
         {
             var connectMessage = new ShellSocketMessage
             {
                 MessageType = ShellSocketMessageType.STATUS,
-                MessageData = JObject.FromObject(new ShellSocketCommandStatusRequest
+                MessageData = JObject.FromObject(new ShellSocketStatusRequest
                 {
                     ShellID = shellSession.KinkShell.ShellID,
-                    CommandInstanceID = commandInstanceID,
+                    CommandName = command.CommandName,
+                    CommandInstanceID = command.CommandInstanceID,
                     Status = status
                 })
             };
@@ -289,6 +290,7 @@ namespace CatboyEngineering.KinkShellClient.Network
                         // We won't be receiving these messages
                         break;
                     case ShellSocketMessageType.INFO:
+                        // TODO if toys connect/disconnect after this point, they won't be reflected. Should we update toys periodically?
                         HandleUserConnectedMessage(baseResponse, session);
                         break;
                     case ShellSocketMessageType.STATUS:
@@ -338,7 +340,8 @@ namespace CatboyEngineering.KinkShellClient.Network
                 {
                     if (Plugin.ToyController.ConnectedToys.Length > 0)
                     {
-                        await SendShellCommandStatusRequest(session, request.Value.Command.CommandInstanceID, ShellSocketCommandStatus.RUNNING);
+                        // TODO elsewhere: where do we put the code for when the command ends, or if the user stops it? Or when another user stops it?
+                        await SendShellStatusRequest(session, request.Value.Command, ShellSocketCommandStatus.RUNNING);
                         await Plugin.ToyController.IssueCommand(Plugin.ToyController.Client.Devices[0], request.Value.Command);
                     }
                 }
