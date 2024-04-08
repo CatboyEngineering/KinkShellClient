@@ -8,9 +8,12 @@ namespace CatboyEngineering.KinkShellClient.Models.Toy
 {
     public enum PatternType
     {
-        VIBRATE,
+        CONSTRICT,
+        INFLATE,
+        LINEAR,
+        NONE,
         OSCILLATE,
         ROTATE,
-        LINEAR
+        VIBRATE
     }
 }

@@ -23,12 +23,12 @@ namespace CatboyEngineering.KinkShellClient.Windows.States.Models
             Pattern = pattern;
 
             NewPatternType = pattern.PatternType;
-            NewIntensity = pattern.Intensity;
+            NewIntensity = pattern.VibrateIntensity;
             NewDuration = pattern.Duration;
             NewDelay = pattern.Delay;
 
             patternIntBuffer = (int)pattern.PatternType;
-            intensityDoubleBuffer = pattern.Intensity;
+            intensityDoubleBuffer = pattern.VibrateIntensity;
             durationDoubleBuffer = pattern.Duration / 1000d;
             delayDoubleBuffer = pattern.Delay / 1000d;
         }

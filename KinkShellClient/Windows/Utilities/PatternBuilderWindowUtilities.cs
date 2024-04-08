@@ -55,7 +55,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
                 storedShellCommand.Instructions.Add(new Pattern
                 {
                     PatternType = step.NewPatternType,
-                    Intensity = step.NewIntensity,
+                    VibrateIntensity = step.NewIntensity,
                     Duration = step.NewDuration,
                     Delay = step.NewDelay
                 });

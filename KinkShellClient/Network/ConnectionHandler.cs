@@ -208,7 +208,24 @@ namespace CatboyEngineering.KinkShellClient.Network
                 MessageType = ShellSocketMessageType.CONNECT,
                 MessageData = JObject.FromObject(new ShellSocketConnectRequest
                 {
-                    ShellID = shellSession.KinkShell.ShellID
+                    ShellID = shellSession.KinkShell.ShellID,
+                    Toys = Plugin.ToyController.ConnectedToys
+                })
+            };
+
+            await Plugin.HTTP.SendWebSocketMessage(shellSession, connectMessage);
+        }
+
+        private async Task SendShellCommandStatusRequest(ShellSession shellSession, Guid commandInstanceID, ShellSocketCommandStatus status)
+        {
+            var connectMessage = new ShellSocketMessage
+            {
+                MessageType = ShellSocketMessageType.STATUS,
+                MessageData = JObject.FromObject(new ShellSocketCommandStatusRequest
+                {
+                    ShellID = shellSession.KinkShell.ShellID,
+                    CommandInstanceID = commandInstanceID,
+                    Status = status
                 })
             };
 
@@ -243,6 +260,8 @@ namespace CatboyEngineering.KinkShellClient.Network
                     Targets = targets,
                     Command = new ShellCommand
                     {
+                        CommandName = storedShellCommand.Name,
+                        CommandInstanceID = Guid.NewGuid(),
                         Instructions = storedShellCommand.Instructions
                     }
                 })
@@ -271,6 +290,9 @@ namespace CatboyEngineering.KinkShellClient.Network
                         break;
                     case ShellSocketMessageType.INFO:
                         HandleUserConnectedMessage(baseResponse, session);
+                        break;
+                    case ShellSocketMessageType.STATUS:
+                        // TODO handle displaying a user's toy status. Process / store the data models like it was an info response.
                         break;
                     default:
                         HandleUserTextMessage(baseResponse, session);
@@ -314,8 +336,9 @@ namespace CatboyEngineering.KinkShellClient.Network
 
                 if (request != null)
                 {
-                    if (Plugin.ToyController.Client.Devices.Length > 0)
+                    if (Plugin.ToyController.ConnectedToys.Length > 0)
                     {
+                        await SendShellCommandStatusRequest(session, request.Value.Command.CommandInstanceID, ShellSocketCommandStatus.RUNNING);
                         await Plugin.ToyController.IssueCommand(Plugin.ToyController.Client.Devices[0], request.Value.Command);
                     }
                 }

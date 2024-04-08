@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 
 namespace CatboyEngineering.KinkShellClient.Models.API.WebSocket.Request
 {
-    public struct ShellSocketConnectRequest
+    public struct ShellSocketCommandStatusRequest
     {
         public Guid ShellID { get; set; }
-        public ToyProperties[] Toys { get; set; }
+        public Guid CommandInstanceID { get; set; }
+        public ShellSocketCommandStatus Status { get; set; }
     }
 }

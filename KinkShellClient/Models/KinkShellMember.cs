@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CatboyEngineering.KinkShellClient.Toy;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,5 +12,6 @@ namespace CatboyEngineering.KinkShellClient.Models
         public Guid AccountID { get; set; }
         public string DisplayName { get; set; }
         public bool SendCommands { get; set; }
+        public ToyProperties[] Toys { get; set; }
     }
 }

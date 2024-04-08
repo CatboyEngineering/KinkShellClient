@@ -8,6 +8,8 @@ namespace CatboyEngineering.KinkShellClient.Models.Toy
 {
     public struct ShellCommand
     {
+        public string CommandName { get; set; }
+        public Guid CommandInstanceID { get; set; }
         public List<Pattern> Instructions { get; set; }
     }
 }

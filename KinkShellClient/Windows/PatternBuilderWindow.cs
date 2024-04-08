@@ -128,7 +128,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
                 State.patternStateItems.Add(new PatternStateItem(new Pattern
                 {
                     PatternType = PatternType.VIBRATE,
-                    Intensity = 0.5,
+                    VibrateIntensity = 0.5,
                     Duration = 1000,
                     Delay = 1000,
                 }));

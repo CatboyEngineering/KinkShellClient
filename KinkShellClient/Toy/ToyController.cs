@@ -12,6 +12,7 @@ namespace CatboyEngineering.KinkShellClient.Toy
         public ButtplugWebsocketConnector Connector { get; private set; }
         public ButtplugClient Client { get; private set; }
         public bool StopRequested { get; set; }
+        public ToyProperties[] ConnectedToys { get; set; }
 
         public ToyController(Plugin plugin)
         {
@@ -42,6 +43,13 @@ namespace CatboyEngineering.KinkShellClient.Toy
                 await Client.StartScanningAsync();
                 await Task.Delay(3000);
                 await Client.StopScanningAsync();
+
+                ConnectedToys = new ToyProperties[Client.Devices.Length];
+
+                for(var i=0; i<Client.Devices.Length; i++)
+                {
+                    ConnectedToys[i] = new ToyProperties(Client.Devices[i]);
+                }
             }
         }
 
@@ -85,20 +93,20 @@ namespace CatboyEngineering.KinkShellClient.Toy
                         switch (pattern.PatternType)
                         {
                             case PatternType.LINEAR:
-                                await device.LinearAsync((uint)pattern.Duration, pattern.Intensity);
+                                await device.LinearAsync((uint)pattern.Duration, pattern.VibrateIntensity);
                                 break;
                             case PatternType.ROTATE:
-                                await device.RotateAsync(pattern.Intensity, true);
+                                await device.RotateAsync(pattern.VibrateIntensity, true);
                                 await Task.Delay(pattern.Duration);
                                 await device.RotateAsync(0, true);
                                 break;
                             case PatternType.OSCILLATE:
-                                await device.OscillateAsync(pattern.Intensity);
+                                await device.OscillateAsync(pattern.VibrateIntensity);
                                 await Task.Delay(pattern.Duration);
                                 await device.OscillateAsync(0);
                                 break;
                             default:
-                                await device.VibrateAsync(pattern.Intensity);
+                                await device.VibrateAsync(pattern.VibrateIntensity);
                                 await Task.Delay(pattern.Duration);
                                 await device.VibrateAsync(0);
 

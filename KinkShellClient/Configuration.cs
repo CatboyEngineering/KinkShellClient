@@ -21,10 +21,10 @@ namespace CatboyEngineering.KinkShellClient
         public List<StoredShellCommand> SavedPatterns { get; set; } = new List<StoredShellCommand>();
         public Vector4 SelfTextColor { get; set; } = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 
-        public int Version { get; set; } = 1;
+        public int Version { get; set; } = 2;
 
         [NonSerialized]
-        private readonly int CurrentVersion = 1;
+        private readonly int CurrentVersion = 2;
 
         [NonSerialized]
         public readonly string CaptchaToken = "DalamudClient";
@@ -84,6 +84,16 @@ namespace CatboyEngineering.KinkShellClient
                 Version = CurrentVersion;
 
                 IntifaceServerAddress = "ws://" + IntifaceServerAddress;
+
+                Save();
+            }
+
+            if (Version == 1)
+            {
+                // This update changes the schema for stored patterns.
+                Version = CurrentVersion;
+
+                SavedPatterns.Clear();
 
                 Save();
             }
