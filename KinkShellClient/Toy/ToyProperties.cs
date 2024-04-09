@@ -6,15 +6,15 @@ namespace CatboyEngineering.KinkShellClient.Toy
 {
     public struct ToyProperties
     {
-        public string DisplayName { get; }
-        public Guid DeviceInstanceID { get; }
-        public int Constrict { get; }
-        public int Inflate { get; }
-        public int Linear { get; }
-        public int Oscillate { get; }
-        public int Rotate { get; }
-        public int Vibrate { get; }
-        public uint Index { get; }
+        public string DisplayName { get; set; }
+        public Guid DeviceInstanceID { get; set; }
+        public int Constrict { get; set; }
+        public int Inflate { get; set; }
+        public int Linear { get; set; }
+        public int Oscillate { get; set; }
+        public int Rotate { get; set; }
+        public int Vibrate { get; set; }
+        public uint Index { get; set; }
 
         public ToyProperties(ButtplugClientDevice device) {
             DisplayName = device.Name;

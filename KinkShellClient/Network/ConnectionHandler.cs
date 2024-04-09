@@ -315,8 +315,6 @@ namespace CatboyEngineering.KinkShellClient.Network
                 session.ConnectedUsers.Clear();
                 session.ConnectedUsers.AddRange(request.Value.ConnectedUsers);
             }
-
-            // TODO: issue: null device name?
         }
 
         private void HandleUserStatusMessage(ShellSocketMessage message, ShellSession session)

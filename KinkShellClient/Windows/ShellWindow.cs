@@ -37,7 +37,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
         public override void Draw()
         {   
-            ImGui.SetNextWindowSize(new Vector2(500, 675), ImGuiCond.Always);
+            ImGui.SetNextWindowSize(new Vector2(500, 750), ImGuiCond.Always);
 
             if (ImGui.Begin(this.WindowName))
             {
@@ -101,21 +101,25 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
         private void DrawUIUserCommand(KinkShellMember user)
         {
-            ImGui.BeginChild($"{user.DisplayName}", new Vector2(250, 150), true);
+            ImGui.BeginChild($"{user.DisplayName}", new Vector2(200, 100), true);
             DrawPopupCommandUser(user);
 
             ImGui.Text(user.DisplayName);
 
             // TODO would be cool to keep the Everyone option. Or, if not, change the List to be a single GUID
-            if(ImGui.Button("Send Command"))
+
+            if (user.Toys.Count > 0)
             {
-                ImGui.OpenPopup($"command_user_{user.AccountID}");
+                if (ImGui.Button("Send Command"))
+                {
+                    ImGui.OpenPopup($"command_user_{user.AccountID}");
+                }
             }
 
             ImGui.Text("Running commands:");
             foreach(var runningCommand in user.RunningCommands)
             {
-                ImGui.BulletText($"{runningCommand.CommandName}##{runningCommand.CommandInstanceID}");
+                ImGui.BulletText($"{runningCommand.CommandName}");
             }
 
             ImGui.EndChild();
@@ -129,14 +133,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
                 ImGui.Text("Toy:");
                 ImGui.SameLine();
-
-                foreach(var toy in user.Toys)
-                {
-                    ImGui.Text("Toy: " + toy.DisplayName);
-                }
-
-                // TODO: following line fails with "Value cannot be null: parameter chars
-                //ImGui.Combo("##UserToyCombo", ref State.intBuffer, user.Toys.Select(t => t.DisplayName).ToArray(), user.Toys.Length);
+                ImGui.Combo("##UserToyCombo", ref State.intBuffer, user.Toys.Select(t => t.DisplayName).ToArray(), user.Toys.Count);
 
                 if (State.onCooldown)
                 {
@@ -146,15 +143,18 @@ namespace CatboyEngineering.KinkShellClient.Windows
                 // TODO
                 // gray out buttons that aren't able to be run based on what this user has connected
                 // patterns may need a UsesVibrate() function to equal toy's Vibrate > 0
-                foreach (var pattern in ShellWindowUtilities.GetAvailableShellCommands(Plugin))
+                foreach (var storedCommand in ShellWindowUtilities.GetAvailableShellCommands(Plugin))
                 {
-                    if (ImGui.Button($"{pattern.Name}"))
+                    if (ImGui.Button($"{storedCommand.Name}"))
                     {
+                        // TODO don't use a list if it only needs to be 1 user.
                         var targets = new List<Guid>() { user.AccountID };
                         var toy = user.Toys[State.intBuffer];
 
-                        _ = ShellWindowUtilities.SendCommand(Plugin, State.Session, targets, toy.DeviceInstanceID, pattern);
+                        _ = ShellWindowUtilities.SendCommand(Plugin, State.Session, targets, toy.DeviceInstanceID, storedCommand);
                         _ = ShellWindowUtilities.Cooldown(this);
+
+                        ImGui.CloseCurrentPopup();
                     }
                 }
 

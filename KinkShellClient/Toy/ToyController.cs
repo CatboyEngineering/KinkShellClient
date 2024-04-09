@@ -67,6 +67,8 @@ namespace CatboyEngineering.KinkShellClient.Toy
 
         public void StopAllDevices()
         {
+            // TODO send a status stopped message for all running commands.
+
             StopRequested = true;
 
             if (Client.Connected)
@@ -100,11 +102,11 @@ namespace CatboyEngineering.KinkShellClient.Toy
                             switch (pattern.PatternType)
                             {
                                 case PatternType.CONSTRICT:
-                                    await device.ScalarAsync(new ScalarSubcommand(toy.Index, pattern.ConstrictAmount.Value, ActuatorType.Constrict));
+                                    await device.ScalarAsync(new ScalarSubcommand(0, pattern.ConstrictAmount.Value, ActuatorType.Constrict));
                                     await Task.Delay(pattern.Duration);
                                     break;
                                 case PatternType.INFLATE:
-                                    await device.ScalarAsync(new ScalarSubcommand(toy.Index, pattern.InflateAmount.Value, ActuatorType.Inflate));
+                                    await device.ScalarAsync(new ScalarSubcommand(0, pattern.InflateAmount.Value, ActuatorType.Inflate));
                                     await Task.Delay(pattern.Duration);
                                     break;
                                 case PatternType.LINEAR:
