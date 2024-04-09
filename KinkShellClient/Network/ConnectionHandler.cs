@@ -8,10 +8,12 @@ using CatboyEngineering.KinkShellClient.Models.Shell;
 using CatboyEngineering.KinkShellClient.Models.Toy;
 using CatboyEngineering.KinkShellClient.Utilities;
 using CatboyEngineering.KinkShellClient.Windows;
+using Dalamud.Game.ClientState.Statuses;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.WebSockets;
 using System.Text;
@@ -208,7 +210,40 @@ namespace CatboyEngineering.KinkShellClient.Network
                 MessageType = ShellSocketMessageType.CONNECT,
                 MessageData = JObject.FromObject(new ShellSocketConnectRequest
                 {
-                    ShellID = shellSession.KinkShell.ShellID
+                    ShellID = shellSession.KinkShell.ShellID,
+                    Toys = Plugin.ToyController.ConnectedToys
+                })
+            };
+
+            await Plugin.HTTP.SendWebSocketMessage(shellSession, connectMessage);
+        }
+
+        public async Task SendShellToyUpdateRequest(ShellSession shellSession)
+        {
+            var connectMessage = new ShellSocketMessage
+            {
+                MessageType = ShellSocketMessageType.TOY,
+                MessageData = JObject.FromObject(new ShellSocketConnectRequest
+                {
+                    ShellID = shellSession.KinkShell.ShellID,
+                    Toys = Plugin.ToyController.ConnectedToys
+                })
+            };
+
+            await Plugin.HTTP.SendWebSocketMessage(shellSession, connectMessage);
+        }
+
+        public async Task SendShellStatusRequest(ShellSession shellSession, string commandName, Guid commandID, ShellSocketCommandStatus status)
+        {
+            var connectMessage = new ShellSocketMessage
+            {
+                MessageType = ShellSocketMessageType.STATUS,
+                MessageData = JObject.FromObject(new ShellSocketStatusRequest
+                {
+                    ShellID = shellSession.KinkShell.ShellID,
+                    CommandName = commandName,
+                    CommandInstanceID = commandID,
+                    Status = status
                 })
             };
 
@@ -232,7 +267,7 @@ namespace CatboyEngineering.KinkShellClient.Network
             await Plugin.HTTP.SendWebSocketMessage(shellSession, connectMessage);
         }
 
-        public async Task SendShellCommand(ShellSession shellSession, List<Guid> targets, StoredShellCommand storedShellCommand)
+        public async Task SendShellCommand(ShellSession shellSession, List<Guid> targets, Guid toyID, StoredShellCommand storedShellCommand)
         {
             var connectMessage = new ShellSocketMessage
             {
@@ -241,8 +276,11 @@ namespace CatboyEngineering.KinkShellClient.Network
                 {
                     ShellID = shellSession.KinkShell.ShellID,
                     Targets = targets,
+                    ToyID = toyID,
                     Command = new ShellCommand
                     {
+                        CommandName = storedShellCommand.Name,
+                        CommandInstanceID = Guid.NewGuid(),
                         Instructions = storedShellCommand.Instructions
                     }
                 })
@@ -270,7 +308,14 @@ namespace CatboyEngineering.KinkShellClient.Network
                         // We won't be receiving these messages
                         break;
                     case ShellSocketMessageType.INFO:
+                        // TODO if toys connect/disconnect after this point, they won't be reflected. Should we update toys periodically?
                         HandleUserConnectedMessage(baseResponse, session);
+                        break;
+                    case ShellSocketMessageType.STATUS:
+                        HandleUserStatusMessage(baseResponse, session);
+                        break;
+                    case ShellSocketMessageType.TOY:
+                        HandleUserToyMessage(baseResponse, session);
                         break;
                     default:
                         HandleUserTextMessage(baseResponse, session);
@@ -287,6 +332,32 @@ namespace CatboyEngineering.KinkShellClient.Network
             {
                 session.ConnectedUsers.Clear();
                 session.ConnectedUsers.AddRange(request.Value.ConnectedUsers);
+            }
+        }
+
+        private void HandleUserStatusMessage(ShellSocketMessage message, ShellSession session)
+        {
+            var request = APIRequestMapper.MapRequestToModel<ShellSocketStatusResponse>(message.MessageData);
+
+            if (request != null)
+            {
+                var user = session.ConnectedUsers.Find(cu => cu.AccountID == request.Value.UserID);
+
+                user.RunningCommands.Clear();
+                user.RunningCommands.AddRange(request.Value.RunningCommands);
+            }
+        }
+
+        private void HandleUserToyMessage(ShellSocketMessage message, ShellSession session)
+        {
+            var request = APIRequestMapper.MapRequestToModel<ShellSocketUserToyChangeResponse>(message.MessageData);
+
+            if (request != null)
+            {
+                var user = session.ConnectedUsers.Find(cu => cu.AccountID == request.Value.UserID);
+
+                user.Toys.Clear();
+                user.Toys.AddRange(request.Value.Toys);
             }
         }
 
@@ -314,9 +385,19 @@ namespace CatboyEngineering.KinkShellClient.Network
 
                 if (request != null)
                 {
-                    if (Plugin.ToyController.Client.Devices.Length > 0)
+                    if (Plugin.ToyController.ConnectedToys.Exists(ct => ct.DeviceInstanceID == request.Value.ToyID))
                     {
-                        await Plugin.ToyController.IssueCommand(Plugin.ToyController.Client.Devices[0], request.Value.Command);
+                        var toy = Plugin.ToyController.ConnectedToys.Find(ct => ct.DeviceInstanceID == request.Value.ToyID);
+
+                        if (!Plugin.ToyController.IsCommandRunning(toy))
+                        {
+                            var command = request.Value.Command;
+
+                            // TODO elsewhere: where do we put the code for when the command ends, or if the user stops it? Or when another user stops it?
+                            // We may need to modify this to include a RUN/STOP option, which triggers stop code and a status update.
+                            await SendShellStatusRequest(session, command.CommandName, command.CommandInstanceID, ShellSocketCommandStatus.RUNNING);
+                            await Plugin.ToyController.IssueCommand(session, toy, command);
+                        }
                     }
                 }
             }

@@ -5,258 +5,42 @@ namespace CatboyEngineering.KinkShellClient.Toy
 {
     public static class DefaultPatterns
     {
-        public static readonly StoredShellCommand Ripple = new()
+        public static readonly StoredShellCommand Pulse = new()
         {
-            Name = "Ripple",
+            Name = "Pulse",
             Instructions = new List<Pattern>
             {
                 new() {
                     PatternType = PatternType.VIBRATE,
-                    Intensity = 0.25,
-                    Duration = 200,
-                    Delay = 100,
+                    VibrateIntensity = new double[]{ 0.4, 0 },
+                    Duration = 300
+                },
+                new() {
+                    PatternType = PatternType.NONE,
+                    Duration = 500
                 },
                 new() {
                     PatternType = PatternType.VIBRATE,
-                    Intensity = 0.5,
-                    Duration = 200,
-                    Delay = 100,
+                    VibrateIntensity = new double[]{ 0.4, 0 },
+                    Duration = 300
+                },
+                new() {
+                    PatternType = PatternType.NONE,
+                    Duration = 100
                 },
                 new() {
                     PatternType = PatternType.VIBRATE,
-                    Intensity = 0.75,
-                    Duration = 200,
-                    Delay = 100,
+                    VibrateIntensity = new double[]{ 0.4, 0 },
+                    Duration = 300
+                },
+                new() {
+                    PatternType = PatternType.NONE,
+                    Duration = 500
                 },
                 new() {
                     PatternType = PatternType.VIBRATE,
-                    Intensity = 0.85,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 1,
-                    Duration = 200,
-                    Delay = 1000,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 0.25,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 0.5,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 0.75,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 0.85,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 1,
-                    Duration = 200,
-                    Delay = 1000,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 1,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 0.85,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 0.75,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 0.5,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 0.25,
-                    Duration = 200,
-                    Delay = 1000,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 1,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 0.85,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 0.75,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 0.50,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 0.25,
-                    Duration = 200,
-                    Delay = 1000,
-                }
-            }
-        };
-
-        public static readonly StoredShellCommand Shockwave = new()
-        {
-            Name = "Shockwave",
-            Instructions = new List<Pattern>
-            {
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 0.75,
-                    Duration = 1000,
-                    Delay = 500,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 0.75,
-                    Duration = 1000,
-                    Delay = 500,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 1,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 0.50,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 1,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 0.50,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 1,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 0.50,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 1,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 0.50,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 0.75,
-                    Duration = 1000,
-                    Delay = 500,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 0.75,
-                    Duration = 1000,
-                    Delay = 500,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 1,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 0.50,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 1,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 0.50,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 1,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 0.50,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 1,
-                    Duration = 200,
-                    Delay = 100,
-                },
-                new() {
-                    PatternType = PatternType.VIBRATE,
-                    Intensity = 0.50,
-                    Duration = 200,
-                    Delay = 100,
+                    VibrateIntensity = new double[]{ 0.5, 0 },
+                    Duration = 300
                 }
             }
         };

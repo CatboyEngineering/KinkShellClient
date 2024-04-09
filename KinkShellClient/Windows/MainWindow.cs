@@ -211,11 +211,11 @@ namespace CatboyEngineering.KinkShellClient.Windows
                     var width = ImGui.GetWindowWidth();
                     ImGui.BeginChild("IntifaceWindow", new Vector2(width - 15, 75), true);
 
-                    if (Plugin.ToyController.Client.Devices.Length > 0)
+                    if (Plugin.ToyController.ConnectedToys.Count > 0)
                     {
-                        foreach (var toy in Plugin.ToyController.Client.Devices)
+                        foreach (var toy in Plugin.ToyController.ConnectedToys)
                         {
-                            ImGui.BulletText("Connected to " + toy.Name);
+                            ImGui.BulletText("Connected to " + toy.DisplayName);
                         }
                     }
                     else

@@ -23,9 +23,9 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
             await plugin.ConnectionHandler.SendShellChatMessage(session, message);
         }
 
-        public static async Task SendCommand(Plugin plugin, ShellSession session, List<Guid> targets, StoredShellCommand storedShellCommand)
+        public static async Task SendCommand(Plugin plugin, ShellSession session, List<Guid> targets, Guid toyID, StoredShellCommand storedShellCommand)
         {
-            await plugin.ConnectionHandler.SendShellCommand(session, targets, storedShellCommand);
+            await plugin.ConnectionHandler.SendShellCommand(session, targets, toyID, storedShellCommand);
         }
 
         public static async Task Cooldown(ShellWindow shellWindow)
@@ -40,15 +40,6 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
         public static async Task DisconnectFromShellWebSocket(Plugin plugin, KinkShell kinkShell)
         {
             await plugin.ConnectionHandler.CloseConnection(kinkShell);
-        }
-
-        public static string[] GetListOfUsers(ShellSession session)
-        {
-            var userList = session.ConnectedUsers.Select(cu => cu.DisplayName).ToList();
-
-            userList.Insert(0, "Everyone");
-
-            return userList.ToArray();
         }
 
         public static List<Guid> GetTargetList(int selected, string[] list, ShellSession session)
@@ -68,8 +59,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
             var list = new List<StoredShellCommand>();
 
             list.AddRange(plugin.Configuration.SavedPatterns);
-            list.Add(DefaultPatterns.Ripple);
-            list.Add(DefaultPatterns.Shockwave);
+            list.Add(DefaultPatterns.Pulse);
 
             return list;
         }

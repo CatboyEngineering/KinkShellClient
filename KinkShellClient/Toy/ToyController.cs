@@ -1,8 +1,14 @@
 ﻿using Buttplug.Client;
 using Buttplug.Client.Connectors.WebsocketConnector;
+using Buttplug.Core.Messages;
+using CatboyEngineering.KinkShellClient.Models;
+using CatboyEngineering.KinkShellClient.Models.API.WebSocket;
+using CatboyEngineering.KinkShellClient.Models.Shell;
 using CatboyEngineering.KinkShellClient.Models.Toy;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using static Buttplug.Core.Messages.ScalarCmd;
 
 namespace CatboyEngineering.KinkShellClient.Toy
 {
@@ -12,11 +18,15 @@ namespace CatboyEngineering.KinkShellClient.Toy
         public ButtplugWebsocketConnector Connector { get; private set; }
         public ButtplugClient Client { get; private set; }
         public bool StopRequested { get; set; }
+        public List<ToyProperties> ConnectedToys { get; set; }
+        public Dictionary<ToyProperties, RunningCommand> RunningCommands { get; set; }
 
         public ToyController(Plugin plugin)
         {
             Plugin = plugin;
             StopRequested = false;
+            RunningCommands = new Dictionary<ToyProperties, RunningCommand>();
+            ConnectedToys = new List<ToyProperties>();
         }
 
         public async Task Connect()
@@ -27,12 +37,26 @@ namespace CatboyEngineering.KinkShellClient.Toy
                 Client = new ButtplugClient("KinkShell Client");
             });
 
+            Client.DeviceAdded += DeviceAdded;
+            Client.DeviceRemoved += DeviceRemoved;
+
             try
             {
                 await Client.ConnectAsync(Connector);
                 await Scan();
             }
             catch { }
+        }
+
+        private void DeviceAdded(object? sender, DeviceAddedEventArgs args)
+        {
+            AddConnectedToy(args.Device);
+        }
+
+        private void DeviceRemoved(object? sender, DeviceRemovedEventArgs args)
+        {
+            RemoveConnectedToy(args.Device);
+            _ = UpdateToysInShells();
         }
 
         public async Task Scan()
@@ -42,6 +66,34 @@ namespace CatboyEngineering.KinkShellClient.Toy
                 await Client.StartScanningAsync();
                 await Task.Delay(3000);
                 await Client.StopScanningAsync();
+
+                ConnectedToys.Clear();
+
+                foreach (var toy in Client.Devices)
+                {
+                    AddConnectedToy(toy);
+                }
+
+                await UpdateToysInShells();
+            }
+        }
+
+        private void AddConnectedToy(ButtplugClientDevice device)
+        {
+            ConnectedToys.Add(new ToyProperties(device));
+        }
+
+        private void RemoveConnectedToy(ButtplugClientDevice device)
+        {
+            // Is this potentially dangerous? Will the library shift the indexes?
+            ConnectedToys.RemoveAll(ct => ct.Index == device.Index);
+        }
+
+        private async Task UpdateToysInShells()
+        {
+            foreach(var session in Plugin.ConnectionHandler.Connections)
+            {
+                await Plugin.ConnectionHandler.SendShellToyUpdateRequest(session);
             }
         }
 
@@ -53,9 +105,12 @@ namespace CatboyEngineering.KinkShellClient.Toy
             }
         }
 
-        public void StopAllDevices()
+        public void StopAllDevices(ShellSession session, KinkShellMember selfUser)
         {
-            StopRequested = true;
+            if (RunningCommands.Count > 0)
+            {
+                StopRequested = true;
+            }
 
             if (Client.Connected)
             {
@@ -64,59 +119,96 @@ namespace CatboyEngineering.KinkShellClient.Toy
                     _ = device.Stop();
                 }
             }
+
+            foreach (var command in selfUser.RunningCommands)
+            {
+                _ = SendCommandStoppedStatus(session, command.CommandName, command.CommandInstanceID);
+            }
         }
 
-        public async Task IssueCommand(ButtplugClientDevice device, ShellCommand command)
+        public async Task IssueCommand(ShellSession session, ToyProperties toy, ShellCommand command)
         {
             if (Client.Connected)
             {
                 Plugin.Logger.Info("Translating Shell command to Intiface.");
 
+                RunningCommands.Add(toy, new RunningCommand
+                {
+                    CommandName = command.CommandName,
+                    CommandInstanceID = command.CommandInstanceID
+                });
+
+                var device = Client.Devices[toy.Index];
+
                 foreach (var pattern in command.Instructions)
                 {
-                    if (StopRequested)
+                    if(StopRequested)
                     {
-                        Plugin.Logger.Info("User requested to stop current command.");
+                        StopRequested = false;
                         break;
                     }
 
-                    try
+                    if (pattern.IsValid())
                     {
-                        switch (pattern.PatternType)
+                        try
                         {
-                            case PatternType.LINEAR:
-                                await device.LinearAsync((uint)pattern.Duration, pattern.Intensity);
-                                break;
-                            case PatternType.ROTATE:
-                                await device.RotateAsync(pattern.Intensity, true);
-                                await Task.Delay(pattern.Duration);
-                                await device.RotateAsync(0, true);
-                                break;
-                            case PatternType.OSCILLATE:
-                                await device.OscillateAsync(pattern.Intensity);
-                                await Task.Delay(pattern.Duration);
-                                await device.OscillateAsync(0);
-                                break;
-                            default:
-                                await device.VibrateAsync(pattern.Intensity);
-                                await Task.Delay(pattern.Duration);
-                                await device.VibrateAsync(0);
+                            switch (pattern.PatternType)
+                            {
+                                case PatternType.CONSTRICT:
+                                    await device.ScalarAsync(new ScalarSubcommand(0, pattern.ConstrictAmount.Value, ActuatorType.Constrict));
+                                    await Task.Delay(pattern.Duration);
+                                    break;
+                                case PatternType.INFLATE:
+                                    await device.ScalarAsync(new ScalarSubcommand(0, pattern.InflateAmount.Value, ActuatorType.Inflate));
+                                    await Task.Delay(pattern.Duration);
+                                    break;
+                                case PatternType.LINEAR:
+                                    await device.LinearAsync((uint)pattern.Duration, pattern.LinearPosition.Value);
+                                    break;
+                                case PatternType.OSCILLATE:
+                                    await device.OscillateAsync(pattern.OscillateIntensity);
+                                    await Task.Delay(pattern.Duration);
+                                    break;
+                                case PatternType.ROTATE:
+                                    await device.RotateAsync(pattern.RotateSpeed.Value, pattern.RotateClockwise.Value);
+                                    await Task.Delay(pattern.Duration);
+                                    break;
+                                case PatternType.VIBRATE:
+                                    await device.VibrateAsync(pattern.VibrateIntensity);
+                                    await Task.Delay(pattern.Duration);
+                                    break;
+                                default:
+                                    await device.Stop();
+                                    await Task.Delay(pattern.Duration);
 
-                                break;
+                                    break;
+                            }
                         }
-
-                        await Task.Delay(pattern.Delay);
+                        catch (Exception ex)
+                        {
+                            Plugin.Logger.Warning(ex, "KinkShell command error");
+                        }
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        Plugin.Logger.Warning(ex, "KinkShell device incompatible");
-                        // Possible that the device does not support the command, or
-                        // something happened to the connection.
+                        Plugin.Logger.Warning("Received an invalid command!");
                     }
                 }
 
-                StopRequested = false;
+                RunningCommands.Remove(toy);
+                await device.Stop();
+                await SendCommandStoppedStatus(session, command.CommandName, command.CommandInstanceID);
             }
+        }
+
+        public async Task SendCommandStoppedStatus(ShellSession session, string commandName, Guid commandID)
+        {
+            await Plugin.ConnectionHandler.SendShellStatusRequest(session, commandName, commandID, ShellSocketCommandStatus.STOPPED);
+        }
+
+        public bool IsCommandRunning(ToyProperties toy)
+        {
+            return RunningCommands.ContainsKey(toy);
         }
 
         public void Dispose()

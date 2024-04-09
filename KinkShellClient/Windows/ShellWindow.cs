@@ -1,10 +1,14 @@
 ﻿using CatboyEngineering.KinkShellClient.Models;
 using CatboyEngineering.KinkShellClient.Models.Shell;
+using CatboyEngineering.KinkShellClient.Models.Toy;
 using CatboyEngineering.KinkShellClient.Toy;
 using CatboyEngineering.KinkShellClient.Windows.Utilities;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Numerics;
 
 namespace CatboyEngineering.KinkShellClient.Windows
@@ -26,15 +30,12 @@ namespace CatboyEngineering.KinkShellClient.Windows
         {
             base.OnClose();
 
-            _ = ShellWindowUtilities.DisconnectFromShellWebSocket(Plugin, State.KinkShell);
-            State = new ShellWindowState(Plugin, State.KinkShell, this);
-
-            Plugin.UIHandler.RemoveShellWindow(this);
+            DisconnectFromShell();
         }
 
         public override void Draw()
         {   
-            ImGui.SetNextWindowSize(new Vector2(500, 675), ImGuiCond.Always);
+            ImGui.SetNextWindowSize(new Vector2(500, 750), ImGuiCond.Always);
 
             if (ImGui.Begin(this.WindowName))
             {
@@ -50,8 +51,10 @@ namespace CatboyEngineering.KinkShellClient.Windows
         {
             if(ImGui.Button("Leave Session"))
             {
-                _ = ShellWindowUtilities.DisconnectFromShellWebSocket(Plugin, State.KinkShell);
                 this.IsOpen = false;
+                OnClose();
+
+                return;
             }
 
             ImGui.SameLine();
@@ -71,7 +74,9 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
             ImGui.Spacing();
 
-            if (ShellWindowUtilities.GetSelf(Plugin, State.Session).SendCommands)
+            var selfUser = ShellWindowUtilities.GetSelf(Plugin, State.Session);
+
+            if (selfUser.SendCommands)
             {
                 DrawUIPatternCenter();
             }
@@ -79,44 +84,104 @@ namespace CatboyEngineering.KinkShellClient.Windows
             ImGui.Spacing();
 
             DrawUIChatWindow();
-            DrawUISafetyWindow();
+            DrawUISafetyWindow(selfUser);
         }
 
         private void DrawUIPatternCenter()
         {
             ImGui.Text("Command Center:");
             var width = ImGui.GetWindowWidth();
-            ImGui.BeginChild("ToyControlCenter", new Vector2(width - 15, 150), true);
+            ImGui.BeginChild("ToyControlCenter", new Vector2(width - 15, 200), true);
 
-            var userList = ShellWindowUtilities.GetListOfUsers(State.Session);
-            if (ImGui.Combo("Target", ref State.intBuffer, userList, userList.Length))
+
+            for(var i=0; i< State.Session.ConnectedUsers.Count; i++)
             {
-                ImGui.Text($"Selected {userList[State.intBuffer]}");
-            }
+                var user = State.Session.ConnectedUsers[i];
 
-
-            if (State.onCooldown)
-            {
-                ImGui.BeginDisabled();
-            }
-
-            foreach (var pattern in ShellWindowUtilities.GetAvailableShellCommands(Plugin))
-            {
-                if (ImGui.Button($"{pattern.Name}"))
+                if(i % 2 != 0)
                 {
-                    var targets = ShellWindowUtilities.GetTargetList(State.intBuffer, userList, State.Session);
-                    _ = ShellWindowUtilities.SendCommand(Plugin, State.Session, targets, pattern);
-                    _ = ShellWindowUtilities.Cooldown(this);
+                    ImGui.SameLine();
+                }
+
+                DrawUIUserCommand(user);
+            }
+
+            ImGui.EndChild();
+        }
+
+        private void DrawUIUserCommand(KinkShellMember user)
+        {
+            ImGui.BeginChild($"{user.DisplayName}", new Vector2(200, 100), true);
+            DrawPopupCommandUser(user);
+
+            ImGui.Text(user.DisplayName);
+
+            // TODO would be cool to keep the Everyone option. Or, if not, change the List to be a single GUID
+
+            if (user.Toys.Count > 0)
+            {
+                if (ImGui.Button("Send Command"))
+                {
+                    ImGui.OpenPopup($"command_user_{user.AccountID}");
                 }
             }
 
-            if (State.onCooldown)
+            ImGui.Text("Running commands:");
+            foreach(var runningCommand in user.RunningCommands)
             {
-                ImGui.EndDisabled();
+                ImGui.BulletText($"{runningCommand.CommandName}");
             }
 
-
             ImGui.EndChild();
+        }
+
+        private void DrawPopupCommandUser(KinkShellMember user)
+        {
+            if (ImGui.BeginPopup($"command_user_{user.AccountID}"))
+            {
+                ImGui.Text($"Command {user.DisplayName}");
+
+                ImGui.Text("Toy:");
+                ImGui.SameLine();
+                ImGui.Combo("##UserToyCombo", ref State.intBuffer, user.Toys.Select(t => t.DisplayName).ToArray(), user.Toys.Count);
+
+                if (State.onCooldown)
+                {
+                    ImGui.BeginDisabled();
+                }
+
+                // TODO gray out buttons that aren't able to be run based on what this user has connected
+                // patterns may need a UsesVibrate() function to equal toy's Vibrate > 0
+                var commands = ShellWindowUtilities.GetAvailableShellCommands(Plugin);
+
+                for(var i=0; i<commands.Count; i++)
+                {
+                    var storedCommand = commands[i];
+                    if (i % 2 != 0)
+                    {
+                        ImGui.SameLine();
+                    }
+
+                    if (ImGui.Button($"{storedCommand.Name}"))
+                    {
+                        // TODO don't use a list if it only needs to be 1 user.
+                        var targets = new List<Guid>() { user.AccountID };
+                        var toy = user.Toys[State.intBuffer];
+
+                        _ = ShellWindowUtilities.SendCommand(Plugin, State.Session, targets, toy.DeviceInstanceID, storedCommand);
+                        _ = ShellWindowUtilities.Cooldown(this);
+
+                        ImGui.CloseCurrentPopup();
+                    }
+                }
+
+                if (State.onCooldown)
+                {
+                    ImGui.EndDisabled();
+                }
+
+                ImGui.EndPopup();
+            }
         }
 
         private void DrawUIChatWindow()
@@ -171,7 +236,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
             }
         }
 
-        private void DrawUISafetyWindow()
+        private void DrawUISafetyWindow(KinkShellMember selfUser)
         {
             ImGui.Spacing();
             ImGui.Text("Safety Center:");
@@ -188,10 +253,18 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
             if(ImGui.Button("Stop Current Pattern##StopPattern"))
             {
-                Plugin.ToyController.StopAllDevices();
+                Plugin.ToyController.StopAllDevices(State.Session, selfUser);
             }
 
             ImGui.EndChild();
+        }
+
+        private void DisconnectFromShell()
+        {
+            _ = ShellWindowUtilities.DisconnectFromShellWebSocket(Plugin, State.KinkShell);
+            State = new ShellWindowState(Plugin, State.KinkShell, this);
+
+            Plugin.UIHandler.RemoveShellWindow(this);
         }
     }
 }

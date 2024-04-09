@@ -128,9 +128,8 @@ namespace CatboyEngineering.KinkShellClient.Windows
                 State.patternStateItems.Add(new PatternStateItem(new Pattern
                 {
                     PatternType = PatternType.VIBRATE,
-                    Intensity = 0.5,
-                    Duration = 1000,
-                    Delay = 1000,
+                    VibrateIntensity = new double[] { 0, 0 },
+                    Duration = 1000
                 }));
             }
 
@@ -157,9 +156,9 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
         private void DrawUIPatternStep(PatternStateItem pattern)
         {
-            ImGui.BeginChild($"PatternStep##{pattern.TrackingID}", new Vector2(200, 125), true);
+            ImGui.BeginChild($"PatternStep##{pattern.TrackingID}", new Vector2(250, 125), true);
 
-            if (ImGui.Combo("", ref pattern.patternIntBuffer, Enum.GetNames<PatternType>(), 4))
+            if (ImGui.Combo("", ref pattern.patternIntBuffer, Enum.GetNames<PatternType>(), 7))
             {
                 pattern.NewPatternType = Enum.GetValues<PatternType>()[pattern.patternIntBuffer];
             }
@@ -171,22 +170,166 @@ namespace CatboyEngineering.KinkShellClient.Windows
                 State.patternStateItems.Remove(pattern);
             }
 
-            if (ImGui.InputDouble("Intensity", ref pattern.intensityDoubleBuffer, 0.05, 0.25, "%.2f"))
+            ImGui.SameLine();
+
+            if(ImGui.Button("Copy"))
             {
-                if(pattern.intensityDoubleBuffer > 1)
+                State.patternStateItems.Add(new PatternStateItem(new Pattern
                 {
-                    pattern.intensityDoubleBuffer = 1;
-                }
-
-                if (pattern.intensityDoubleBuffer < 0)
-                {
-                    pattern.intensityDoubleBuffer = 0;
-                }
-
-                pattern.NewIntensity = pattern.intensityDoubleBuffer;
+                    PatternType = pattern.NewPatternType,
+                    VibrateIntensity = pattern.NewVibrateIntensity,
+                    OscillateIntensity = pattern.NewOscillateIntensity,
+                    LinearPosition = pattern.NewLinearPosition,
+                    RotateClockwise = pattern.NewRotateClockwise,
+                    RotateSpeed = pattern.NewRotateSpeed,
+                    InflateAmount = pattern.NewInflateAmount,
+                    ConstrictAmount = pattern.NewConstrictAmount,
+                    Duration = pattern.NewDuration
+                }));
             }
 
-            if (ImGui.InputDouble("Seconds", ref pattern.durationDoubleBuffer, 0.05, 0.25, "%.3f"))
+            switch(pattern.NewPatternType)
+            {
+                case PatternType.CONSTRICT:
+                    if (ImGui.InputDouble("Intensity##ConstrictIntensity", ref pattern.constrictAmountBuffer, 0.05, 0.25, "%.2f"))
+                    {
+                        if (pattern.constrictAmountBuffer > 1)
+                        {
+                            pattern.constrictAmountBuffer = 1;
+                        }
+
+                        if (pattern.constrictAmountBuffer < 0)
+                        {
+                            pattern.constrictAmountBuffer = 0;
+                        }
+
+                        pattern.NewConstrictAmount = pattern.constrictAmountBuffer;
+                    }
+
+                    break;
+                case PatternType.INFLATE:
+                    if (ImGui.InputDouble("Intensity##InflateIntensity", ref pattern.inflateAmountBuffer, 0.05, 0.25, "%.2f"))
+                    {
+                        if (pattern.inflateAmountBuffer > 1)
+                        {
+                            pattern.inflateAmountBuffer = 1;
+                        }
+
+                        if (pattern.inflateAmountBuffer < 0)
+                        {
+                            pattern.inflateAmountBuffer = 0;
+                        }
+
+                        pattern.NewInflateAmount = pattern.inflateAmountBuffer;
+                    }
+
+                    break;
+                case PatternType.LINEAR:
+                    if (ImGui.InputDouble("Position##LinearPosition", ref pattern.linearPositionBuffer, 0.05, 0.25, "%.2f"))
+                    {
+                        if (pattern.linearPositionBuffer > 1)
+                        {
+                            pattern.linearPositionBuffer = 1;
+                        }
+
+                        if (pattern.linearPositionBuffer < 0)
+                        {
+                            pattern.linearPositionBuffer = 0;
+                        }
+
+                        pattern.NewLinearPosition = pattern.linearPositionBuffer;
+                    }
+
+                    break;
+                case PatternType.OSCILLATE:
+                    if (ImGui.InputDouble("Intensity 1##OscillateIntensityA", ref pattern.oscillateIntensityBuffer1, 0.05, 0.25, "%.2f"))
+                    {
+                        if (pattern.oscillateIntensityBuffer1 > 1)
+                        {
+                            pattern.oscillateIntensityBuffer1 = 1;
+                        }
+
+                        if (pattern.oscillateIntensityBuffer1 < 0)
+                        {
+                            pattern.oscillateIntensityBuffer1 = 0;
+                        }
+
+                        pattern.NewOscillateIntensity = new double[] { pattern.oscillateIntensityBuffer1, pattern.oscillateIntensityBuffer2 };
+                    }
+
+                    if (ImGui.InputDouble("Intensity 2##OscillateIntensityB", ref pattern.oscillateIntensityBuffer2, 0.05, 0.25, "%.2f"))
+                    {
+                        if (pattern.oscillateIntensityBuffer2 > 1)
+                        {
+                            pattern.oscillateIntensityBuffer2 = 1;
+                        }
+
+                        if (pattern.oscillateIntensityBuffer2 < 0)
+                        {
+                            pattern.oscillateIntensityBuffer2 = 0;
+                        }
+
+                        pattern.NewOscillateIntensity = new double[] { pattern.oscillateIntensityBuffer1, pattern.oscillateIntensityBuffer2 };
+                    }
+
+                    break;
+                case PatternType.ROTATE:
+                    if (ImGui.InputDouble("Speed##RotateSpeed", ref pattern.rotateSpeedBuffer, 0.05, 0.25, "%.2f"))
+                    {
+                        if (pattern.rotateSpeedBuffer > 1)
+                        {
+                            pattern.rotateSpeedBuffer = 1;
+                        }
+
+                        if (pattern.rotateSpeedBuffer < 0)
+                        {
+                            pattern.rotateSpeedBuffer = 0;
+                        }
+
+                        pattern.NewRotateSpeed = pattern.rotateSpeedBuffer;
+                    }
+
+                    if(ImGui.Checkbox("Clockwise##RotateClockwise", ref pattern.rotateClockwiseBuffer))
+                    {
+                        pattern.NewRotateClockwise = pattern.rotateClockwiseBuffer;
+                    }
+
+                    break;
+                case PatternType.VIBRATE:
+                    if (ImGui.InputDouble("Intensity 1##VibrateIntensityA", ref pattern.vibrateIntensityBuffer1, 0.05, 0.25, "%.2f"))
+                    {
+                        if (pattern.vibrateIntensityBuffer1 > 1)
+                        {
+                            pattern.vibrateIntensityBuffer1 = 1;
+                        }
+
+                        if (pattern.vibrateIntensityBuffer1 < 0)
+                        {
+                            pattern.vibrateIntensityBuffer1 = 0;
+                        }
+
+                        pattern.NewVibrateIntensity = new double[] { pattern.vibrateIntensityBuffer1, pattern.vibrateIntensityBuffer2 };
+                    }
+
+                    if (ImGui.InputDouble("Intensity 2##VibrateIntensityB", ref pattern.vibrateIntensityBuffer2, 0.05, 0.25, "%.2f"))
+                    {
+                        if (pattern.vibrateIntensityBuffer2 > 1)
+                        {
+                            pattern.vibrateIntensityBuffer2 = 1;
+                        }
+
+                        if (pattern.vibrateIntensityBuffer2 < 0)
+                        {
+                            pattern.vibrateIntensityBuffer2 = 0;
+                        }
+
+                        pattern.NewVibrateIntensity = new double[] { pattern.vibrateIntensityBuffer1, pattern.vibrateIntensityBuffer2 };
+                    }
+
+                    break;
+            }
+
+            if (ImGui.InputDouble("Seconds", ref pattern.durationDoubleBuffer, 0.05, 0.25, "%.2f"))
             {
                 if (pattern.durationDoubleBuffer < 0)
                 {
@@ -194,16 +337,6 @@ namespace CatboyEngineering.KinkShellClient.Windows
                 }
 
                 pattern.NewDuration = (int)(pattern.durationDoubleBuffer * 1000);
-            }
-
-            if (ImGui.InputDouble("Pause", ref pattern.delayDoubleBuffer, 0.05, 0.25, "%.3f"))
-            {
-                if (pattern.delayDoubleBuffer < 0)
-                {
-                    pattern.delayDoubleBuffer = 0;
-                }
-
-                pattern.NewDelay = (int)(pattern.delayDoubleBuffer * 1000);
             }
 
             ImGui.EndChild();

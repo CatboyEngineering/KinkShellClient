@@ -18,7 +18,7 @@ namespace CatboyEngineering.KinkShellClient.Utilities
                     }
                 }
 
-                return (T)JsonConvert.DeserializeObject(request.ToString(), typeof(T));
+                return JsonConvert.DeserializeObject<T>(request.ToString());
             }
             catch (Exception)
             {

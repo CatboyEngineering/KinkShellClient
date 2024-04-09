@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CatboyEngineering.KinkShellClient.Models.Toy
+namespace CatboyEngineering.KinkShellClient.Models.Shell
 {
-    public struct ShellCommand
+    public struct RunningCommand
     {
         public string CommandName { get; set; }
         public Guid CommandInstanceID { get; set; }
-        public List<Pattern> Instructions { get; set; }
     }
 }
