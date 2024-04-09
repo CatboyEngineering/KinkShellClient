@@ -10,6 +10,6 @@ namespace CatboyEngineering.KinkShellClient.Models.API.WebSocket.Request
     public struct ShellSocketConnectRequest
     {
         public Guid ShellID { get; set; }
-        public ToyProperties[] Toys { get; set; }
+        public List<ToyProperties> Toys { get; set; }
     }
 }

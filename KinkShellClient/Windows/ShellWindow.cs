@@ -29,10 +29,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
         {
             base.OnClose();
 
-            _ = ShellWindowUtilities.DisconnectFromShellWebSocket(Plugin, State.KinkShell);
-            State = new ShellWindowState(Plugin, State.KinkShell, this);
-
-            Plugin.UIHandler.RemoveShellWindow(this);
+            DisconnectFromShell();
         }
 
         public override void Draw()
@@ -53,8 +50,10 @@ namespace CatboyEngineering.KinkShellClient.Windows
         {
             if(ImGui.Button("Leave Session"))
             {
-                _ = ShellWindowUtilities.DisconnectFromShellWebSocket(Plugin, State.KinkShell);
                 this.IsOpen = false;
+                OnClose();
+
+                return;
             }
 
             ImGui.SameLine();
@@ -74,7 +73,9 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
             ImGui.Spacing();
 
-            if (ShellWindowUtilities.GetSelf(Plugin, State.Session).SendCommands)
+            var selfUser = ShellWindowUtilities.GetSelf(Plugin, State.Session);
+
+            if (selfUser.SendCommands)
             {
                 DrawUIPatternCenter();
             }
@@ -82,14 +83,14 @@ namespace CatboyEngineering.KinkShellClient.Windows
             ImGui.Spacing();
 
             DrawUIChatWindow();
-            DrawUISafetyWindow();
+            DrawUISafetyWindow(selfUser);
         }
 
         private void DrawUIPatternCenter()
         {
             ImGui.Text("Command Center:");
             var width = ImGui.GetWindowWidth();
-            ImGui.BeginChild("ToyControlCenter", new Vector2(width - 15, 150), true);
+            ImGui.BeginChild("ToyControlCenter", new Vector2(width - 15, 200), true);
 
             foreach(var user in State.Session.ConnectedUsers)
             {
@@ -140,8 +141,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
                     ImGui.BeginDisabled();
                 }
 
-                // TODO
-                // gray out buttons that aren't able to be run based on what this user has connected
+                // TODO gray out buttons that aren't able to be run based on what this user has connected
                 // patterns may need a UsesVibrate() function to equal toy's Vibrate > 0
                 foreach (var storedCommand in ShellWindowUtilities.GetAvailableShellCommands(Plugin))
                 {
@@ -219,7 +219,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
             }
         }
 
-        private void DrawUISafetyWindow()
+        private void DrawUISafetyWindow(KinkShellMember selfUser)
         {
             ImGui.Spacing();
             ImGui.Text("Safety Center:");
@@ -236,10 +236,18 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
             if(ImGui.Button("Stop Current Pattern##StopPattern"))
             {
-                Plugin.ToyController.StopAllDevices();
+                Plugin.ToyController.StopAllDevices(State.Session, selfUser);
             }
 
             ImGui.EndChild();
+        }
+
+        private void DisconnectFromShell()
+        {
+            _ = ShellWindowUtilities.DisconnectFromShellWebSocket(Plugin, State.KinkShell);
+            State = new ShellWindowState(Plugin, State.KinkShell, this);
+
+            Plugin.UIHandler.RemoveShellWindow(this);
         }
     }
 }

@@ -156,9 +156,9 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
         private void DrawUIPatternStep(PatternStateItem pattern)
         {
-            ImGui.BeginChild($"PatternStep##{pattern.TrackingID}", new Vector2(200, 125), true);
+            ImGui.BeginChild($"PatternStep##{pattern.TrackingID}", new Vector2(250, 125), true);
 
-            if (ImGui.Combo("", ref pattern.patternIntBuffer, Enum.GetNames<PatternType>(), 4))
+            if (ImGui.Combo("", ref pattern.patternIntBuffer, Enum.GetNames<PatternType>(), 7))
             {
                 pattern.NewPatternType = Enum.GetValues<PatternType>()[pattern.patternIntBuffer];
             }
@@ -257,8 +257,6 @@ namespace CatboyEngineering.KinkShellClient.Windows
                         pattern.NewOscillateIntensity = new double[] { pattern.oscillateIntensityBuffer1, pattern.oscillateIntensityBuffer2 };
                     }
 
-                    ImGui.SameLine();
-
                     if (ImGui.InputDouble("Intensity 2##OscillateIntensityB", ref pattern.oscillateIntensityBuffer2, 0.05, 0.25, "%.2f"))
                     {
                         if (pattern.oscillateIntensityBuffer2 > 1)
@@ -312,8 +310,6 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
                         pattern.NewVibrateIntensity = new double[] { pattern.vibrateIntensityBuffer1, pattern.vibrateIntensityBuffer2 };
                     }
-
-                    ImGui.SameLine();
 
                     if (ImGui.InputDouble("Intensity 2##VibrateIntensityB", ref pattern.vibrateIntensityBuffer2, 0.05, 0.25, "%.2f"))
                     {

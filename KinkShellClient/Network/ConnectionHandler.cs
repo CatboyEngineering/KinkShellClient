@@ -211,14 +211,14 @@ namespace CatboyEngineering.KinkShellClient.Network
                 MessageData = JObject.FromObject(new ShellSocketConnectRequest
                 {
                     ShellID = shellSession.KinkShell.ShellID,
-                    Toys = Plugin.ToyController.ConnectedToys.ToArray()
+                    Toys = Plugin.ToyController.ConnectedToys
                 })
             };
 
             await Plugin.HTTP.SendWebSocketMessage(shellSession, connectMessage);
         }
 
-        private async Task SendShellStatusRequest(ShellSession shellSession, ShellCommand command, ShellSocketCommandStatus status)
+        public async Task SendShellStatusRequest(ShellSession shellSession, string commandName, Guid commandID, ShellSocketCommandStatus status)
         {
             var connectMessage = new ShellSocketMessage
             {
@@ -226,8 +226,8 @@ namespace CatboyEngineering.KinkShellClient.Network
                 MessageData = JObject.FromObject(new ShellSocketStatusRequest
                 {
                     ShellID = shellSession.KinkShell.ShellID,
-                    CommandName = command.CommandName,
-                    CommandInstanceID = command.CommandInstanceID,
+                    CommandName = commandName,
+                    CommandInstanceID = commandID,
                     Status = status
                 })
             };
@@ -358,9 +358,15 @@ namespace CatboyEngineering.KinkShellClient.Network
                     {
                         var toy = Plugin.ToyController.ConnectedToys.Find(ct => ct.DeviceInstanceID == request.Value.ToyID);
 
-                        // TODO elsewhere: where do we put the code for when the command ends, or if the user stops it? Or when another user stops it?
-                        await SendShellStatusRequest(session, request.Value.Command, ShellSocketCommandStatus.RUNNING);
-                        await Plugin.ToyController.IssueCommand(toy, request.Value.Command);
+                        if (!Plugin.ToyController.IsCommandRunning(toy))
+                        {
+                            var command = request.Value.Command;
+
+                            // TODO elsewhere: where do we put the code for when the command ends, or if the user stops it? Or when another user stops it?
+                            // We may need to modify this to include a RUN/STOP option, which triggers stop code and a status update.
+                            await SendShellStatusRequest(session, command.CommandName, command.CommandInstanceID, ShellSocketCommandStatus.RUNNING);
+                            await Plugin.ToyController.IssueCommand(session, toy, command);
+                        }
                     }
                 }
             }

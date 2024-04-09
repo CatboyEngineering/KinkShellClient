@@ -1,6 +1,9 @@
 ﻿using Buttplug.Client;
 using Buttplug.Client.Connectors.WebsocketConnector;
 using Buttplug.Core.Messages;
+using CatboyEngineering.KinkShellClient.Models;
+using CatboyEngineering.KinkShellClient.Models.API.WebSocket;
+using CatboyEngineering.KinkShellClient.Models.Shell;
 using CatboyEngineering.KinkShellClient.Models.Toy;
 using System;
 using System.Collections.Generic;
@@ -16,11 +19,13 @@ namespace CatboyEngineering.KinkShellClient.Toy
         public ButtplugClient Client { get; private set; }
         public bool StopRequested { get; set; }
         public List<ToyProperties> ConnectedToys { get; set; }
+        public Dictionary<ToyProperties, RunningCommand> RunningCommands { get; set; }
 
         public ToyController(Plugin plugin)
         {
             Plugin = plugin;
             StopRequested = false;
+            RunningCommands = new Dictionary<ToyProperties, RunningCommand>();
             ConnectedToys = new List<ToyProperties>();
         }
 
@@ -65,11 +70,12 @@ namespace CatboyEngineering.KinkShellClient.Toy
             }
         }
 
-        public void StopAllDevices()
+        public void StopAllDevices(ShellSession session, KinkShellMember selfUser)
         {
-            // TODO send a status stopped message for all running commands.
-
-            StopRequested = true;
+            if (RunningCommands.Count > 0)
+            {
+                StopRequested = true;
+            }
 
             if (Client.Connected)
             {
@@ -78,20 +84,32 @@ namespace CatboyEngineering.KinkShellClient.Toy
                     _ = device.Stop();
                 }
             }
+
+            foreach (var command in selfUser.RunningCommands)
+            {
+                _ = SendCommandStoppedStatus(session, command.CommandName, command.CommandInstanceID);
+            }
         }
 
-        public async Task IssueCommand(ToyProperties toy, ShellCommand command)
+        public async Task IssueCommand(ShellSession session, ToyProperties toy, ShellCommand command)
         {
             if (Client.Connected)
             {
                 Plugin.Logger.Info("Translating Shell command to Intiface.");
+
+                RunningCommands.Add(toy, new RunningCommand
+                {
+                    CommandName = command.CommandName,
+                    CommandInstanceID = command.CommandInstanceID
+                });
+
                 var device = Client.Devices[toy.Index];
 
                 foreach (var pattern in command.Instructions)
                 {
-                    if (StopRequested)
+                    if(StopRequested)
                     {
-                        Plugin.Logger.Info("User requested to stop current command.");
+                        StopRequested = false;
                         break;
                     }
 
@@ -142,8 +160,20 @@ namespace CatboyEngineering.KinkShellClient.Toy
                     }
                 }
 
-                StopRequested = false;
+                RunningCommands.Remove(toy);
+                await device.Stop();
+                await SendCommandStoppedStatus(session, command.CommandName, command.CommandInstanceID);
             }
+        }
+
+        public async Task SendCommandStoppedStatus(ShellSession session, string commandName, Guid commandID)
+        {
+            await Plugin.ConnectionHandler.SendShellStatusRequest(session, commandName, commandID, ShellSocketCommandStatus.STOPPED);
+        }
+
+        public bool IsCommandRunning(ToyProperties toy)
+        {
+            return RunningCommands.ContainsKey(toy);
         }
 
         public void Dispose()

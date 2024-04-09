@@ -42,16 +42,6 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
             await plugin.ConnectionHandler.CloseConnection(kinkShell);
         }
 
-        // TODO this is probably deprecated now.
-        public static string[] GetListOfUsers(Plugin plugin, ShellSession session)
-        {
-            var userList = session.ConnectedUsers.Select(cu => cu.DisplayName).ToList();
-
-            userList.Insert(0, "Everyone");
-
-            return userList.ToArray();
-        }
-
         public static List<Guid> GetTargetList(int selected, string[] list, ShellSession session)
         {
             if(selected == 0)
