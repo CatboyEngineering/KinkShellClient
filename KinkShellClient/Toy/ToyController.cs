@@ -37,12 +37,26 @@ namespace CatboyEngineering.KinkShellClient.Toy
                 Client = new ButtplugClient("KinkShell Client");
             });
 
+            Client.DeviceAdded += DeviceAdded;
+            Client.DeviceRemoved += DeviceRemoved;
+
             try
             {
                 await Client.ConnectAsync(Connector);
                 await Scan();
             }
             catch { }
+        }
+
+        private void DeviceAdded(object? sender, DeviceAddedEventArgs args)
+        {
+            AddConnectedToy(args.Device);
+        }
+
+        private void DeviceRemoved(object? sender, DeviceRemovedEventArgs args)
+        {
+            RemoveConnectedToy(args.Device);
+            _ = UpdateToysInShells();
         }
 
         public async Task Scan()
@@ -57,8 +71,29 @@ namespace CatboyEngineering.KinkShellClient.Toy
 
                 foreach (var toy in Client.Devices)
                 {
-                    ConnectedToys.Add(new ToyProperties(toy));
+                    AddConnectedToy(toy);
                 }
+
+                await UpdateToysInShells();
+            }
+        }
+
+        private void AddConnectedToy(ButtplugClientDevice device)
+        {
+            ConnectedToys.Add(new ToyProperties(device));
+        }
+
+        private void RemoveConnectedToy(ButtplugClientDevice device)
+        {
+            // Is this potentially dangerous? Will the library shift the indexes?
+            ConnectedToys.RemoveAll(ct => ct.Index == device.Index);
+        }
+
+        private async Task UpdateToysInShells()
+        {
+            foreach(var session in Plugin.ConnectionHandler.Connections)
+            {
+                await Plugin.ConnectionHandler.SendShellToyUpdateRequest(session);
             }
         }
 

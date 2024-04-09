@@ -218,6 +218,21 @@ namespace CatboyEngineering.KinkShellClient.Network
             await Plugin.HTTP.SendWebSocketMessage(shellSession, connectMessage);
         }
 
+        public async Task SendShellToyUpdateRequest(ShellSession shellSession)
+        {
+            var connectMessage = new ShellSocketMessage
+            {
+                MessageType = ShellSocketMessageType.TOY,
+                MessageData = JObject.FromObject(new ShellSocketConnectRequest
+                {
+                    ShellID = shellSession.KinkShell.ShellID,
+                    Toys = Plugin.ToyController.ConnectedToys
+                })
+            };
+
+            await Plugin.HTTP.SendWebSocketMessage(shellSession, connectMessage);
+        }
+
         public async Task SendShellStatusRequest(ShellSession shellSession, string commandName, Guid commandID, ShellSocketCommandStatus status)
         {
             var connectMessage = new ShellSocketMessage
@@ -299,6 +314,9 @@ namespace CatboyEngineering.KinkShellClient.Network
                     case ShellSocketMessageType.STATUS:
                         HandleUserStatusMessage(baseResponse, session);
                         break;
+                    case ShellSocketMessageType.TOY:
+                        HandleUserToyMessage(baseResponse, session);
+                        break;
                     default:
                         HandleUserTextMessage(baseResponse, session);
                         break;
@@ -327,6 +345,19 @@ namespace CatboyEngineering.KinkShellClient.Network
 
                 user.RunningCommands.Clear();
                 user.RunningCommands.AddRange(request.Value.RunningCommands);
+            }
+        }
+
+        private void HandleUserToyMessage(ShellSocketMessage message, ShellSession session)
+        {
+            var request = APIRequestMapper.MapRequestToModel<ShellSocketUserToyChangeResponse>(message.MessageData);
+
+            if (request != null)
+            {
+                var user = session.ConnectedUsers.Find(cu => cu.AccountID == request.Value.UserID);
+
+                user.Toys.Clear();
+                user.Toys.AddRange(request.Value.Toys);
             }
         }
 

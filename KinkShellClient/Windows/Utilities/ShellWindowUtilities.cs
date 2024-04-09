@@ -59,8 +59,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
             var list = new List<StoredShellCommand>();
 
             list.AddRange(plugin.Configuration.SavedPatterns);
-            list.Add(DefaultPatterns.Ripple);
-            list.Add(DefaultPatterns.Shockwave);
+            list.Add(DefaultPatterns.Pulse);
 
             return list;
         }

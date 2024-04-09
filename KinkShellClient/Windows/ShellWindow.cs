@@ -7,6 +7,7 @@ using Dalamud.Interface.Windowing;
 using ImGuiNET;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Numerics;
 
@@ -92,8 +93,16 @@ namespace CatboyEngineering.KinkShellClient.Windows
             var width = ImGui.GetWindowWidth();
             ImGui.BeginChild("ToyControlCenter", new Vector2(width - 15, 200), true);
 
-            foreach(var user in State.Session.ConnectedUsers)
+
+            for(var i=0; i< State.Session.ConnectedUsers.Count; i++)
             {
+                var user = State.Session.ConnectedUsers[i];
+
+                if(i % 2 != 0)
+                {
+                    ImGui.SameLine();
+                }
+
                 DrawUIUserCommand(user);
             }
 
@@ -143,8 +152,16 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
                 // TODO gray out buttons that aren't able to be run based on what this user has connected
                 // patterns may need a UsesVibrate() function to equal toy's Vibrate > 0
-                foreach (var storedCommand in ShellWindowUtilities.GetAvailableShellCommands(Plugin))
+                var commands = ShellWindowUtilities.GetAvailableShellCommands(Plugin);
+
+                for(var i=0; i<commands.Count; i++)
                 {
+                    var storedCommand = commands[i];
+                    if (i % 2 != 0)
+                    {
+                        ImGui.SameLine();
+                    }
+
                     if (ImGui.Button($"{storedCommand.Name}"))
                     {
                         // TODO don't use a list if it only needs to be 1 user.
