@@ -116,8 +116,6 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
             ImGui.Text(user.DisplayName);
 
-            // TODO would be cool to keep the Everyone option. Or, if not, change the List to be a single GUID
-
             if (user.Toys.Count > 0)
             {
                 if (ImGui.Button("Send Command"))
@@ -141,6 +139,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
             {
                 ImGui.Text($"Command {user.DisplayName}");
 
+                ImGui.Spacing();
                 ImGui.Text("Toy:");
                 ImGui.SameLine();
                 ImGui.Combo("##UserToyCombo", ref State.intBuffer, user.Toys.Select(t => t.DisplayName).ToArray(), user.Toys.Count);
@@ -150,30 +149,43 @@ namespace CatboyEngineering.KinkShellClient.Windows
                     ImGui.BeginDisabled();
                 }
 
-                // TODO gray out buttons that aren't able to be run based on what this user has connected
-                // patterns may need a UsesVibrate() function to equal toy's Vibrate > 0
-                var commands = ShellWindowUtilities.GetAvailableShellCommands(Plugin);
+                ImGui.Spacing();
 
-                for(var i=0; i<commands.Count; i++)
+                var commands = ShellWindowUtilities.GetAvailableShellCommands(Plugin);
+                var toy = user.Toys[State.intBuffer];
+
+                for (var i=0; i<commands.Count; i++)
                 {
                     var storedCommand = commands[i];
-                    if (i % 2 != 0)
+                    
+                    if (i % 3 != 0)
                     {
                         ImGui.SameLine();
                     }
 
+                    var canRun = ShellWindowUtilities.CanRun(toy, storedCommand);
+
+                    if (!canRun)
+                    {
+                        ImGui.BeginDisabled();
+                    }
+
                     if (ImGui.Button($"{storedCommand.Name}"))
                     {
-                        // TODO don't use a list if it only needs to be 1 user.
-                        var targets = new List<Guid>() { user.AccountID };
-                        var toy = user.Toys[State.intBuffer];
-
-                        _ = ShellWindowUtilities.SendCommand(Plugin, State.Session, targets, toy.DeviceInstanceID, storedCommand);
+                        _ = ShellWindowUtilities.SendCommand(Plugin, State.Session, user.AccountID, toy.DeviceInstanceID, storedCommand);
                         _ = ShellWindowUtilities.Cooldown(this);
 
                         ImGui.CloseCurrentPopup();
                     }
+
+                    if (!canRun)
+                    {
+                        ImGui.EndDisabled();
+                    }
                 }
+
+                ImGui.Spacing();
+                ImGui.Text($"Disabled commands are not supported by {user.DisplayName}'s device.");
 
                 if (State.onCooldown)
                 {
@@ -262,6 +274,10 @@ namespace CatboyEngineering.KinkShellClient.Windows
         private void DisconnectFromShell()
         {
             _ = ShellWindowUtilities.DisconnectFromShellWebSocket(Plugin, State.KinkShell);
+            var selfUser = ShellWindowUtilities.GetSelf(Plugin, State.Session);
+
+            Plugin.ToyController.StopAllDevices(State.Session, selfUser);
+
             State = new ShellWindowState(Plugin, State.KinkShell, this);
 
             Plugin.UIHandler.RemoveShellWindow(this);

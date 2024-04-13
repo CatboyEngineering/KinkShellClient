@@ -23,9 +23,9 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
             await plugin.ConnectionHandler.SendShellChatMessage(session, message);
         }
 
-        public static async Task SendCommand(Plugin plugin, ShellSession session, List<Guid> targets, Guid toyID, StoredShellCommand storedShellCommand)
+        public static async Task SendCommand(Plugin plugin, ShellSession session, Guid target, Guid toyID, StoredShellCommand storedShellCommand)
         {
-            await plugin.ConnectionHandler.SendShellCommand(session, targets, toyID, storedShellCommand);
+            await plugin.ConnectionHandler.SendShellCommand(session, target, toyID, storedShellCommand);
         }
 
         public static async Task Cooldown(ShellWindow shellWindow)
@@ -67,6 +67,41 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
         public static KinkShellMember GetSelf(Plugin plugin, ShellSession shellSession)
         {
             return shellSession.ConnectedUsers.Find(u => u.AccountID == plugin.Configuration.KinkShellAuthenticatedUserData.AccountID);
+        }
+
+        public static bool CanRun(ToyProperties toy, StoredShellCommand command)
+        {
+            if(command.UsesConstrict() && toy.Constrict == 0)
+            {
+                return false;
+            }
+
+            if (command.UsesInflate() && toy.Inflate == 0)
+            {
+                return false;
+            }
+
+            if (command.UsesLinear() && toy.Linear == 0)
+            {
+                return false;
+            }
+
+            if (command.UsesOscillate() && toy.Oscillate == 0)
+            {
+                return false;
+            }
+
+            if (command.UsesRotate() && toy.Rotate == 0)
+            {
+                return false;
+            }
+
+            if (command.UsesVibrate() && toy.Vibrate == 0)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }
