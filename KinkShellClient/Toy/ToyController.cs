@@ -215,11 +215,20 @@ namespace CatboyEngineering.KinkShellClient.Toy
         {
             if (Client != null)
             {
+                foreach(var device in Client.Devices)
+                {
+                    _ = device.Stop();
+                }
+
                 if (Client.Connected)
                 {
                     Client.DisconnectAsync();
                 }
+
+                Client.Dispose();
             }
+
+            Connector.Dispose();
         }
     }
 }

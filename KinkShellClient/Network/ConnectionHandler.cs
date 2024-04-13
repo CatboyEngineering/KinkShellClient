@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.WebSockets;
+using System.Numerics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -203,6 +204,40 @@ namespace CatboyEngineering.KinkShellClient.Network
             }
         }
 
+        private async Task HandleWebSocketResponse(string message, ShellSession session)
+        {
+            var messageBody = JObject.Parse(message);
+            var response = APIRequestMapper.MapRequestToModel<ShellSocketMessage>(messageBody);
+
+            if (response != null)
+            {
+                var baseResponse = response.Value;
+
+                Plugin.Logger.Info($"Received Shell message [{baseResponse.MessageType}]");
+                switch (baseResponse.MessageType)
+                {
+                    case ShellSocketMessageType.COMMAND:
+                        await HandleUserCommandMessage(baseResponse, session);
+                        break;
+                    case ShellSocketMessageType.CONNECT:
+                        // We won't be receiving these messages
+                        break;
+                    case ShellSocketMessageType.INFO:
+                        HandleUserConnectedMessage(baseResponse, session);
+                        break;
+                    case ShellSocketMessageType.STATUS:
+                        HandleUserStatusMessage(baseResponse, session);
+                        break;
+                    case ShellSocketMessageType.TOY:
+                        HandleUserToyMessage(baseResponse, session);
+                        break;
+                    default:
+                        HandleUserTextMessage(baseResponse, session);
+                        break;
+                }
+            }
+        }
+
         private async Task SendShellConnectRequest(ShellSession shellSession)
         {
             var connectMessage = new ShellSocketMessage
@@ -267,7 +302,7 @@ namespace CatboyEngineering.KinkShellClient.Network
             await Plugin.HTTP.SendWebSocketMessage(shellSession, connectMessage);
         }
 
-        public async Task SendShellCommand(ShellSession shellSession, List<Guid> targets, Guid toyID, StoredShellCommand storedShellCommand)
+        public async Task SendShellCommand(ShellSession shellSession, Guid target, Guid toyID, StoredShellCommand storedShellCommand)
         {
             var connectMessage = new ShellSocketMessage
             {
@@ -275,7 +310,7 @@ namespace CatboyEngineering.KinkShellClient.Network
                 MessageData = JObject.FromObject(new ShellSocketCommandRequest
                 {
                     ShellID = shellSession.KinkShell.ShellID,
-                    Targets = targets,
+                    Target = target,
                     ToyID = toyID,
                     Command = new ShellCommand
                     {
@@ -289,47 +324,57 @@ namespace CatboyEngineering.KinkShellClient.Network
             await Plugin.HTTP.SendWebSocketMessage(shellSession, connectMessage);
         }
 
-        private async Task HandleWebSocketResponse(string message, ShellSession session)
-        {
-            var messageBody = JObject.Parse(message);
-            var response = APIRequestMapper.MapRequestToModel<ShellSocketMessage>(messageBody);
-
-            if (response != null)
-            {
-                var baseResponse = response.Value;
-
-                Plugin.Logger.Info($"Received Shell message [{baseResponse.MessageType}]");
-                switch (baseResponse.MessageType)
-                {
-                    case ShellSocketMessageType.COMMAND:
-                        await HandleUserCommandMessage(baseResponse, session);
-                        break;
-                    case ShellSocketMessageType.CONNECT:
-                        // We won't be receiving these messages
-                        break;
-                    case ShellSocketMessageType.INFO:
-                        // TODO if toys connect/disconnect after this point, they won't be reflected. Should we update toys periodically?
-                        HandleUserConnectedMessage(baseResponse, session);
-                        break;
-                    case ShellSocketMessageType.STATUS:
-                        HandleUserStatusMessage(baseResponse, session);
-                        break;
-                    case ShellSocketMessageType.TOY:
-                        HandleUserToyMessage(baseResponse, session);
-                        break;
-                    default:
-                        HandleUserTextMessage(baseResponse, session);
-                        break;
-                }
-            }
-        }
-
         private void HandleUserConnectedMessage(ShellSocketMessage message, ShellSession session)
         {
             var request = APIRequestMapper.MapRequestToModel<ShellSocketConnectedUsersResponse>(message.MessageData);
 
             if (request != null)
             {
+                var userChangeDetected = false;
+
+                // Incoming
+                foreach(var newUser in request.Value.ConnectedUsers)
+                {
+                    if(!session.ConnectedUsers.Exists(cu => cu.AccountID == newUser.AccountID)) {
+                        // User connected.
+
+                        session.ReceivedNewMessage(new ChatMessage
+                        {
+                            DisplayName = "[SYSTEM]",
+                            DateTime = DateTime.Now,
+                            Message = $"{newUser.DisplayName} connected",
+                            TextColor = new Vector4(1f, 1f, 1f, 1f)
+                        });
+
+                        userChangeDetected = true;
+
+                        break;
+                    }
+                }
+
+                if(!userChangeDetected)
+                {
+                    foreach (var oldUser in session.ConnectedUsers)
+                    {
+                        if (!request.Value.ConnectedUsers.Exists(cu => cu.AccountID == oldUser.AccountID))
+                        {
+                            // User disconnected.
+
+                            session.ReceivedNewMessage(new ChatMessage
+                            {
+                                DisplayName = "[SYSTEM]",
+                                DateTime = DateTime.Now,
+                                Message = $"{oldUser.DisplayName} disconnected",
+                                TextColor = new Vector4(1f, 1f, 1f, 1f)
+                            });
+
+                            userChangeDetected = true;
+
+                            break;
+                        }
+                    }
+                }
+
                 session.ConnectedUsers.Clear();
                 session.ConnectedUsers.AddRange(request.Value.ConnectedUsers);
             }
@@ -393,8 +438,6 @@ namespace CatboyEngineering.KinkShellClient.Network
                         {
                             var command = request.Value.Command;
 
-                            // TODO elsewhere: where do we put the code for when the command ends, or if the user stops it? Or when another user stops it?
-                            // We may need to modify this to include a RUN/STOP option, which triggers stop code and a status update.
                             await SendShellStatusRequest(session, command.CommandName, command.CommandInstanceID, ShellSocketCommandStatus.RUNNING);
                             await Plugin.ToyController.IssueCommand(session, toy, command);
                         }
