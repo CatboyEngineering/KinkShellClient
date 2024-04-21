@@ -5,6 +5,7 @@ using CatboyEngineering.KinkShellClient.Models;
 using CatboyEngineering.KinkShellClient.Models.API.WebSocket;
 using CatboyEngineering.KinkShellClient.Models.Shell;
 using CatboyEngineering.KinkShellClient.Models.Toy;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -139,6 +140,7 @@ namespace CatboyEngineering.KinkShellClient.Toy
                 });
 
                 var device = Client.Devices[toy.Index];
+                var vibrateM2AdjustmentMS = 100;
 
                 foreach (var pattern in command.Instructions)
                 {
@@ -150,6 +152,37 @@ namespace CatboyEngineering.KinkShellClient.Toy
 
                     if (pattern.IsValid())
                     {
+                        // Begin fix for vibration toys - a small blip was found between steps, likely caused by motor taking too long to spin up.
+                        var currentIndex = command.Instructions.IndexOf(pattern);
+
+                        if (command.Instructions.Count >= currentIndex + 2)
+                        {
+                            var nextInstruction = command.Instructions[currentIndex + 1];
+
+                            if (pattern.PatternType == PatternType.VIBRATE && nextInstruction.PatternType == PatternType.VIBRATE)
+                            {
+                                // m0
+                                if (pattern.VibrateIntensity[0] == 0d && nextInstruction.VibrateIntensity[0] > 0d)
+                                {
+                                    _ = Task.Delay(pattern.Duration - vibrateM2AdjustmentMS).ContinueWith(async t =>
+                                    {
+                                        await device.VibrateAsync(new double[] { nextInstruction.VibrateIntensity[0], pattern.VibrateIntensity[1] });
+                                        await Task.Delay(vibrateM2AdjustmentMS);
+                                    });
+                                }
+                                // m1
+                                else if (pattern.VibrateIntensity[1] == 0d && nextInstruction.VibrateIntensity[1] > 0d)
+                                {
+                                    _ = Task.Delay(pattern.Duration - vibrateM2AdjustmentMS).ContinueWith(async t =>
+                                    {
+                                        await device.VibrateAsync(new double[] { pattern.VibrateIntensity[0], nextInstruction.VibrateIntensity[1] });
+                                        await Task.Delay(vibrateM2AdjustmentMS);
+                                    });
+                                }
+                            }
+                        }
+                        // End vibration fix.
+
                         try
                         {
                             switch (pattern.PatternType)
