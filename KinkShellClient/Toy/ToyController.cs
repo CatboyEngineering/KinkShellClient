@@ -92,7 +92,7 @@ namespace CatboyEngineering.KinkShellClient.Toy
 
         private async Task UpdateToysInShells()
         {
-            foreach(var session in Plugin.ConnectionHandler.Connections)
+            foreach (var session in Plugin.ConnectionHandler.Connections)
             {
                 await Plugin.ConnectionHandler.SendShellToyUpdateRequest(session);
             }
@@ -144,7 +144,7 @@ namespace CatboyEngineering.KinkShellClient.Toy
 
                 foreach (var pattern in command.Instructions)
                 {
-                    if(StopRequested)
+                    if (StopRequested)
                     {
                         StopRequested = false;
                         break;
@@ -248,7 +248,7 @@ namespace CatboyEngineering.KinkShellClient.Toy
         {
             if (Client != null)
             {
-                foreach(var device in Client.Devices)
+                foreach (var device in Client.Devices)
                 {
                     _ = device.Stop();
                 }
@@ -261,7 +261,10 @@ namespace CatboyEngineering.KinkShellClient.Toy
                 Client.Dispose();
             }
 
-            Connector.Dispose();
+            if (Connector != null)
+            {
+                Connector.Dispose();
+            }
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<Product>KinkShellClient</Product>
-		<Version>0.0.7.6</Version>
+		<Version>0.0.7.7</Version>
 		<Description>Pair and synchronize toys with other users.</Description>
 		<PackageProjectUrl>https://github.com/CatboyEngineering/KinkShellClient</PackageProjectUrl>
 		<Copyright>Copyright CatboyEngineering 2024</Copyright>
