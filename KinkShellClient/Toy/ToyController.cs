@@ -166,7 +166,7 @@ namespace CatboyEngineering.KinkShellClient.Toy
                                 {
                                     _ = Task.Delay(pattern.Duration - vibrateM2AdjustmentMS).ContinueWith(async t =>
                                     {
-                                        await device.VibrateAsync(new double[] { nextInstruction.VibrateIntensity[0], pattern.VibrateIntensity[1] });
+                                        await VibrateAsync(device, toy, new double[] { nextInstruction.VibrateIntensity[0], pattern.VibrateIntensity[1] });
                                         await Task.Delay(vibrateM2AdjustmentMS);
                                     });
                                 }
@@ -175,7 +175,7 @@ namespace CatboyEngineering.KinkShellClient.Toy
                                 {
                                     _ = Task.Delay(pattern.Duration - vibrateM2AdjustmentMS).ContinueWith(async t =>
                                     {
-                                        await device.VibrateAsync(new double[] { pattern.VibrateIntensity[0], nextInstruction.VibrateIntensity[1] });
+                                        await VibrateAsync(device, toy, new double[] { pattern.VibrateIntensity[0], nextInstruction.VibrateIntensity[1] });
                                         await Task.Delay(vibrateM2AdjustmentMS);
                                     });
                                 }
@@ -207,7 +207,7 @@ namespace CatboyEngineering.KinkShellClient.Toy
                                     await Task.Delay(pattern.Duration);
                                     break;
                                 case PatternType.VIBRATE:
-                                    await device.VibrateAsync(pattern.VibrateIntensity);
+                                    await VibrateAsync(device, toy, pattern.VibrateIntensity);
                                     await Task.Delay(pattern.Duration);
                                     break;
                                 default:
@@ -264,6 +264,18 @@ namespace CatboyEngineering.KinkShellClient.Toy
             if (Connector != null)
             {
                 Connector.Dispose();
+            }
+        }
+
+        private async Task VibrateAsync(ButtplugClientDevice device, ToyProperties toy, double[] vibrateInstructions)
+        {
+            if (toy.Vibrate == 2)
+            {
+                await device.VibrateAsync(vibrateInstructions);
+            }
+            else if (toy.Vibrate > 0)
+            {
+                await device.VibrateAsync(vibrateInstructions[0]);
             }
         }
     }
