@@ -232,8 +232,9 @@ namespace CatboyEngineering.KinkShellClient.Windows
                 {
                     if(message.StartsWith("/"))
                     {
-                        string content = Plugin.Common.Functions.Chat.SanitiseText(message);
-                        Plugin.Common.Functions.Chat.SendMessage(content);
+                        // TODO: This is disabled temporarily due to XIVCommon dependency issue.
+                        //string content = Plugin.PluginInterface.Sanitizer.Sanitize(message);
+                        //Plugin.Common.Functions.Chat.SendMessage(content);
                     }
                     else
                     {

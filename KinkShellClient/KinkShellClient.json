@@ -8,7 +8,7 @@
   "RepoUrl": "https://github.com/CatboyEngineering/KinkShellClient",
   "IconUrl": "https://raw.githubusercontent.com/CatboyEngineering/Plugins/main/assets/img/icon.png",
   "ApplicableVersion": "any",
-  "DalamudApiLevel": 9,
+  "DalamudApiLevel": 10,
   "LoadPriority": 0,
-  "AssemblyVersion": "0.0.7.8"
+  "AssemblyVersion": "0.0.7.9"
 }

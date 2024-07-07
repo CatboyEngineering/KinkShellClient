@@ -15,7 +15,7 @@ namespace CatboyEngineering.KinkShellClient
         public WindowSystem WindowSystem = new("KinkShell");
 
         public Plugin Plugin { get; init; }
-        private DalamudPluginInterface PluginInterface { get; init; }
+        private IDalamudPluginInterface PluginInterface { get; init; }
 
         public ConfigWindow ConfigWindow { get; init; }
         public MainWindow MainWindow { get; init; }
@@ -23,7 +23,7 @@ namespace CatboyEngineering.KinkShellClient
 
         public List<ShellWindow> ShellWindows { get; init; }
 
-        public UIHandler(Plugin plugin, DalamudPluginInterface pluginInterface)
+        public UIHandler(Plugin plugin, IDalamudPluginInterface pluginInterface)
         {
             this.Plugin = plugin;
             this.PluginInterface = pluginInterface;

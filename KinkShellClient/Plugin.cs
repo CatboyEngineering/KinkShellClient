@@ -10,7 +10,10 @@ namespace CatboyEngineering.KinkShellClient
 {
     public sealed class Plugin : IDalamudPlugin
     {
-        private DalamudPluginInterface PluginInterface { get; }
+        [PluginService] internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
+        [PluginService] internal static ICommandManager CommandManager { get; private set; } = null!;
+        [PluginService] internal static IPluginLog Logger { get; private set; } = null!;
+
         public Configuration Configuration { get; }
         public bool IsDev { get; set; }
 
@@ -18,30 +21,23 @@ namespace CatboyEngineering.KinkShellClient
         public UIHandler UIHandler { get; }
         public ConnectionHandler ConnectionHandler { get; }
         public HTTPHandler HTTP { get; }
-        public XivCommonBase Common { get; }
+        //public XivCommonBase Common { get; }
         public ToyController ToyController { get; }
-        public IPluginLog Logger { get; set; }
 
         public static readonly string Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? string.Empty;
         public string Name => "KinkShellClient";
 
-        public Plugin(
-            [RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
-            [RequiredVersion("1.0")] ICommandManager commandManager,
-            [RequiredVersion("1.0")] IPluginLog pluginLog)
+        public Plugin()
         {
-            this.Logger = pluginLog;
-            this.Common = new(pluginInterface);
-            this.PluginInterface = pluginInterface;
+            //this.Common = new(PluginInterface);
+            this.Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+            this.Configuration.Initialize(PluginInterface);
 
-            this.Configuration = this.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
-            this.Configuration.Initialize(this.PluginInterface);
-
-            IsDev = pluginInterface.IsDev;
+            IsDev = PluginInterface.IsDev;
 
             HTTP = new HTTPHandler(this);
-            CommandHandler = new CommandHandler(this, commandManager);
-            UIHandler = new UIHandler(this, this.PluginInterface);
+            CommandHandler = new CommandHandler(this, CommandManager);
+            UIHandler = new UIHandler(this, PluginInterface);
             ConnectionHandler = new ConnectionHandler(this);
 
             ToyController = new ToyController(this);
