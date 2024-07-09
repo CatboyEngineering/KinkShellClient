@@ -5,22 +5,52 @@ VisualStudioVersion = 17.9.34622.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KinkShellClient", "KinkShellClient.csproj", "{4EB27A4B-9739-46D3-B28E-4EB93BF54F58}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ECommons", "..\ECommons\ECommons\ECommons.csproj", "{6951181F-7311-4B38-80DE-7A1DB0B25DAB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
+		DebugForms|Any CPU = DebugForms|Any CPU
+		DebugForms|x64 = DebugForms|x64
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
+		ReleaseForms|Any CPU = ReleaseForms|Any CPU
+		ReleaseForms|x64 = ReleaseForms|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{4EB27A4B-9739-46D3-B28E-4EB93BF54F58}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{4EB27A4B-9739-46D3-B28E-4EB93BF54F58}.Debug|Any CPU.Build.0 = Debug|x64
 		{4EB27A4B-9739-46D3-B28E-4EB93BF54F58}.Debug|x64.ActiveCfg = Debug|x64
 		{4EB27A4B-9739-46D3-B28E-4EB93BF54F58}.Debug|x64.Build.0 = Debug|x64
+		{4EB27A4B-9739-46D3-B28E-4EB93BF54F58}.DebugForms|Any CPU.ActiveCfg = Debug|x64
+		{4EB27A4B-9739-46D3-B28E-4EB93BF54F58}.DebugForms|Any CPU.Build.0 = Debug|x64
+		{4EB27A4B-9739-46D3-B28E-4EB93BF54F58}.DebugForms|x64.ActiveCfg = Debug|x64
+		{4EB27A4B-9739-46D3-B28E-4EB93BF54F58}.DebugForms|x64.Build.0 = Debug|x64
 		{4EB27A4B-9739-46D3-B28E-4EB93BF54F58}.Release|Any CPU.ActiveCfg = Release|x64
 		{4EB27A4B-9739-46D3-B28E-4EB93BF54F58}.Release|Any CPU.Build.0 = Release|x64
 		{4EB27A4B-9739-46D3-B28E-4EB93BF54F58}.Release|x64.ActiveCfg = Release|x64
 		{4EB27A4B-9739-46D3-B28E-4EB93BF54F58}.Release|x64.Build.0 = Release|x64
+		{4EB27A4B-9739-46D3-B28E-4EB93BF54F58}.ReleaseForms|Any CPU.ActiveCfg = Release|x64
+		{4EB27A4B-9739-46D3-B28E-4EB93BF54F58}.ReleaseForms|Any CPU.Build.0 = Release|x64
+		{4EB27A4B-9739-46D3-B28E-4EB93BF54F58}.ReleaseForms|x64.ActiveCfg = Release|x64
+		{4EB27A4B-9739-46D3-B28E-4EB93BF54F58}.ReleaseForms|x64.Build.0 = Release|x64
+		{6951181F-7311-4B38-80DE-7A1DB0B25DAB}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{6951181F-7311-4B38-80DE-7A1DB0B25DAB}.Debug|Any CPU.Build.0 = Debug|x64
+		{6951181F-7311-4B38-80DE-7A1DB0B25DAB}.Debug|x64.ActiveCfg = Debug|x64
+		{6951181F-7311-4B38-80DE-7A1DB0B25DAB}.Debug|x64.Build.0 = Debug|x64
+		{6951181F-7311-4B38-80DE-7A1DB0B25DAB}.DebugForms|Any CPU.ActiveCfg = DebugForms|x64
+		{6951181F-7311-4B38-80DE-7A1DB0B25DAB}.DebugForms|Any CPU.Build.0 = DebugForms|x64
+		{6951181F-7311-4B38-80DE-7A1DB0B25DAB}.DebugForms|x64.ActiveCfg = DebugForms|x64
+		{6951181F-7311-4B38-80DE-7A1DB0B25DAB}.DebugForms|x64.Build.0 = DebugForms|x64
+		{6951181F-7311-4B38-80DE-7A1DB0B25DAB}.Release|Any CPU.ActiveCfg = Release|x64
+		{6951181F-7311-4B38-80DE-7A1DB0B25DAB}.Release|Any CPU.Build.0 = Release|x64
+		{6951181F-7311-4B38-80DE-7A1DB0B25DAB}.Release|x64.ActiveCfg = Release|x64
+		{6951181F-7311-4B38-80DE-7A1DB0B25DAB}.Release|x64.Build.0 = Release|x64
+		{6951181F-7311-4B38-80DE-7A1DB0B25DAB}.ReleaseForms|Any CPU.ActiveCfg = ReleaseForms|x64
+		{6951181F-7311-4B38-80DE-7A1DB0B25DAB}.ReleaseForms|Any CPU.Build.0 = ReleaseForms|x64
+		{6951181F-7311-4B38-80DE-7A1DB0B25DAB}.ReleaseForms|x64.ActiveCfg = ReleaseForms|x64
+		{6951181F-7311-4B38-80DE-7A1DB0B25DAB}.ReleaseForms|x64.Build.0 = ReleaseForms|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

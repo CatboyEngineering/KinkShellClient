@@ -4,6 +4,7 @@ using CatboyEngineering.KinkShellClient.Models.Toy;
 using CatboyEngineering.KinkShellClient.Toy;
 using CatboyEngineering.KinkShellClient.Windows.Utilities;
 using Dalamud.Interface.Windowing;
+using ECommons.Automation;
 using ImGuiNET;
 using System;
 using System.Collections.Generic;
@@ -232,9 +233,8 @@ namespace CatboyEngineering.KinkShellClient.Windows
                 {
                     if(message.StartsWith("/"))
                     {
-                        // TODO: This is disabled temporarily due to XIVCommon dependency issue.
-                        //string content = Plugin.PluginInterface.Sanitizer.Sanitize(message);
-                        //Plugin.Common.Functions.Chat.SendMessage(content);
+                        string content = Plugin.PluginInterface.Sanitizer.Sanitize(message);
+                        Chat.Instance.SendMessage(content);
                     }
                     else
                     {

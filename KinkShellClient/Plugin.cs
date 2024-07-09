@@ -3,8 +3,8 @@ using CatboyEngineering.KinkShellClient.Toy;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
+using ECommons;
 using System.Reflection;
-using XivCommon;
 
 namespace CatboyEngineering.KinkShellClient
 {
@@ -21,7 +21,6 @@ namespace CatboyEngineering.KinkShellClient
         public UIHandler UIHandler { get; }
         public ConnectionHandler ConnectionHandler { get; }
         public HTTPHandler HTTP { get; }
-        //public XivCommonBase Common { get; }
         public ToyController ToyController { get; }
 
         public static readonly string Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? string.Empty;
@@ -29,7 +28,7 @@ namespace CatboyEngineering.KinkShellClient
 
         public Plugin()
         {
-            //this.Common = new(PluginInterface);
+            ECommonsMain.Init(PluginInterface, this);
             this.Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             this.Configuration.Initialize(PluginInterface);
 
@@ -49,6 +48,7 @@ namespace CatboyEngineering.KinkShellClient
             UIHandler.Dispose();
             ConnectionHandler.Dispose();
             ToyController.Dispose();
+            ECommonsMain.Dispose();
         }
     }
 }
