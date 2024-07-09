@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<Product>KinkShellClient</Product>
-		<Version>0.0.7.9</Version>
+		<Version>0.0.8.0</Version>
 		<Description>Pair and synchronize toys with other users.</Description>
 		<PackageProjectUrl>https://github.com/CatboyEngineering/KinkShellClient</PackageProjectUrl>
 		<Copyright>Copyright CatboyEngineering 2024</Copyright>
@@ -12,6 +12,9 @@
 	<ItemGroup>
 		<PackageReference Include="Buttplug" Version="3.0.1" />
 		<PackageReference Include="Buttplug.Client.Connectors.WebsocketConnector" Version="3.0.1" />
-		<PackageReference Include="XivCommon" Version="9.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\ECommons\ECommons\ECommons.csproj" />
 	</ItemGroup>
 </Project>

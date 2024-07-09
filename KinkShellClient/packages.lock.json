@@ -30,12 +30,6 @@
         "resolved": "2.1.13",
         "contentHash": "rMN1omGe8536f4xLMvx9NwfvpAc9YFFfeXJ1t4P4PE6Gu8WCIoFliR1sh07hM+bfODmesk/dvMbji7vNI+B/pQ=="
       },
-      "XivCommon": {
-        "type": "Direct",
-        "requested": "[9.0.0, )",
-        "resolved": "9.0.0",
-        "contentHash": "avaBp3FmSCi/PiQhntCeBDYOHejdyTWmFtz4pRBVQQ8vHkmRx+YTk1la9dkYBMlXxRXKckEdH1iI1Fu61JlE7w=="
-      },
       "deniszykov.WebSocketListener": {
         "type": "Transitive",
         "resolved": "4.2.16",
@@ -961,6 +955,9 @@
           "System.Threading": "4.3.0",
           "System.Xml.ReaderWriter": "4.3.0"
         }
+      },
+      "ecommons": {
+        "type": "Project"
       }
     }
   }

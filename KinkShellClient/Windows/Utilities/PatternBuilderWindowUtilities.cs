@@ -33,42 +33,48 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
 
         public static void CreateNewPattern(PatternBuilderWindow window, string name)
         {
-            var newPattern = new StoredShellCommand
+            if (!window.Plugin.Configuration.SavedPatterns.Exists(sp => sp.Name.Equals(name)))
             {
-                Name = name,
-                Instructions = new List<Pattern>()
-            };
+                var newPattern = new StoredShellCommand
+                {
+                    Name = name,
+                    Instructions = new List<Pattern>()
+                };
 
-            window.Plugin.Configuration.SavedPatterns.Add(newPattern);
-            window.State.SetDefauts();
-            window.State.selectedPattern = window.Plugin.Configuration.SavedPatterns.IndexOf(newPattern);
+                window.Plugin.Configuration.SavedPatterns.Add(newPattern);
+                window.State.SetDefauts();
+                window.State.selectedPattern = window.Plugin.Configuration.SavedPatterns.IndexOf(newPattern);
+            }
         }
 
         public static void SavePattern(PatternBuilderWindow window, StoredShellCommand storedShellCommand)
         {
             var newPatternSteps = window.State.patternStateItems;
 
-            storedShellCommand.Instructions.Clear();
-
-            foreach (var step in newPatternSteps)
+            if (newPatternSteps.Count > 0)
             {
-                storedShellCommand.Instructions.Add(new Pattern
-                {
-                    PatternType = step.NewPatternType,
-                    VibrateIntensity = step.NewVibrateIntensity,
-                    OscillateIntensity = step.NewOscillateIntensity,
-                    LinearPosition = step.NewLinearPosition,
-                    RotateSpeed = step.NewRotateSpeed,
-                    RotateClockwise = step.NewRotateClockwise,
-                    InflateAmount = step.NewInflateAmount,
-                    ConstrictAmount = step.NewConstrictAmount,
-                    Duration = step.NewDuration
-                });
-            }
+                storedShellCommand.Instructions.Clear();
 
-            window.Plugin.Configuration.SavedPatterns = window.State.WorkingCommandCopy;
-            window.Plugin.Configuration.Save();
-            window.State.SetDefauts();
+                foreach (var step in newPatternSteps)
+                {
+                    storedShellCommand.Instructions.Add(new Pattern
+                    {
+                        PatternType = step.NewPatternType,
+                        VibrateIntensity = step.NewVibrateIntensity,
+                        OscillateIntensity = step.NewOscillateIntensity,
+                        LinearPosition = step.NewLinearPosition,
+                        RotateSpeed = step.NewRotateSpeed,
+                        RotateClockwise = step.NewRotateClockwise,
+                        InflateAmount = step.NewInflateAmount,
+                        ConstrictAmount = step.NewConstrictAmount,
+                        Duration = step.NewDuration
+                    });
+                }
+
+                window.Plugin.Configuration.SavedPatterns = window.State.WorkingCommandCopy;
+                window.Plugin.Configuration.Save();
+                window.State.SetDefauts();
+            }
         }
     }
 }
