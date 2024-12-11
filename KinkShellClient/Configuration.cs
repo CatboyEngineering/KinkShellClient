@@ -14,23 +14,29 @@ namespace CatboyEngineering.KinkShellClient
     public class Configuration : IPluginConfiguration
     {
         public string KinkShellServerAddress { get; set; } = "api.catboy.engineering";
+        [Obsolete]
         public string KinkShellServerUsername { get; set; } = "";
+        [Obsolete]
         public string KinkShellServerPassword { get; set; } = "";
+        public string KinkShellServerLoginToken { get; set; } = "";
         public bool KinkShellSecure { get; set; } = true;
         public string IntifaceServerAddress { get; set; } = "ws://localhost:12345";
         public List<StoredShellCommand> SavedPatterns { get; set; } = new List<StoredShellCommand>();
         public Vector4 SelfTextColor { get; set; } = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-
         public int Version { get; set; } = 2;
 
         [NonSerialized]
         private readonly int CurrentVersion = 2;
 
         [NonSerialized]
+        [Obsolete]
         public readonly string CaptchaToken = "DalamudClient";
 
         [NonSerialized]
         public AccountAuthenticatedResponse KinkShellAuthenticatedUserData;
+
+        [NonSerialized]
+        public Models.API.Response.V2.AccountAuthenticatedResponse KinkShellUserData;
 
         [NonSerialized]
         public List<KinkShell> Shells;
@@ -57,6 +63,7 @@ namespace CatboyEngineering.KinkShellClient
             clone.KinkShellServerAddress = this.KinkShellServerAddress;
             clone.KinkShellServerUsername = this.KinkShellServerUsername;
             clone.KinkShellServerPassword = this.KinkShellServerPassword;
+            clone.KinkShellServerLoginToken = this.KinkShellServerLoginToken;
             clone.IntifaceServerAddress = this.IntifaceServerAddress;
             clone.SavedPatterns = this.SavedPatterns;
             clone.SelfTextColor = this.SelfTextColor;
@@ -71,6 +78,7 @@ namespace CatboyEngineering.KinkShellClient
             this.KinkShellServerUsername = configuration.KinkShellServerUsername;
             this.KinkShellServerPassword = configuration.KinkShellServerPassword;
             this.IntifaceServerAddress = configuration.IntifaceServerAddress;
+            this.KinkShellServerLoginToken = configuration.KinkShellServerLoginToken;
             this.SavedPatterns = configuration.SavedPatterns;
             this.SelfTextColor = configuration.SelfTextColor;
             this.KinkShellSecure = configuration.KinkShellSecure;

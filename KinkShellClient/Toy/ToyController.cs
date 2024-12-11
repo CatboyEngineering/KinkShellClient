@@ -4,8 +4,10 @@ using CatboyEngineering.KinkShellClient.Models;
 using CatboyEngineering.KinkShellClient.Models.API.WebSocket;
 using CatboyEngineering.KinkShellClient.Models.Shell;
 using CatboyEngineering.KinkShellClient.Models.Toy;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using static Buttplug.Core.Messages.ScalarCmd;
 
@@ -130,6 +132,7 @@ namespace CatboyEngineering.KinkShellClient.Toy
             if (Client.Connected)
             {
                 Plugin.Logger.Info("Translating Shell command to Intiface.");
+                Plugin.Logger.Debug(JsonConvert.SerializeObject(command));
 
                 RunningCommands.Add(toy, new RunningCommand
                 {
@@ -137,11 +140,14 @@ namespace CatboyEngineering.KinkShellClient.Toy
                     CommandInstanceID = command.CommandInstanceID
                 });
 
-                var device = Client.Devices[toy.Index];
+                var device = Client.Devices.Where(d => d.Index == toy.Index).Select(d => d).First();
+
                 var vibrateM2AdjustmentMS = 100;
 
                 foreach (var pattern in command.Instructions)
                 {
+                    Plugin.Logger.Debug(JsonConvert.SerializeObject(pattern));
+
                     if (StopRequested)
                     {
                         StopRequested = false;

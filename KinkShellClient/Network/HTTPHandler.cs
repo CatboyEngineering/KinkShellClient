@@ -82,7 +82,7 @@ namespace CatboyEngineering.KinkShellClient.Network
 
         private async Task<APIResponse<T>> GetHTTP<T>(HttpMethod method, string uri, JObject? body) where T : struct
         {
-            uri = $"{(Plugin.Configuration.KinkShellSecure ? "https" : "http")}://{Plugin.Configuration.KinkShellServerAddress}/kinkshell/v1/{uri}";
+            uri = $"{(Plugin.Configuration.KinkShellSecure ? "https" : "http")}://{Plugin.Configuration.KinkShellServerAddress}/kinkshell/{uri}";
             StringContent stringContent = null;
 
             if (body != null)

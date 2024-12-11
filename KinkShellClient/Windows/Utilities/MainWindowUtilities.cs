@@ -39,6 +39,20 @@ namespace CatboyEngineering.KinkShellClient.Windows.Utilities
             }
         }
 
+        public static async Task LogInV1AndMigrate(Plugin plugin, MainWindow window)
+        {
+            var result = await plugin.ConnectionHandler.AuthenticateV1Migrate();
+
+            if (result == HttpStatusCode.OK)
+            {
+                window.State.IsMigratingV2 = true;
+            }
+            else
+            {
+                window.State.OnError("There was an error with login.");
+            }
+        }
+
         public static async Task LogOut(Plugin plugin, MainWindow window)
         {
             window.State.SetDefauts();

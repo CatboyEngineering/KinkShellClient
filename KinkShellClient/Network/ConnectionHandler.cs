@@ -45,7 +45,7 @@ namespace CatboyEngineering.KinkShellClient.Network
                 ClientVersionString = Plugin.Version
             };
 
-            var response = await Plugin.HTTP.Post<AccountAuthenticatedResponse>("account", JObject.FromObject(request));
+            var response = await Plugin.HTTP.Post<AccountAuthenticatedResponse>("v1/account", JObject.FromObject(request));
 
             if(response.StatusCode == HttpStatusCode.OK)
             {
@@ -56,9 +56,33 @@ namespace CatboyEngineering.KinkShellClient.Network
             return response.StatusCode;
         }
 
+        public async Task<HttpStatusCode> AuthenticateV1Migrate()
+        {
+            var request = new Models.API.Request.V2.AccountLoginRequest
+            {
+                Username = Plugin.Configuration.KinkShellServerUsername,
+                Password = Plugin.Configuration.KinkShellServerPassword,
+                CharacterName = Plugin.ClientState.LocalPlayer.Name.TextValue,
+                CharacterServer = Plugin.ClientState.LocalPlayer.HomeWorld.Value.Name.ExtractText(),
+                ClientVersionString = Plugin.Version
+            };
+
+            var response = await Plugin.HTTP.Post<Models.API.Response.V2.AccountAuthenticatedResponse>("v2/account", JObject.FromObject(request));
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                Plugin.Configuration.KinkShellUserData = response.Result.Value;
+                Plugin.Configuration.KinkShellServerLoginToken = response.Result.Value.LoginToken;
+                Plugin.HTTP.SetAuthenticationToken(response.Result.Value.AuthToken);
+                // TODO purge old login data
+            }
+
+            return response.StatusCode;
+        }
+
         public async Task<HttpStatusCode> GetKinkShells()
         {
-            var response = await Plugin.HTTP.Get<ShellListResponse>("shell");
+            var response = await Plugin.HTTP.Get<ShellListResponse>("v1/shell");
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
@@ -75,7 +99,7 @@ namespace CatboyEngineering.KinkShellClient.Network
                 ShellName = name
             };
 
-            var response = await Plugin.HTTP.Put<KinkShell>("shell", JObject.FromObject(request));
+            var response = await Plugin.HTTP.Put<KinkShell>("v1/shell", JObject.FromObject(request));
 
             if (response.StatusCode == HttpStatusCode.Created)
             {
@@ -92,7 +116,7 @@ namespace CatboyEngineering.KinkShellClient.Network
                 Users = users
             };
 
-            var response = await Plugin.HTTP.Patch<KinkShell>($"shell/{shellID}", JObject.FromObject(request));
+            var response = await Plugin.HTTP.Patch<KinkShell>($"v1/shell/{shellID}", JObject.FromObject(request));
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
@@ -106,7 +130,7 @@ namespace CatboyEngineering.KinkShellClient.Network
 
         public async Task<HttpStatusCode> DeleteShell(Guid shellID)
         {
-            var response = await Plugin.HTTP.Delete<KinkShell>($"shell/{shellID}");
+            var response = await Plugin.HTTP.Delete<KinkShell>($"v1/shell/{shellID}");
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
@@ -120,7 +144,7 @@ namespace CatboyEngineering.KinkShellClient.Network
 
         public async Task<HttpStatusCode> LogOut()
         {
-            var response = await Plugin.HTTP.Post<AccountAuthenticatedResponse>("logout", null);
+            var response = await Plugin.HTTP.Post<AccountAuthenticatedResponse>("v1/logout", null);
 
             if (response.StatusCode == HttpStatusCode.OK)
             {

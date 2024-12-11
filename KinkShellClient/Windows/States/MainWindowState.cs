@@ -12,6 +12,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.States
     {
         public Plugin Plugin { get; set; }
         public bool IsAuthenticated { get; set; }
+        public bool IsMigratingV2 { get; set; }
         public bool HasError { get; set; }
         public string ErrorText { get; set; }
         public List<ShellNewUser> UsersToAdd { get; set; }
