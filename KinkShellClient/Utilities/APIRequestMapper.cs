@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -12,6 +13,14 @@ namespace CatboyEngineering.KinkShellClient.Utilities
             {
                 foreach (var prop in typeof(T).GetProperties())
                 {
+                    if (prop.CustomAttributes.Count() > 0)
+                    {
+                        if (prop.CustomAttributes.First().AttributeType == typeof(System.Runtime.CompilerServices.NullableAttribute))
+                        {
+                            continue;
+                        }
+                    }
+
                     if (request.GetValue(prop.Name, StringComparison.OrdinalIgnoreCase) == null)
                     {
                         return null;

@@ -13,7 +13,7 @@ namespace CatboyEngineering.KinkShellClient.Models.API.Response.V2
         public bool IsVerified { get; set; }
         public string CharacterName { get; set; }
         public string CharacterServer { get; set; }
-        public string LoginToken { get; set; }
+        public string? LoginToken { get; set; }
         public string VerificationToken { get; set; }
         public string CharacterID { get; set; }
     }

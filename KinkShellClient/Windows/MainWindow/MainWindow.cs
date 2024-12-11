@@ -1,14 +1,15 @@
 ﻿using CatboyEngineering.KinkShellClient.Models;
 using CatboyEngineering.KinkShellClient.Models.Shell;
-using CatboyEngineering.KinkShellClient.Windows.States;
-using CatboyEngineering.KinkShellClient.Windows.Utilities;
+using Dalamud.Interface.Utility;
+using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
 using Dalamud.Utility;
 using ImGuiNET;
 using System;
+using System.Diagnostics;
 using System.Numerics;
 
-namespace CatboyEngineering.KinkShellClient.Windows
+namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
 {
     public class MainWindow : Window, IDisposable
     {
@@ -18,7 +19,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
         public MainWindow(Plugin plugin) : base("KinkShell", ImGuiWindowFlags.NoResize)
         {
-            this.Plugin = plugin;
+            Plugin = plugin;
             State = new MainWindowState(plugin);
         }
 
@@ -64,90 +65,118 @@ namespace CatboyEngineering.KinkShellClient.Windows
                 DrawUIErrorText(State.ErrorText);
             }
 
-            if (State.IsAuthenticated)
+            switch(State.Screen)
             {
-                DrawUIWindowLoggedInHomepage();
-            }
-            else if (State.IsMigratingV2)
-            {
-                // TODO continue here
-                ImGui.Text("Here's your validation token: " + Plugin.Configuration.KinkShellUserData.VerificationToken);
-            }
-            else
-            {
-                var width = ImGui.GetWindowWidth();
-                ImGui.BeginChild("MainWindowCTA", new Vector2(width - 15, 125), true);
-
-                // If has user/pass and no login token, show migrate and v1 login button
-                // If has neither, show v2 create account button
-                // If has login token, show v2 login
-                if (Plugin.Configuration.KinkShellServerLoginToken.IsNullOrEmpty())
-                {
-                    if (!Plugin.Configuration.KinkShellServerUsername.IsNullOrEmpty() && !Plugin.Configuration.KinkShellServerPassword.IsNullOrEmpty() && !Plugin.Configuration.KinkShellServerAddress.IsNullOrEmpty())
-                    {
-                        ImGui.TextColored(new Vector4(0.9f, 0.9f, 0.3f, 1), "Account Migration Notice:");
-                        ImGui.TextWrapped("Accounts are being migrated to a passwordless system. You may migrate now, or log in using your legacy credentials.");
-                        ImGui.Spacing();
-
-                        DrawUIConnectV1Button();
-                        ImGui.SameLine();
-                        DrawUIConnectMigrateV2Button();
-                    }
-                    else
-                    {
-                        // Create v2 account
-                    }
-                }
-                else
-                {
-                    // V2 login
-                    // TODO continue here
-                }
-
-                ImGui.EndChild();
-            }
-
-            if (!State.IsMigratingV2)
-            {
-                ImGui.Spacing();
-
-                if (ImGui.Button("Pattern Builder"))
-                {
-                    Plugin.UIHandler.PatternBuilderWindow.IsOpen = true;
-                }
-
-                ImGui.SameLine();
-
-                if (ImGui.Button("Open Config"))
-                {
-                    Plugin.UIHandler.ConfigWindow.IsOpen = true;
-                }
-
-                if (!Plugin.Configuration.KinkShellServerUsername.IsNullOrEmpty() && !Plugin.Configuration.KinkShellServerPassword.IsNullOrEmpty() && !Plugin.Configuration.KinkShellServerAddress.IsNullOrEmpty())
-                {
-
-                }
-                else
-                {
-                    DrawUIWindowNeedsServer();
-
-                }
+                case MainWindowScreen.CREATE:
+                    DrawScreenCreateAccount();
+                    ImGui.Spacing();
+                    BtnConfiguration();
+                    break;
+                case MainWindowScreen.LOGIN:
+                    DrawScreenLogIn();
+                    ImGui.Spacing();
+                    DrawBtnToolbar();
+                    break;
+                case MainWindowScreen.MIGRATE:
+                    DrawScreenMigrate();
+                    ImGui.Spacing();
+                    DrawBtnToolbar();
+                    break;
+                case MainWindowScreen.VERIFY:
+                    DrawScreenVerify();
+                    break;
+                case MainWindowScreen.HOME:
+                    DrawUIWindowLoggedInHomepage();
+                    ImGui.Spacing();
+                    DrawBtnToolbar();
+                    break;
             }
         }
 
-        private void DrawUIWindowNeedsServer()
+        private void DrawScreenMigrate()
         {
-            var text = "Please add your KinkShell Server login credentials.";
+            var width = ImGui.GetWindowWidth();
+            ImGui.BeginChild("MainWindowCTA#Migrate", new Vector2(width - 15, 125), true);
 
-            var windowWidth = ImGui.GetWindowSize().X;
-            var textWidth = ImGui.CalcTextSize(text).X;
+            ImGui.TextColored(new Vector4(0.9f, 0.9f, 0.3f, 1), "Account Migration Notice:");
+            ImGui.TextWrapped("Accounts are being migrated to a passwordless system. You may migrate now, or log in using your legacy credentials.");
+            ImGui.Spacing();
 
-            ImGui.SetCursorPosX((windowWidth - textWidth) * 0.5f);
-            DrawUIErrorText(text);
+            BtnLoginV1();
+            ImGui.SameLine();
+            BtnMigrateV2();
 
-            var settingsTextWidth = ImGui.CalcTextSize("Settings").X;
-            ImGui.SetCursorPosX((windowWidth - settingsTextWidth) * 0.5f);
-            DrawUISettingsButton();
+            ImGui.EndChild();
+        }
+
+        private void DrawScreenCreateAccount()
+        {
+            var width = ImGui.GetWindowWidth();
+            ImGui.BeginChild("MainWindowCTA#CreateAccount", new Vector2(width - 15, 125), true);
+
+            ImGui.TextWrapped("Welcome to KinkShell! Use the buttons below to get started, or visit us at the link above to learn more.");
+            ImGui.Spacing();
+
+            BtnCreateAccount();
+            ImGui.SameLine();
+            BtnRecoverAccount();
+
+            ImGui.EndChild();
+        }
+
+        private void DrawScreenVerify()
+        {
+            var width = ImGui.GetWindowWidth();
+            ImGui.BeginChild("MainWindowCTA#Verify", new Vector2(width - 15, 125), true);
+
+            // TODO continue here
+            if(ImGui.Button("Open Lodestone"))
+            {
+                Process proc = new Process();
+                proc.StartInfo.UseShellExecute = true;
+                proc.StartInfo.FileName = $"https://na.finalfantasyxiv.com/lodestone/character/{Plugin.Configuration.KinkShellUserData.CharacterID}";
+                proc.Start();
+            }
+
+            ImGui.Text("Here's your validation token: " + Plugin.Configuration.KinkShellUserData.VerificationToken);
+
+            ImGui.TextWrapped("Welcome to KinkShell! Use the buttons below to get started, or visit us at the link above to learn more.");
+            ImGui.Spacing();
+
+            ImGui.EndChild();
+        }
+
+        private void DrawScreenLogIn()
+        {
+            var width = ImGui.GetWindowWidth();
+            ImGui.BeginChild("MainWindowCTA#LogIn", new Vector2(width - 15, 125), true);
+
+            BtnLoginV2();
+
+            ImGui.EndChild();
+        }
+
+        private void DrawBtnToolbar()
+        {
+            BtnPatternBuilder();
+            ImGui.SameLine();
+            BtnConfiguration();
+        }
+
+        private void BtnPatternBuilder()
+        {
+            if (ImGui.Button("Pattern Builder"))
+            {
+                Plugin.UIHandler.PatternBuilderWindow.IsOpen = true;
+            }
+        }
+
+        private void BtnConfiguration()
+        {
+            if (ImGui.Button("Configuration"))
+            {
+                Plugin.UIHandler.ConfigWindow.IsOpen = true;
+            }
         }
 
         private void DrawUIWindowLoggedInHomepage()
@@ -157,7 +186,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
             DrawUICenteredText(welcomeText);
             DrawUISectionShellList();
             DrawUIConnectedToys();
-            DrawUILogOutButton();
+            BtnLogOut();
         }
 
         private void DrawUISectionShellList()
@@ -462,7 +491,8 @@ namespace CatboyEngineering.KinkShellClient.Windows
             }
         }
 
-        private void DrawUIConnectV1Button()
+        [Obsolete]
+        private void BtnLoginV1()
         {
             if (!Plugin.Configuration.KinkShellServerUsername.IsNullOrEmpty())
             {
@@ -485,7 +515,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
             }
         }
 
-        private void DrawUIConnectMigrateV2Button()
+        private void BtnMigrateV2()
         {
             if (!State.isRequestInFlight)
             {
@@ -504,7 +534,64 @@ namespace CatboyEngineering.KinkShellClient.Windows
             }
         }
 
-        private void DrawUILogOutButton()
+        private void BtnCreateAccount()
+        {
+            if (!State.isRequestInFlight)
+            {
+                if (ImGui.Button("Get Started"))
+                {
+                    var task = MainWindowUtilities.CreateAccount(Plugin, this);
+
+                    _ = MainWindowUtilities.HandleWithIndicator(State, task);
+                }
+            }
+            else
+            {
+                ImGui.BeginDisabled();
+                ImGui.Button("Connecting...");
+                ImGui.EndDisabled();
+            }
+        }
+
+        private void BtnLoginV2()
+        {
+            if (!State.isRequestInFlight)
+            {
+                if (ImGui.Button("Connect to KinkShell"))
+                {
+                    var task = MainWindowUtilities.LogInV2(Plugin, this);
+
+                    _ = MainWindowUtilities.HandleWithIndicator(State, task);
+                }
+            }
+            else
+            {
+                ImGui.BeginDisabled();
+                ImGui.Button("Connecting...");
+                ImGui.EndDisabled();
+            }
+        }
+
+        private void BtnRecoverAccount()
+        {
+            if (!State.isRequestInFlight)
+            {
+                if (ImGui.Button("Recover Account"))
+                {
+                    var task = MainWindowUtilities.LogInV1AndMigrate(Plugin, this);
+
+                    _ = MainWindowUtilities.HandleWithIndicator(State, task);
+                }
+            }
+            else
+            {
+                ImGui.BeginDisabled();
+                ImGui.Button("Connecting...");
+                ImGui.EndDisabled();
+            }
+        }
+
+        private void BtnLogOut()
         {
             // Put logout button in right corner.
             var buttonTextWidth = ImGui.CalcTextSize("Log Out").X;
@@ -552,6 +639,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
         {
             _ = MainWindowUtilities.LogOut(Plugin, this);
             _ = Plugin.ToyController.Disconnect();
+            State.SetDefauts();
         }
     }
 }

@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace CatboyEngineering.KinkShellClient.Models.API.Request.V2
 {
-    public struct AccountLoginRequest
+    public struct AccountLoginRequestMigrate
     {
+        public string Username { get; set; }
+        public string Password { get; set; }
         public string CharacterName { get; set; }
         public string CharacterServer { get; set; }
-        public string LoginToken { get; set; }
+        public string ClientVersionString { get; set; }
     }
 }

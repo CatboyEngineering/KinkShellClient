@@ -36,6 +36,7 @@ namespace CatboyEngineering.KinkShellClient.Network
             Connections = new List<ShellSession>();
         }
 
+        [Obsolete]
         public async Task<HttpStatusCode> Authenticate()
         {
             var request = new AccountLoginRequest
@@ -58,7 +59,7 @@ namespace CatboyEngineering.KinkShellClient.Network
 
         public async Task<HttpStatusCode> AuthenticateV1Migrate()
         {
-            var request = new Models.API.Request.V2.AccountLoginRequest
+            var request = new Models.API.Request.V2.AccountLoginRequestMigrate
             {
                 Username = Plugin.Configuration.KinkShellServerUsername,
                 Password = Plugin.Configuration.KinkShellServerPassword,
@@ -73,8 +74,51 @@ namespace CatboyEngineering.KinkShellClient.Network
             {
                 Plugin.Configuration.KinkShellUserData = response.Result.Value;
                 Plugin.Configuration.KinkShellServerLoginToken = response.Result.Value.LoginToken;
+                Plugin.Configuration.KinkShellServerUsername = "";
+                Plugin.Configuration.KinkShellServerPassword = "";
+                Plugin.Configuration.Save();
                 Plugin.HTTP.SetAuthenticationToken(response.Result.Value.AuthToken);
-                // TODO purge old login data
+            }
+
+            return response.StatusCode;
+        }
+
+        public async Task<HttpStatusCode> AuthenticateV2()
+        {
+            var request = new Models.API.Request.V2.AccountLoginRequest
+            {
+                CharacterName = Plugin.ClientState.LocalPlayer.Name.TextValue,
+                CharacterServer = Plugin.ClientState.LocalPlayer.HomeWorld.Value.Name.ExtractText(),
+                LoginToken = Plugin.Configuration.KinkShellServerLoginToken
+            };
+
+            var response = await Plugin.HTTP.Post<Models.API.Response.V2.AccountAuthenticatedResponse>("v2/account", JObject.FromObject(request));
+
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+
+                Plugin.Configuration.KinkShellUserData = response.Result.Value;
+                Plugin.HTTP.SetAuthenticationToken(response.Result.Value.AuthToken);
+            }
+
+            return response.StatusCode;
+        }
+
+        public async Task<HttpStatusCode> CreateAccount()
+        {
+            var request = new Models.API.Request.V2.AccountLoginRequest
+            {
+                CharacterName = Plugin.ClientState.LocalPlayer.Name.TextValue,
+                CharacterServer = Plugin.ClientState.LocalPlayer.HomeWorld.Value.Name.ExtractText()
+            };
+
+            var response = await Plugin.HTTP.Put<Models.API.Response.V2.AccountAuthenticatedResponse>("v2/account", JObject.FromObject(request));
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                Plugin.Configuration.KinkShellUserData = response.Result.Value;
+                Plugin.HTTP.SetAuthenticationToken(response.Result.Value.AuthToken);
             }
 
             return response.StatusCode;
