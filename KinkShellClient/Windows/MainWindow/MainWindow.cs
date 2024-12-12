@@ -8,6 +8,7 @@ using ImGuiNET;
 using System;
 using System.Diagnostics;
 using System.Numerics;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
 {
@@ -31,7 +32,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
 
         public override void Draw()
         {
-            ImGui.SetNextWindowSize(new Vector2(410, 420), ImGuiCond.Always);
+            ImGui.SetNextWindowSize(new Vector2(410, 450), ImGuiCond.Always);
 
             if (ImGui.Begin("KinkShell"))
             {
@@ -112,13 +113,22 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
         private void DrawScreenCreateAccount()
         {
             var width = ImGui.GetWindowWidth();
-            ImGui.BeginChild("MainWindowCTA#CreateAccount", new Vector2(width - 15, 125), true);
+            ImGui.BeginChild("MainWindowCTA#CreateAccount", new Vector2(width - 15, 200), true);
 
-            ImGui.TextWrapped("Welcome to KinkShell! Use the buttons below to get started, or visit us at the link above to learn more.");
-            ImGui.Spacing();
+            Plugin.HeaderFontHandle.Push();
+            DrawUICenteredText("Welcome");
+            Plugin.HeaderFontHandle.Pop();
 
+            ImGui.TextWrapped("Welcome to KinkShell! Click the button below to get started, or visit us at the link above to learn more.");
             BtnCreateAccount();
-            ImGui.SameLine();
+            ImGui.Spacing();
+            ImGui.Spacing();
+            ImGui.Spacing();
+            ImGui.Spacing();
+            ImGui.Spacing();
+            ImGui.TextColored(new Vector4(0.9f, 0.9f, 0.3f, 1), "Account Recovery:");
+            ImGui.TextWrapped("If you already have a KinkShell account, you can regain access to it using the button below.");
+
             BtnRecoverAccount();
 
             ImGui.EndChild();
@@ -127,7 +137,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
         private void DrawScreenVerify()
         {
             var width = ImGui.GetWindowWidth();
-            ImGui.BeginChild("MainWindowCTA#Verify", new Vector2(width - 15, 125), true);
+            ImGui.BeginChild("MainWindowCTA#Verify", new Vector2(width - 15, 250), true);
 
             Plugin.HeaderFontHandle.Push();
             DrawUICenteredText("Verify Character");
@@ -139,8 +149,17 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             ImGui.TextWrapped("Verify your character to finish setting up KinkShell. Add the following code to your Lodestone Profile Bio, and once ready, click Verify to confirm.");
 
             ImGui.Spacing();
+            ImGui.Spacing();
             ImGui.Text("Validation Code:");
             ImGui.Text(Plugin.Configuration.KinkShellUserData.VerificationToken);
+            ImGui.SameLine();
+
+            if (ImGui.Button("Copy"))
+            {
+                ImGui.SetClipboardText(Plugin.Configuration.KinkShellUserData.VerificationToken);
+            }
+
+            ImGui.Spacing();
             ImGui.Spacing();
 
             if (ImGui.Button("Open Lodestone Profile"))
@@ -155,6 +174,9 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
 
             BtnVerifyCharacter();
 
+            ImGui.Spacing();
+            ImGui.Spacing();
+
             Plugin.SmallFontHandle.Push();
             ImGui.TextWrapped("Your KinkShell account will be bound to this character. While you can log in using alts, this character will be used for your identity.");
             Plugin.SmallFontHandle.Pop();
@@ -166,6 +188,11 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
         {
             var width = ImGui.GetWindowWidth();
             ImGui.BeginChild("MainWindowCTA#LogIn", new Vector2(width - 15, 125), true);
+
+            Plugin.HeaderFontHandle.Push();
+            DrawUICenteredText("Welcome Back!");
+            Plugin.HeaderFontHandle.Pop();
+            DrawUICenteredText("Click the button below to log back into KinkShell.");
 
             BtnLoginV2();
 
@@ -590,6 +617,11 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
 
         private void BtnLoginV2()
         {
+            var windowWidth = ImGui.GetWindowSize().X;
+            var settingsTextWidth = ImGui.CalcTextSize("Connect to KinkShell").X;
+
+            ImGui.SetCursorPosX((windowWidth - settingsTextWidth) * 0.5f);
+
             if (!State.isRequestInFlight)
             {
                 if (ImGui.Button("Connect to KinkShell"))
@@ -613,6 +645,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             {
                 if (ImGui.Button("Recover Account"))
                 {
+                    // TODO here
                     var task = MainWindowUtilities.LogInV1AndMigrate(Plugin, this);
 
                     _ = MainWindowUtilities.HandleWithIndicator(State, task);

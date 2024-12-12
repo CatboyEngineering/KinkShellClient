@@ -79,7 +79,12 @@ namespace CatboyEngineering.KinkShellClient.Windows
                     {
                         this.WorkingCopy.KinkShellSecure = secure;
                     }
+
+                    ImGui.Spacing();
                 }
+
+                ImGui.TextColored(new Vector4(0.9f, 0.9f, 0.3f, 1), "Legacy Settings:");
+                ImGui.TextWrapped("These settings are deprecated. KinkShell no longer requires a username and password to log in.");
 
                 ImGui.Text("KinkShell Username:");
                 if (ImGui.InputText("##KSUsername", ref shellUser, 64))
