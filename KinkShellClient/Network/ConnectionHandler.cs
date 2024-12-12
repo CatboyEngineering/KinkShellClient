@@ -124,6 +124,13 @@ namespace CatboyEngineering.KinkShellClient.Network
             return response.StatusCode;
         }
 
+        public async Task<HttpStatusCode> VerifyCharacter()
+        {
+            var response = await Plugin.HTTP.Get<Models.API.Response.V2.AccountAuthenticatedResponse>("v2/account/verify");
+
+            return response.StatusCode;
+        }
+
         public async Task<HttpStatusCode> GetKinkShells()
         {
             var response = await Plugin.HTTP.Get<ShellListResponse>("v1/shell");

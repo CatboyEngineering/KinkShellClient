@@ -129,8 +129,21 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             var width = ImGui.GetWindowWidth();
             ImGui.BeginChild("MainWindowCTA#Verify", new Vector2(width - 15, 125), true);
 
-            // TODO continue here
-            if(ImGui.Button("Open Lodestone"))
+            Plugin.HeaderFontHandle.Push();
+            DrawUICenteredText("Verify Character");
+            Plugin.HeaderFontHandle.Pop();
+            DrawUICenteredText($"{Plugin.Configuration.KinkShellUserData.CharacterName} • {Plugin.Configuration.KinkShellUserData.CharacterServer}");
+
+            ImGui.Spacing();
+
+            ImGui.TextWrapped("Verify your character to finish setting up KinkShell. Add the following code to your Lodestone Profile Bio, and once ready, click Verify to confirm.");
+
+            ImGui.Spacing();
+            ImGui.Text("Validation Code:");
+            ImGui.Text(Plugin.Configuration.KinkShellUserData.VerificationToken);
+            ImGui.Spacing();
+
+            if (ImGui.Button("Open Lodestone Profile"))
             {
                 Process proc = new Process();
                 proc.StartInfo.UseShellExecute = true;
@@ -138,10 +151,13 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
                 proc.Start();
             }
 
-            ImGui.Text("Here's your validation token: " + Plugin.Configuration.KinkShellUserData.VerificationToken);
+            ImGui.SameLine();
 
-            ImGui.TextWrapped("Welcome to KinkShell! Use the buttons below to get started, or visit us at the link above to learn more.");
-            ImGui.Spacing();
+            BtnVerifyCharacter();
+
+            Plugin.SmallFontHandle.Push();
+            ImGui.TextWrapped("Your KinkShell account will be bound to this character. While you can log in using alts, this character will be used for your identity.");
+            Plugin.SmallFontHandle.Pop();
 
             ImGui.EndChild();
         }
@@ -541,6 +557,25 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
                 if (ImGui.Button("Get Started"))
                 {
                     var task = MainWindowUtilities.CreateAccount(Plugin, this);
+
+                    _ = MainWindowUtilities.HandleWithIndicator(State, task);
+                }
+            }
+            else
+            {
+                ImGui.BeginDisabled();
+                ImGui.Button("Connecting...");
+                ImGui.EndDisabled();
+            }
+        }
+
+        private void BtnVerifyCharacter()
+        {
+            if (!State.isRequestInFlight)
+            {
+                if (ImGui.Button("Verify"))
+                {
+                    var task = MainWindowUtilities.VerifyCharacter(Plugin, this);
 
                     _ = MainWindowUtilities.HandleWithIndicator(State, task);
                 }

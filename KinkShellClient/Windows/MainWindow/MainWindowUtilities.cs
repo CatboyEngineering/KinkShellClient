@@ -90,6 +90,20 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             }
         }
 
+        public static async Task VerifyCharacter(Plugin plugin, MainWindow window)
+        {
+            var result = await plugin.ConnectionHandler.VerifyCharacter();
+
+            if (result == HttpStatusCode.OK)
+            {
+                window.State.Screen = MainWindowScreen.HOME;
+            }
+            else
+            {
+                HandleAPIError(result, window, "Verification was not successful.");
+            }
+        }
+
         public static async Task LogOut(Plugin plugin, MainWindow window)
         {
             var result = await plugin.ConnectionHandler.LogOut();
