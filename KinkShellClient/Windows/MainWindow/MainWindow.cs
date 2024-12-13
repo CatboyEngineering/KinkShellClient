@@ -86,6 +86,9 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
                 case MainWindowScreen.VERIFY:
                     DrawScreenVerify();
                     break;
+                case MainWindowScreen.VERIFY_RECOVERY:
+                    DrawScreenVerifyRecovery();
+                    break;
                 case MainWindowScreen.HOME:
                     DrawUIWindowLoggedInHomepage();
                     ImGui.Spacing();
@@ -180,6 +183,48 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             Plugin.SmallFontHandle.Push();
             ImGui.TextWrapped("Your KinkShell account will be bound to this character. While you can log in using alts, this character will be used for your identity.");
             Plugin.SmallFontHandle.Pop();
+
+            ImGui.EndChild();
+        }
+
+        private void DrawScreenVerifyRecovery()
+        {
+            var width = ImGui.GetWindowWidth();
+            ImGui.BeginChild("MainWindowCTA#VerifyRecovery", new Vector2(width - 15, 250), true);
+
+            Plugin.HeaderFontHandle.Push();
+            DrawUICenteredText("Verify Character Recovery");
+            Plugin.HeaderFontHandle.Pop();
+
+            ImGui.Spacing();
+
+            ImGui.TextWrapped("Verify your character to finalize recovery. Add the following code to your Lodestone Profile Bio, and once ready, click Verify to confirm.");
+
+            ImGui.Spacing();
+            ImGui.Spacing();
+            ImGui.Text("Validation Code:");
+            ImGui.Text(Plugin.Configuration.KinkShellUserData.VerificationToken);
+            ImGui.SameLine();
+
+            if (ImGui.Button("Copy"))
+            {
+                ImGui.SetClipboardText(Plugin.Configuration.KinkShellUserData.VerificationToken);
+            }
+
+            ImGui.Spacing();
+            ImGui.Spacing();
+
+            if (ImGui.Button("Open Lodestone Profile"))
+            {
+                Process proc = new Process();
+                proc.StartInfo.UseShellExecute = true;
+                proc.StartInfo.FileName = $"https://na.finalfantasyxiv.com/lodestone/character/{Plugin.Configuration.KinkShellUserData.CharacterID}";
+                proc.Start();
+            }
+
+            ImGui.SameLine();
+
+            BtnVerifyCharacterRecovery();
 
             ImGui.EndChild();
         }
@@ -615,6 +660,25 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             }
         }
 
+        private void BtnVerifyCharacterRecovery()
+        {
+            if (!State.isRequestInFlight)
+            {
+                if (ImGui.Button("Verify"))
+                {
+                    var task = MainWindowUtilities.RecoverAccountVerify(Plugin, this);
+
+                    _ = MainWindowUtilities.HandleWithIndicator(State, task);
+                }
+            }
+            else
+            {
+                ImGui.BeginDisabled();
+                ImGui.Button("Connecting...");
+                ImGui.EndDisabled();
+            }
+        }
+
         private void BtnLoginV2()
         {
             var windowWidth = ImGui.GetWindowSize().X;
@@ -645,8 +709,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             {
                 if (ImGui.Button("Recover Account"))
                 {
-                    // TODO here
-                    var task = MainWindowUtilities.LogInV1AndMigrate(Plugin, this);
+                    var task = MainWindowUtilities.RecoverAccount(Plugin, this);
 
                     _ = MainWindowUtilities.HandleWithIndicator(State, task);
                 }

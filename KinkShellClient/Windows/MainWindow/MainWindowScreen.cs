@@ -12,6 +12,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
         LOGIN,
         MIGRATE,
         VERIFY,
+        VERIFY_RECOVERY,
         HOME,
         RECOVER
     }

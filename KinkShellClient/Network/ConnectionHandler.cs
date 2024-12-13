@@ -1,6 +1,7 @@
 ﻿using CatboyEngineering.KinkShellClient.Models;
 using CatboyEngineering.KinkShellClient.Models.API.Request;
 using CatboyEngineering.KinkShellClient.Models.API.Response;
+using CatboyEngineering.KinkShellClient.Models.API.Response.V2;
 using CatboyEngineering.KinkShellClient.Models.API.WebSocket;
 using CatboyEngineering.KinkShellClient.Models.API.WebSocket.Request;
 using CatboyEngineering.KinkShellClient.Models.API.WebSocket.Response;
@@ -46,7 +47,7 @@ namespace CatboyEngineering.KinkShellClient.Network
                 ClientVersionString = Plugin.Version
             };
 
-            var response = await Plugin.HTTP.Post<AccountAuthenticatedResponse>("v1/account", JObject.FromObject(request));
+            var response = await Plugin.HTTP.Post<Models.API.Response.AccountAuthenticatedResponse>("v1/account", JObject.FromObject(request));
 
             if(response.StatusCode == HttpStatusCode.OK)
             {
@@ -76,6 +77,15 @@ namespace CatboyEngineering.KinkShellClient.Network
                 Plugin.Configuration.KinkShellServerLoginToken = response.Result.Value.LoginToken;
                 Plugin.Configuration.KinkShellServerUsername = "";
                 Plugin.Configuration.KinkShellServerPassword = "";
+
+                // For legacy support.
+                Plugin.Configuration.KinkShellAuthenticatedUserData = new Models.API.Response.AccountAuthenticatedResponse
+                {
+                    AuthToken = response.Result.Value.AuthToken,
+                    DisplayName = response.Result.Value.CharacterName,
+                    AccountID = response.Result.Value.AccountID,
+                };
+
                 Plugin.Configuration.Save();
                 Plugin.HTTP.SetAuthenticationToken(response.Result.Value.AuthToken);
             }
@@ -99,6 +109,15 @@ namespace CatboyEngineering.KinkShellClient.Network
             {
 
                 Plugin.Configuration.KinkShellUserData = response.Result.Value;
+
+                // For legacy support.
+                Plugin.Configuration.KinkShellAuthenticatedUserData = new Models.API.Response.AccountAuthenticatedResponse
+                {
+                    AuthToken = response.Result.Value.AuthToken,
+                    DisplayName = response.Result.Value.CharacterName,
+                    AccountID = response.Result.Value.AccountID,
+                };
+
                 Plugin.HTTP.SetAuthenticationToken(response.Result.Value.AuthToken);
             }
 
@@ -115,9 +134,68 @@ namespace CatboyEngineering.KinkShellClient.Network
 
             var response = await Plugin.HTTP.Put<Models.API.Response.V2.AccountAuthenticatedResponse>("v2/account", JObject.FromObject(request));
 
+            if (response.StatusCode == HttpStatusCode.Created)
+            {
+                Plugin.Configuration.KinkShellUserData = response.Result.Value;
+                Plugin.Configuration.KinkShellServerLoginToken = response.Result.Value.LoginToken;
+
+                // For legacy support.
+                Plugin.Configuration.KinkShellAuthenticatedUserData = new Models.API.Response.AccountAuthenticatedResponse
+                {
+                    AuthToken = response.Result.Value.AuthToken,
+                    DisplayName = response.Result.Value.CharacterName,
+                    AccountID = response.Result.Value.AccountID,
+                };
+
+                Plugin.Configuration.Save();
+                Plugin.HTTP.SetAuthenticationToken(response.Result.Value.AuthToken);
+            }
+
+            return response.StatusCode;
+        }
+
+        public async Task<HttpStatusCode> RecoverAccount()
+        {
+            var request = new Models.API.Request.V2.AccountLoginRequest
+            {
+                CharacterName = Plugin.ClientState.LocalPlayer.Name.TextValue,
+                CharacterServer = Plugin.ClientState.LocalPlayer.HomeWorld.Value.Name.ExtractText()
+            };
+
+            var response = await Plugin.HTTP.Put<AccountRecoverStartedResponse>("v2/account/recover", JObject.FromObject(request));
+
+            if (response.StatusCode == HttpStatusCode.Created)
+            {
+                Plugin.Configuration.RecoveryIntegrityToken = response.Result.Value.IntegrityToken;
+                Plugin.Configuration.KinkShellUserData = new Models.API.Response.V2.AccountAuthenticatedResponse
+                {
+                    VerificationToken = response.Result.Value.VerificationToken,
+                    CharacterID = response.Result.Value.CharacterID
+                };
+            }
+
+            return response.StatusCode;
+        }
+
+        // TODO: USER CRASHES AFTER SUCCESSFUL VERIFICATION. UI DRAWING ISSUE ON HOME PAGE?
+        public async Task<HttpStatusCode> VerifyCharacterRecovery(string token)
+        {
+            var response = await Plugin.HTTP.Get<Models.API.Response.V2.AccountAuthenticatedResponse>($"v2/account/recover/{token}");
+
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 Plugin.Configuration.KinkShellUserData = response.Result.Value;
+                Plugin.Configuration.KinkShellServerLoginToken = response.Result.Value.LoginToken;
+
+                // For legacy support.
+                Plugin.Configuration.KinkShellAuthenticatedUserData = new Models.API.Response.AccountAuthenticatedResponse
+                {
+                    AuthToken = response.Result.Value.AuthToken,
+                    DisplayName = response.Result.Value.CharacterName,
+                    AccountID = response.Result.Value.AccountID,
+                };
+
+                Plugin.Configuration.Save();
                 Plugin.HTTP.SetAuthenticationToken(response.Result.Value.AuthToken);
             }
 
@@ -195,11 +273,11 @@ namespace CatboyEngineering.KinkShellClient.Network
 
         public async Task<HttpStatusCode> LogOut()
         {
-            var response = await Plugin.HTTP.Post<AccountAuthenticatedResponse>("v1/logout", null);
+            var response = await Plugin.HTTP.Post<Models.API.Response.AccountAuthenticatedResponse>("v1/logout", null);
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                Plugin.Configuration.KinkShellAuthenticatedUserData = new AccountAuthenticatedResponse();
+                Plugin.Configuration.KinkShellAuthenticatedUserData = new Models.API.Response.AccountAuthenticatedResponse();
             }
 
             return response.StatusCode;

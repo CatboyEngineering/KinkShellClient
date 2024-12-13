@@ -80,13 +80,41 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
         {
             var result = await plugin.ConnectionHandler.CreateAccount();
 
-            if (result == HttpStatusCode.OK)
+            if (result == HttpStatusCode.Created)
             {
                 window.State.Screen = MainWindowScreen.VERIFY;
             }
             else
             {
                 HandleAPIError(result, window, "An account already exists for this player!");
+            }
+        }
+
+        public static async Task RecoverAccount(Plugin plugin, MainWindow window)
+        {
+            var result = await plugin.ConnectionHandler.RecoverAccount();
+
+            if (result == HttpStatusCode.Created)
+            {
+                window.State.Screen = MainWindowScreen.VERIFY_RECOVERY;
+            }
+            else
+            {
+                HandleAPIError(result, window);
+            }
+        }
+
+        public static async Task RecoverAccountVerify(Plugin plugin, MainWindow window)
+        {
+            var result = await plugin.ConnectionHandler.VerifyCharacterRecovery(plugin.Configuration.RecoveryIntegrityToken);
+
+            if (result == HttpStatusCode.OK)
+            {
+                window.State.Screen = MainWindowScreen.HOME;
+            }
+            else
+            {
+                HandleAPIError(result, window);
             }
         }
 

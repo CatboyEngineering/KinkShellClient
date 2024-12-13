@@ -33,10 +33,14 @@ namespace CatboyEngineering.KinkShellClient
         public readonly string CaptchaToken = "DalamudClient";
 
         [NonSerialized]
+        [Obsolete]
         public AccountAuthenticatedResponse KinkShellAuthenticatedUserData;
 
         [NonSerialized]
         public Models.API.Response.V2.AccountAuthenticatedResponse KinkShellUserData;
+
+        [NonSerialized]
+        public string RecoveryIntegrityToken;
 
         [NonSerialized]
         public List<KinkShell> Shells;
