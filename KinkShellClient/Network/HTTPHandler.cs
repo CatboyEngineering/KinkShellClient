@@ -125,8 +125,10 @@ namespace CatboyEngineering.KinkShellClient.Network
                     Result = MapJSONToType<T>(responseBody)
                 };
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Plugin.Logger.Error($"Error parsing API response: {e.Message}");
+
                 return new APIResponse<T>
                 {
                     StatusCode = response.StatusCode,
@@ -141,8 +143,9 @@ namespace CatboyEngineering.KinkShellClient.Network
             {
                 return APIRequestMapper.MapRequestToModel<T>(jObj);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Plugin.Logger.Error($"Error mapping API response: {e.Message}");
                 return null;
             }
         }

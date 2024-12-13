@@ -67,6 +67,8 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
                 }
                 else
                 {
+                    await GetUserShells(plugin, window);
+                    _ = plugin.ToyController.Connect();
                     window.State.Screen = MainWindowScreen.HOME;
                 }
             }
@@ -110,6 +112,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
 
             if (result == HttpStatusCode.OK)
             {
+                await GetUserShells(plugin, window);
                 window.State.Screen = MainWindowScreen.HOME;
             }
             else
@@ -124,6 +127,8 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
 
             if (result == HttpStatusCode.OK)
             {
+                await GetUserShells(plugin, window);
+                _ = plugin.ToyController.Connect();
                 window.State.Screen = MainWindowScreen.HOME;
             }
             else

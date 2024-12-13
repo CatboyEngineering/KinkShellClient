@@ -100,7 +100,7 @@ namespace CatboyEngineering.KinkShellClient.Toy
 
         public async Task Disconnect()
         {
-            if (Client.Connected)
+            if (Client != null && Client.Connected)
             {
                 await Client.DisconnectAsync();
             }

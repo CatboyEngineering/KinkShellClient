@@ -107,7 +107,6 @@ namespace CatboyEngineering.KinkShellClient.Network
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-
                 Plugin.Configuration.KinkShellUserData = response.Result.Value;
 
                 // For legacy support.
@@ -172,6 +171,8 @@ namespace CatboyEngineering.KinkShellClient.Network
                     VerificationToken = response.Result.Value.VerificationToken,
                     CharacterID = response.Result.Value.CharacterID
                 };
+
+                Plugin.Configuration.Save();
             }
 
             return response.StatusCode;
