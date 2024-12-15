@@ -65,7 +65,7 @@ namespace CatboyEngineering.KinkShellClient.Network
 
             return ws;
         }
-        
+
         public async Task SendWebSocketMessage(ShellSession session, ShellSocketMessage message)
         {
             var jsonReply = JsonConvert.SerializeObject(message);
@@ -116,14 +116,29 @@ namespace CatboyEngineering.KinkShellClient.Network
 
             try
             {
-                var responseBody = JObject.Parse(await response.Content.ReadAsStringAsync());
+                var responseRaw = await response.Content.ReadAsStringAsync();
 
-                return new APIResponse<T>
+                if (!string.IsNullOrEmpty(responseRaw))
                 {
-                    StatusCode = response.StatusCode,
-                    Response = responseBody,
-                    Result = MapJSONToType<T>(responseBody)
-                };
+                    var responseBody = JObject.Parse(responseRaw);
+
+                    return new APIResponse<T>
+                    {
+                        StatusCode = response.StatusCode,
+                        Response = responseBody,
+                        Result = MapJSONToType<T>(responseBody)
+                    };
+                }
+                else
+                {
+                    return new APIResponse<T>
+                    {
+                        StatusCode = response.StatusCode,
+                        Response = new JObject(),
+                        Result = null
+                    };
+
+                }
             }
             catch (Exception e)
             {

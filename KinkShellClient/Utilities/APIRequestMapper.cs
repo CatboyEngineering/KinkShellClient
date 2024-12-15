@@ -21,7 +21,6 @@ namespace CatboyEngineering.KinkShellClient.Utilities
 
                     if (request.GetValue(prop.Name, StringComparison.OrdinalIgnoreCase) == null)
                     {
-                        Plugin.Logger.Error($"Expected {prop.Name}, but it was not found.");
                         return null;
                     }
                 }
