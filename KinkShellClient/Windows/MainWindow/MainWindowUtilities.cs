@@ -113,6 +113,8 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             if (result == HttpStatusCode.OK)
             {
                 await GetUserShells(plugin, window);
+                _ = plugin.ToyController.Connect();
+
                 window.State.Screen = MainWindowScreen.HOME;
             }
             else

@@ -154,12 +154,16 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             ImGui.Spacing();
             ImGui.Spacing();
             ImGui.Text("Validation Code:");
-            ImGui.Text(Plugin.Configuration.KinkShellUserData.VerificationToken);
-            ImGui.SameLine();
 
-            if (ImGui.Button("Copy"))
+            if (!string.IsNullOrEmpty(Plugin.Configuration.KinkShellUserData.VerificationToken))
             {
-                ImGui.SetClipboardText(Plugin.Configuration.KinkShellUserData.VerificationToken);
+                ImGui.Text(Plugin.Configuration.KinkShellUserData.VerificationToken);
+                ImGui.SameLine();
+
+                if (ImGui.Button("Copy"))
+                {
+                    ImGui.SetClipboardText(Plugin.Configuration.KinkShellUserData.VerificationToken);
+                }
             }
 
             ImGui.Spacing();
@@ -203,12 +207,16 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             ImGui.Spacing();
             ImGui.Spacing();
             ImGui.Text("Validation Code:");
-            ImGui.Text(Plugin.Configuration.KinkShellUserData.VerificationToken);
-            ImGui.SameLine();
 
-            if (ImGui.Button("Copy"))
+            if (!string.IsNullOrEmpty(Plugin.Configuration.KinkShellUserData.VerificationToken))
             {
-                ImGui.SetClipboardText(Plugin.Configuration.KinkShellUserData.VerificationToken);
+                ImGui.Text(Plugin.Configuration.KinkShellUserData.VerificationToken);
+                ImGui.SameLine();
+
+                if (ImGui.Button("Copy"))
+                {
+                    ImGui.SetClipboardText(Plugin.Configuration.KinkShellUserData.VerificationToken);
+                }
             }
 
             ImGui.Spacing();
