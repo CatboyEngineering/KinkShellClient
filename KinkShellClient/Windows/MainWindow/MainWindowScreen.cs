@@ -14,6 +14,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
         VERIFY,
         VERIFY_RECOVERY,
         HOME,
-        RECOVER
+        RECOVER,
+        ADMIN
     }
 }

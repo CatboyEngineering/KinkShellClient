@@ -161,6 +161,16 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             }
         }
 
+        public static async Task GetAllAccounts(Plugin plugin, MainWindow window)
+        {
+            var result = await plugin.ConnectionHandler.GetAccounts();
+
+            if (!result)
+            {
+                window.State.OnError("There was an error getting the user list.");
+            }
+        }
+
         public static async Task CreateShell(Plugin plugin, MainWindow window, string name)
         {
             window.State.ClearErrors();
@@ -214,7 +224,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
 
         private static void HandleAPIError(HttpStatusCode statusCode, MainWindow mainWindow, string? errorMessage = null)
         {
-            switch(statusCode)
+            switch (statusCode)
             {
                 case HttpStatusCode.BadRequest:
                     mainWindow.State.OnError(errorMessage ?? "There was a problem with the request.");

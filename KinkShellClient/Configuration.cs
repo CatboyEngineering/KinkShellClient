@@ -1,5 +1,6 @@
 ﻿using CatboyEngineering.KinkShellClient.Models;
 using CatboyEngineering.KinkShellClient.Models.API.Response;
+using CatboyEngineering.KinkShellClient.Models.API.Response.V2;
 using CatboyEngineering.KinkShellClient.Models.Toy;
 using CatboyEngineering.KinkShellClient.Toy;
 using Dalamud.Configuration;
@@ -34,7 +35,7 @@ namespace CatboyEngineering.KinkShellClient
 
         [NonSerialized]
         [Obsolete]
-        public AccountAuthenticatedResponse KinkShellAuthenticatedUserData;
+        public Models.API.Response.AccountAuthenticatedResponse KinkShellAuthenticatedUserData;
 
         [NonSerialized]
         public Models.API.Response.V2.AccountAuthenticatedResponse KinkShellUserData;
@@ -44,6 +45,9 @@ namespace CatboyEngineering.KinkShellClient
 
         [NonSerialized]
         public List<KinkShell> Shells;
+
+        [NonSerialized]
+        public List<AccountInfoResponse> AdminUserList;
 
         [NonSerialized]
         private IDalamudPluginInterface PluginInterface;
@@ -90,7 +94,7 @@ namespace CatboyEngineering.KinkShellClient
 
         private void PerformVersionUpdates()
         {
-            if(Version == 0)
+            if (Version == 0)
             {
                 // This update moves the Intiface server protocol into the configuration.
                 Version = CurrentVersion;

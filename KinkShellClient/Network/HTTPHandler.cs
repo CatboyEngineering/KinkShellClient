@@ -5,6 +5,7 @@ using CatboyEngineering.KinkShellClient.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.WebSockets;
@@ -30,6 +31,20 @@ namespace CatboyEngineering.KinkShellClient.Network
         public async Task<APIResponse<T>> Get<T>(string uri) where T : struct
         {
             return await GetHTTP<T>(HttpMethod.Get, uri, null);
+        }
+
+        public async Task<JObject?> GetJSON(string uri)
+        {
+            var r = await GetHTTP<IEmpty>(HttpMethod.Get, uri, null, false);
+
+            if (r.Response.HasValues)
+            {
+                return r.Response;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public async Task<APIResponse<T>> Post<T>(string uri, JObject body) where T : struct
@@ -80,7 +95,7 @@ namespace CatboyEngineering.KinkShellClient.Network
             Http.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {token}");
         }
 
-        private async Task<APIResponse<T>> GetHTTP<T>(HttpMethod method, string uri, JObject? body) where T : struct
+        private async Task<APIResponse<T>> GetHTTP<T>(HttpMethod method, string uri, JObject? body, bool parseType = true) where T : struct
         {
             uri = $"{(Plugin.Configuration.KinkShellSecure ? "https" : "http")}://{Plugin.Configuration.KinkShellServerAddress}/kinkshell/{uri}";
             StringContent stringContent = null;
@@ -122,20 +137,26 @@ namespace CatboyEngineering.KinkShellClient.Network
                 {
                     var responseBody = JObject.Parse(responseRaw);
 
-                    return new APIResponse<T>
+                    var r = new APIResponse<T>
                     {
                         StatusCode = response.StatusCode,
-                        Response = responseBody,
-                        Result = MapJSONToType<T>(responseBody)
+                        Response = responseBody
+
                     };
+
+                    if (parseType)
+                    {
+                        r.Result = MapJSONToType<T>(responseBody);
+                    }
+
+                    return r;
                 }
                 else
                 {
                     return new APIResponse<T>
                     {
                         StatusCode = response.StatusCode,
-                        Response = new JObject(),
-                        Result = null
+                        Response = new JObject()
                     };
 
                 }

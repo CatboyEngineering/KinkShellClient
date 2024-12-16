@@ -66,7 +66,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
                 DrawUIErrorText(State.ErrorText);
             }
 
-            switch(State.Screen)
+            switch (State.Screen)
             {
                 case MainWindowScreen.CREATE:
                     DrawScreenCreateAccount();
@@ -93,6 +93,9 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
                     DrawUIWindowLoggedInHomepage();
                     ImGui.Spacing();
                     DrawBtnToolbar();
+                    break;
+                case MainWindowScreen.ADMIN:
+                    DrawScreenAdmin();
                     break;
             }
         }
@@ -252,11 +255,54 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             ImGui.EndChild();
         }
 
+        private void DrawScreenAdmin()
+        {
+            // TODO update max shells
+
+            if (Plugin.Configuration.AdminUserList != null)
+            {
+                ImGui.Text("Users:");
+
+                foreach (var user in Plugin.Configuration.AdminUserList)
+                {
+                    ImGui.Text($"{user.DisplayName} ${(user.IsVerified ? "(Verified)" : "(Unverified)")} - {user.AccountID[..10]}...");
+                    ImGui.SameLine();
+
+                    if (ImGui.Button($"Copy#{user.AccountID}"))
+                    {
+                        ImGui.SetClipboardText(user.AccountID);
+                    }
+                }
+            }
+
+            if (!State.isRequestInFlight)
+            {
+                if (ImGui.Button("View Accounts"))
+                {
+                    var task = MainWindowUtilities.GetAllAccounts(Plugin, this);
+
+                    _ = MainWindowUtilities.HandleWithIndicator(State, task);
+                }
+            }
+            else
+            {
+                ImGui.BeginDisabled();
+                ImGui.Button("Connecting...");
+                ImGui.EndDisabled();
+            }
+        }
+
         private void DrawBtnToolbar()
         {
             BtnPatternBuilder();
             ImGui.SameLine();
             BtnConfiguration();
+
+            if (Plugin.Configuration.KinkShellUserData.IsAdmin != null && Plugin.Configuration.KinkShellUserData.IsAdmin! == true)
+            {
+                ImGui.SameLine();
+                BtnAdmin();
+            }
         }
 
         private void BtnPatternBuilder()
@@ -275,11 +321,32 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             }
         }
 
+        private void BtnAdmin()
+        {
+            if (ImGui.Button("Admin"))
+            {
+                State.Screen = MainWindowScreen.ADMIN;
+            }
+        }
+
         private void DrawUIWindowLoggedInHomepage()
         {
             var welcomeText = $"Welcome, {Plugin.Configuration.KinkShellAuthenticatedUserData.DisplayName}!";
 
             DrawUICenteredText(welcomeText);
+
+            ImGui.Spacing();
+            ImGui.TextColored(new Vector4(0, 1, 0, 1), "Your ID:");
+            ImGui.TextColored(new Vector4(0.75f, 0.75f, 0.75f, 1), Plugin.Configuration.KinkShellAuthenticatedUserData.AccountID.ToString());
+            ImGui.SameLine();
+
+            if (ImGui.Button("Copy#copyid"))
+            {
+                ImGui.SetClipboardText(Plugin.Configuration.KinkShellAuthenticatedUserData.AccountID.ToString());
+            }
+
+            ImGui.Spacing();
+
             DrawUISectionShellList();
             DrawUIConnectedToys();
             BtnLogOut();

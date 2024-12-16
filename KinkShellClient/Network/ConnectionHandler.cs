@@ -13,7 +13,9 @@ using Dalamud.Game.ClientState.Statuses;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Net.WebSockets;
@@ -49,7 +51,7 @@ namespace CatboyEngineering.KinkShellClient.Network
 
             var response = await Plugin.HTTP.Post<Models.API.Response.AccountAuthenticatedResponse>("v1/account", JObject.FromObject(request));
 
-            if(response.StatusCode == HttpStatusCode.OK)
+            if (response.StatusCode == HttpStatusCode.OK)
             {
                 Plugin.Configuration.KinkShellAuthenticatedUserData = response.Result.Value;
                 Plugin.HTTP.SetAuthenticationToken(response.Result.Value.AuthToken);
@@ -222,6 +224,23 @@ namespace CatboyEngineering.KinkShellClient.Network
             return response.StatusCode;
         }
 
+        public async Task<bool> GetAccounts()
+        {
+            var response = await Plugin.HTTP.GetJSON("v1/admin/users");
+
+            if (response != null)
+            {
+                var accounts = new List<AccountInfoResponse>();
+
+                accounts.AddRange(response.Values<AccountInfoResponse>());
+                Plugin.Configuration.AdminUserList = accounts;
+
+                return true;
+            }
+
+            return false;
+        }
+
         public async Task<HttpStatusCode> CreateShell(string name)
         {
             var request = new ShellCreateRequest
@@ -293,7 +312,8 @@ namespace CatboyEngineering.KinkShellClient.Network
                 Connections.Add(newSession);
 
                 return newSession;
-            } else
+            }
+            else
             {
                 return session;
             }
@@ -352,7 +372,7 @@ namespace CatboyEngineering.KinkShellClient.Network
                 }
 
                 var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                
+
                 // We won't await the code to handle this request; continue the loop
                 _ = HandleWebSocketResponse(message, session);
             }
@@ -487,9 +507,10 @@ namespace CatboyEngineering.KinkShellClient.Network
                 var userChangeDetected = false;
 
                 // Incoming
-                foreach(var newUser in request.Value.ConnectedUsers)
+                foreach (var newUser in request.Value.ConnectedUsers)
                 {
-                    if(!session.ConnectedUsers.Exists(cu => cu.AccountID == newUser.AccountID)) {
+                    if (!session.ConnectedUsers.Exists(cu => cu.AccountID == newUser.AccountID))
+                    {
                         // User connected.
 
                         session.ReceivedNewMessage(new ChatMessage
@@ -506,7 +527,7 @@ namespace CatboyEngineering.KinkShellClient.Network
                     }
                 }
 
-                if(!userChangeDetected)
+                if (!userChangeDetected)
                 {
                     foreach (var oldUser in session.ConnectedUsers)
                     {
@@ -606,9 +627,9 @@ namespace CatboyEngineering.KinkShellClient.Network
 
         public void Dispose()
         {
-            foreach(var connection in Connections)
+            foreach (var connection in Connections)
             {
-                if(connection.WebSocket != null)
+                if (connection.WebSocket != null)
                 {
                     connection.WebSocket.Abort();
                     connection.WebSocket.Dispose();
