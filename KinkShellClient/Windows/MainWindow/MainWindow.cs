@@ -32,7 +32,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
 
         public override void Draw()
         {
-            ImGui.SetNextWindowSize(new Vector2(410, 450), ImGuiCond.Always);
+            ImGui.SetNextWindowSize(new Vector2(410, 525), ImGuiCond.Always);
 
             if (ImGui.Begin("KinkShell"))
             {
@@ -340,7 +340,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             ImGui.TextColored(new Vector4(0.75f, 0.75f, 0.75f, 1), Plugin.Configuration.KinkShellAuthenticatedUserData.AccountID.ToString());
             ImGui.SameLine();
 
-            if (ImGui.Button("Copy#copyid"))
+            if (ImGui.Button("Copy##copyid"))
             {
                 ImGui.SetClipboardText(Plugin.Configuration.KinkShellAuthenticatedUserData.AccountID.ToString());
             }
