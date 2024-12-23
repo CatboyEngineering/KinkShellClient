@@ -33,20 +33,6 @@ namespace CatboyEngineering.KinkShellClient.Network
             return await GetHTTP<T>(HttpMethod.Get, uri, null);
         }
 
-        public async Task<JObject?> GetJSON(string uri)
-        {
-            var r = await GetHTTP<IEmpty>(HttpMethod.Get, uri, null, false);
-
-            if (r.Response.HasValues)
-            {
-                return r.Response;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
         public async Task<APIResponse<T>> Post<T>(string uri, JObject body) where T : struct
         {
             return await GetHTTP<T>(HttpMethod.Post, uri, body);
@@ -95,7 +81,7 @@ namespace CatboyEngineering.KinkShellClient.Network
             Http.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {token}");
         }
 
-        private async Task<APIResponse<T>> GetHTTP<T>(HttpMethod method, string uri, JObject? body, bool parseType = true) where T : struct
+        private async Task<APIResponse<T>> GetHTTP<T>(HttpMethod method, string uri, JObject? body) where T : struct
         {
             uri = $"{(Plugin.Configuration.KinkShellSecure ? "https" : "http")}://{Plugin.Configuration.KinkShellServerAddress}/kinkshell/{uri}";
             StringContent stringContent = null;
@@ -140,14 +126,10 @@ namespace CatboyEngineering.KinkShellClient.Network
                     var r = new APIResponse<T>
                     {
                         StatusCode = response.StatusCode,
-                        Response = responseBody
+                        Response = responseBody,
+                        Result = MapJSONToType<T>(responseBody)
 
                     };
-
-                    if (parseType)
-                    {
-                        r.Result = MapJSONToType<T>(responseBody);
-                    }
 
                     return r;
                 }

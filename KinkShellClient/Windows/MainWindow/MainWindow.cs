@@ -265,10 +265,10 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
 
                 foreach (var user in Plugin.Configuration.AdminUserList)
                 {
-                    ImGui.Text($"{user.DisplayName} ${(user.IsVerified ? "(Verified)" : "(Unverified)")} - {user.AccountID[..10]}...");
+                    ImGui.Text($"{user.DisplayName} {(user.IsVerified ? "(Verified)" : "(Unverified)")} - {user.AccountID[..10]}...");
                     ImGui.SameLine();
 
-                    if (ImGui.Button($"Copy#{user.AccountID}"))
+                    if (ImGui.Button($"Copy##{user.AccountID}"))
                     {
                         ImGui.SetClipboardText(user.AccountID);
                     }
@@ -289,6 +289,11 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
                 ImGui.BeginDisabled();
                 ImGui.Button("Connecting...");
                 ImGui.EndDisabled();
+            }
+
+            if (ImGui.Button("Back"))
+            {
+                State.Screen = MainWindowScreen.HOME;
             }
         }
 

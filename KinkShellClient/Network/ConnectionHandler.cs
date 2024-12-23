@@ -226,14 +226,11 @@ namespace CatboyEngineering.KinkShellClient.Network
 
         public async Task<bool> GetAccounts()
         {
-            var response = await Plugin.HTTP.GetJSON("v1/admin/users");
+            var response = await Plugin.HTTP.Get<AccountListResponse>("v1/admin/users");
 
-            if (response != null)
+            if (response.StatusCode == HttpStatusCode.OK)
             {
-                var accounts = new List<AccountInfoResponse>();
-
-                accounts.AddRange(response.Values<AccountInfoResponse>());
-                Plugin.Configuration.AdminUserList = accounts;
+                Plugin.Configuration.AdminUserList = response.Result.Value.Accounts;
 
                 return true;
             }
