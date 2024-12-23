@@ -5,6 +5,7 @@ using CatboyEngineering.KinkShellClient.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.WebSockets;
@@ -65,7 +66,7 @@ namespace CatboyEngineering.KinkShellClient.Network
 
             return ws;
         }
-        
+
         public async Task SendWebSocketMessage(ShellSession session, ShellSocketMessage message)
         {
             var jsonReply = JsonConvert.SerializeObject(message);
@@ -82,7 +83,7 @@ namespace CatboyEngineering.KinkShellClient.Network
 
         private async Task<APIResponse<T>> GetHTTP<T>(HttpMethod method, string uri, JObject? body) where T : struct
         {
-            uri = $"{(Plugin.Configuration.KinkShellSecure ? "https" : "http")}://{Plugin.Configuration.KinkShellServerAddress}/kinkshell/v1/{uri}";
+            uri = $"{(Plugin.Configuration.KinkShellSecure ? "https" : "http")}://{Plugin.Configuration.KinkShellServerAddress}/kinkshell/{uri}";
             StringContent stringContent = null;
 
             if (body != null)
@@ -116,17 +117,36 @@ namespace CatboyEngineering.KinkShellClient.Network
 
             try
             {
-                var responseBody = JObject.Parse(await response.Content.ReadAsStringAsync());
+                var responseRaw = await response.Content.ReadAsStringAsync();
 
-                return new APIResponse<T>
+                if (!string.IsNullOrEmpty(responseRaw))
                 {
-                    StatusCode = response.StatusCode,
-                    Response = responseBody,
-                    Result = MapJSONToType<T>(responseBody)
-                };
+                    var responseBody = JObject.Parse(responseRaw);
+
+                    var r = new APIResponse<T>
+                    {
+                        StatusCode = response.StatusCode,
+                        Response = responseBody,
+                        Result = MapJSONToType<T>(responseBody)
+
+                    };
+
+                    return r;
+                }
+                else
+                {
+                    return new APIResponse<T>
+                    {
+                        StatusCode = response.StatusCode,
+                        Response = new JObject()
+                    };
+
+                }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Plugin.Logger.Error($"Error parsing API response: {e.Message}");
+
                 return new APIResponse<T>
                 {
                     StatusCode = response.StatusCode,
@@ -141,8 +161,9 @@ namespace CatboyEngineering.KinkShellClient.Network
             {
                 return APIRequestMapper.MapRequestToModel<T>(jObj);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Plugin.Logger.Error($"Error mapping API response: {e.Message}");
                 return null;
             }
         }

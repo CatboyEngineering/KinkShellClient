@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CatboyEngineering.KinkShellClient.Models.Shell;
+using CatboyEngineering.KinkShellClient.Windows.MainWindow;
 
 namespace CatboyEngineering.KinkShellClient
 {

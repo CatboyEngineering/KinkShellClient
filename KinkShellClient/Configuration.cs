@@ -1,5 +1,6 @@
 ﻿using CatboyEngineering.KinkShellClient.Models;
 using CatboyEngineering.KinkShellClient.Models.API.Response;
+using CatboyEngineering.KinkShellClient.Models.API.Response.V2;
 using CatboyEngineering.KinkShellClient.Models.Toy;
 using CatboyEngineering.KinkShellClient.Toy;
 using Dalamud.Configuration;
@@ -14,26 +15,39 @@ namespace CatboyEngineering.KinkShellClient
     public class Configuration : IPluginConfiguration
     {
         public string KinkShellServerAddress { get; set; } = "api.catboy.engineering";
+        [Obsolete]
         public string KinkShellServerUsername { get; set; } = "";
+        [Obsolete]
         public string KinkShellServerPassword { get; set; } = "";
+        public string KinkShellServerLoginToken { get; set; } = "";
         public bool KinkShellSecure { get; set; } = true;
         public string IntifaceServerAddress { get; set; } = "ws://localhost:12345";
         public List<StoredShellCommand> SavedPatterns { get; set; } = new List<StoredShellCommand>();
         public Vector4 SelfTextColor { get; set; } = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-
         public int Version { get; set; } = 2;
 
         [NonSerialized]
         private readonly int CurrentVersion = 2;
 
         [NonSerialized]
+        [Obsolete]
         public readonly string CaptchaToken = "DalamudClient";
 
         [NonSerialized]
-        public AccountAuthenticatedResponse KinkShellAuthenticatedUserData;
+        [Obsolete]
+        public Models.API.Response.AccountAuthenticatedResponse KinkShellAuthenticatedUserData;
+
+        [NonSerialized]
+        public Models.API.Response.V2.AccountAuthenticatedResponse KinkShellUserData;
+
+        [NonSerialized]
+        public string RecoveryIntegrityToken;
 
         [NonSerialized]
         public List<KinkShell> Shells;
+
+        [NonSerialized]
+        public List<AccountInfoResponse> AdminUserList;
 
         [NonSerialized]
         private IDalamudPluginInterface PluginInterface;
@@ -57,6 +71,7 @@ namespace CatboyEngineering.KinkShellClient
             clone.KinkShellServerAddress = this.KinkShellServerAddress;
             clone.KinkShellServerUsername = this.KinkShellServerUsername;
             clone.KinkShellServerPassword = this.KinkShellServerPassword;
+            clone.KinkShellServerLoginToken = this.KinkShellServerLoginToken;
             clone.IntifaceServerAddress = this.IntifaceServerAddress;
             clone.SavedPatterns = this.SavedPatterns;
             clone.SelfTextColor = this.SelfTextColor;
@@ -71,6 +86,7 @@ namespace CatboyEngineering.KinkShellClient
             this.KinkShellServerUsername = configuration.KinkShellServerUsername;
             this.KinkShellServerPassword = configuration.KinkShellServerPassword;
             this.IntifaceServerAddress = configuration.IntifaceServerAddress;
+            this.KinkShellServerLoginToken = configuration.KinkShellServerLoginToken;
             this.SavedPatterns = configuration.SavedPatterns;
             this.SelfTextColor = configuration.SelfTextColor;
             this.KinkShellSecure = configuration.KinkShellSecure;
@@ -78,7 +94,7 @@ namespace CatboyEngineering.KinkShellClient
 
         private void PerformVersionUpdates()
         {
-            if(Version == 0)
+            if (Version == 0)
             {
                 // This update moves the Intiface server protocol into the configuration.
                 Version = CurrentVersion;

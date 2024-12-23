@@ -27,7 +27,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
         }
 
         public override void Draw()
-        {   
+        {
             ImGui.SetNextWindowSize(new Vector2(400, 425), ImGuiCond.Always);
 
             if (ImGui.Begin("KinkShell Configuration"))
@@ -48,6 +48,12 @@ namespace CatboyEngineering.KinkShellClient.Windows
                 DrawUIKinkshellServerTabItem();
                 DrawUIIntifaceServerTabItem();
                 DrawUIChatSettingsTabItem();
+
+                if (plugin.IsDev)
+                {
+                    DrawUIDevLoginToken();
+                }
+
                 ImGui.EndTabBar();
             }
         }
@@ -73,7 +79,12 @@ namespace CatboyEngineering.KinkShellClient.Windows
                     {
                         this.WorkingCopy.KinkShellSecure = secure;
                     }
+
+                    ImGui.Spacing();
                 }
+
+                ImGui.TextColored(new Vector4(0.9f, 0.9f, 0.3f, 1), "Legacy Settings:");
+                ImGui.TextWrapped("These settings are deprecated. KinkShell no longer requires a username and password to log in.");
 
                 ImGui.Text("KinkShell Username:");
                 if (ImGui.InputText("##KSUsername", ref shellUser, 64))
@@ -99,7 +110,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
                 if (ImGui.InputText("Address", ref intifaceServer, 64))
                 {
-                    if(IntifacePath.IsMatch(intifaceServer))
+                    if (IntifacePath.IsMatch(intifaceServer))
                     {
                         this.WorkingCopy.IntifaceServerAddress = intifaceServer;
                     }
@@ -120,6 +131,21 @@ namespace CatboyEngineering.KinkShellClient.Windows
                 if (ImGui.ColorPicker4("##ChatColorPicker", ref selfTextColor))
                 {
                     this.WorkingCopy.SelfTextColor = selfTextColor;
+                }
+
+                ImGui.EndTabItem();
+            }
+        }
+
+        private void DrawUIDevLoginToken()
+        {
+            if (ImGui.BeginTabItem("Login"))
+            {
+                var token = this.WorkingCopy.KinkShellServerLoginToken;
+
+                if (ImGui.InputText("Login Token", ref token, 256))
+                {
+                    this.WorkingCopy.KinkShellServerLoginToken = token;
                 }
 
                 ImGui.EndTabItem();

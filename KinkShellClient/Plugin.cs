@@ -2,6 +2,8 @@
 using CatboyEngineering.KinkShellClient.Toy;
 using CatboyEngineering.KinkShellClient.Utilities;
 using Dalamud.Game;
+using Dalamud.Interface.GameFonts;
+using Dalamud.Interface.ManagedFontAtlas;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
@@ -15,6 +17,11 @@ namespace CatboyEngineering.KinkShellClient
         [PluginService] internal static ICommandManager CommandManager { get; private set; } = null!;
         [PluginService] internal static IPluginLog Logger { get; private set; } = null!;
         [PluginService] internal static ISigScanner SigScanner { get; private set; } = null!;
+        [PluginService] internal static IClientState ClientState { get; private set; } = null!;
+
+        public IFontHandle SmallFontHandle { get; set; }
+        public IFontHandle HeaderFontHandle { get; set; }
+        public IFontHandle TitleHeaderFontHandle { get; set; }
 
         public Configuration Configuration { get; }
         public bool IsDev { get; set; }
@@ -43,6 +50,10 @@ namespace CatboyEngineering.KinkShellClient
             Chat = new Chat();
 
             ToyController = new ToyController(this);
+
+            SmallFontHandle = PluginInterface.UiBuilder.FontAtlas.NewGameFontHandle(new GameFontStyle(GameFontFamily.Axis, 14f));
+            HeaderFontHandle = PluginInterface.UiBuilder.FontAtlas.NewGameFontHandle(new GameFontStyle(GameFontFamily.Axis, 20f));
+            TitleHeaderFontHandle = PluginInterface.UiBuilder.FontAtlas.NewGameFontHandle(new GameFontStyle(GameFontFamily.Axis, 36f));
         }
 
         public void Dispose()

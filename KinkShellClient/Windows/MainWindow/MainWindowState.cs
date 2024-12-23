@@ -1,17 +1,19 @@
 ﻿using CatboyEngineering.KinkShellClient.Models;
 using CatboyEngineering.KinkShellClient.Models.Shell;
+using Dalamud.Utility;
+using ImGuiNET;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CatboyEngineering.KinkShellClient.Windows.States
+namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
 {
     public class MainWindowState
     {
         public Plugin Plugin { get; set; }
-        public bool IsAuthenticated { get; set; }
+        public MainWindowScreen Screen { get; set; }
         public bool HasError { get; set; }
         public string ErrorText { get; set; }
         public List<ShellNewUser> UsersToAdd { get; set; }
@@ -46,13 +48,32 @@ namespace CatboyEngineering.KinkShellClient.Windows.States
 
         public void SetDefauts()
         {
-            IsAuthenticated = false;
             UsersToAdd = new List<ShellNewUser>();
             GuidsToDelete = new List<Guid>();
             isRequestInFlight = false;
 
+            SetDefaultScreen();
             ClearErrors();
             ResetBuffers();
+        }
+
+        public void SetDefaultScreen()
+        {
+            if (Plugin.Configuration.KinkShellServerLoginToken.IsNullOrEmpty())
+            {
+                if (!Plugin.Configuration.KinkShellServerUsername.IsNullOrEmpty() && !Plugin.Configuration.KinkShellServerPassword.IsNullOrEmpty())
+                {
+                    Screen = MainWindowScreen.MIGRATE;
+                }
+                else
+                {
+                    Screen = MainWindowScreen.CREATE;
+                }
+            }
+            else
+            {
+                Screen = MainWindowScreen.LOGIN;
+            }
         }
 
         public void ResetBuffers()

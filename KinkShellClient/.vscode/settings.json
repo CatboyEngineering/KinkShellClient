@@ -1,0 +1,18 @@
+{
+  "prettier.bracketSameLine": false,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[csharp]": {
+    "editor.defaultFormatter": "ms-dotnettools.csharp"
+  }
+  "eslint.run": "onSave",
+  "editor.formatOnSave": true,
+  "editor.wrappingIndent": "indent",
+  "html.format.enable": true,
+  "javascript.format.enable": true,
+  "json.format.enable": true,
+  "typescript.format.enable": true,
+  "csharp.format.enable": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "always"
+  }
+}
