@@ -49,9 +49,12 @@ namespace CatboyEngineering.KinkShellClient.Toy
             catch { }
         }
 
+        // TODO we have a DeviceAdded listener, AND a scan listener that updates the toys? Are they getting conflicted?
+        // Maybe scan should not clear the list and update shells. Copy what DeviceRemoved is doing?
         private void DeviceAdded(object? sender, DeviceAddedEventArgs args)
         {
             AddConnectedToy(args.Device);
+            _ = UpdateToysInShells();
         }
 
         private void DeviceRemoved(object? sender, DeviceRemovedEventArgs args)
@@ -67,15 +70,6 @@ namespace CatboyEngineering.KinkShellClient.Toy
                 await Client.StartScanningAsync();
                 await Task.Delay(3000);
                 await Client.StopScanningAsync();
-
-                ConnectedToys.Clear();
-
-                foreach (var toy in Client.Devices)
-                {
-                    AddConnectedToy(toy);
-                }
-
-                await UpdateToysInShells();
             }
         }
 
