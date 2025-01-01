@@ -180,7 +180,6 @@ namespace CatboyEngineering.KinkShellClient.Network
             return response.StatusCode;
         }
 
-        // TODO: USER CRASHES AFTER SUCCESSFUL VERIFICATION. UI DRAWING ISSUE ON HOME PAGE?
         public async Task<HttpStatusCode> VerifyCharacterRecovery(string token)
         {
             var response = await Plugin.HTTP.Get<Models.API.Response.V2.AccountAuthenticatedResponse>($"v2/account/recover/{token}");

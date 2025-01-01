@@ -22,36 +22,54 @@ namespace CatboyEngineering.KinkShellClient.Toy
         public List<ToyProperties> ConnectedToys { get; set; }
         public Dictionary<ToyProperties, RunningCommand> RunningCommands { get; set; }
 
+        public bool IsConnecting { get; set; }
+        public bool IsScanning { get; set; }
+
         public ToyController(Plugin plugin)
         {
             Plugin = plugin;
             StopRequested = false;
             RunningCommands = new Dictionary<ToyProperties, RunningCommand>();
             ConnectedToys = new List<ToyProperties>();
+            IsConnecting = false;
+            IsScanning = false;
         }
 
         public async Task Connect()
         {
-            await Task.Run(() =>
-            {
-                Connector = new ButtplugWebsocketConnector(new Uri($"{Plugin.Configuration.IntifaceServerAddress}"));
-                Client = new ButtplugClient("KinkShell Client");
-            });
-
-            Client.DeviceAdded += DeviceAdded;
-            Client.DeviceRemoved += DeviceRemoved;
+            IsConnecting = true;
 
             try
             {
-                await Client.ConnectAsync(Connector);
-                await Scan();
+                await Task.Run(() =>
+                {
+                    Connector = new ButtplugWebsocketConnector(new Uri($"{Plugin.Configuration.IntifaceServerAddress}"));
+                    Client = new ButtplugClient("KinkShell Client");
+                });
+
+                Client.DeviceAdded += DeviceAdded;
+                Client.DeviceRemoved += DeviceRemoved;
+                Client.ServerDisconnect += ServerDisconnect;
+
+                try
+                {
+                    await Client.ConnectAsync(Connector);
+                    await Scan();
+                }
+                catch { }
             }
             catch { }
+            finally
+            {
+                IsConnecting = false;
+                IsScanning = false;
+            }
         }
-
+        
         private void DeviceAdded(object? sender, DeviceAddedEventArgs args)
         {
             AddConnectedToy(args.Device);
+            _ = UpdateToysInShells();
         }
 
         private void DeviceRemoved(object? sender, DeviceRemovedEventArgs args)
@@ -60,23 +78,24 @@ namespace CatboyEngineering.KinkShellClient.Toy
             _ = UpdateToysInShells();
         }
 
+        private void ServerDisconnect(object? sender, EventArgs args)
+        {
+            ConnectedToys.Clear();
+            _ = UpdateToysInShells();
+        }
+
         public async Task Scan()
         {
+            IsScanning = true;
+
             if (Client.Connected)
             {
                 await Client.StartScanningAsync();
-                await Task.Delay(3000);
+                await Task.Delay(2000);
                 await Client.StopScanningAsync();
-
-                ConnectedToys.Clear();
-
-                foreach (var toy in Client.Devices)
-                {
-                    AddConnectedToy(toy);
-                }
-
-                await UpdateToysInShells();
             }
+
+            IsScanning = false;
         }
 
         private void AddConnectedToy(ButtplugClientDevice device)

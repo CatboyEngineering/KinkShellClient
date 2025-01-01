@@ -67,7 +67,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
                 }
                 else
                 {
-                    await GetUserShells(plugin, window);
+                    _ = GetUserShells(plugin, window);
                     _ = plugin.ToyController.Connect();
                     window.State.Screen = MainWindowScreen.HOME;
                 }
