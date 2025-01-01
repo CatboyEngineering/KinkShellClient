@@ -22,35 +22,50 @@ namespace CatboyEngineering.KinkShellClient.Toy
         public List<ToyProperties> ConnectedToys { get; set; }
         public Dictionary<ToyProperties, RunningCommand> RunningCommands { get; set; }
 
+        public bool IsConnecting { get; set; }
+        public bool IsScanning { get; set; }
+
         public ToyController(Plugin plugin)
         {
             Plugin = plugin;
             StopRequested = false;
             RunningCommands = new Dictionary<ToyProperties, RunningCommand>();
             ConnectedToys = new List<ToyProperties>();
+            IsConnecting = false;
+            IsScanning = false;
         }
 
         public async Task Connect()
         {
-            await Task.Run(() =>
-            {
-                Connector = new ButtplugWebsocketConnector(new Uri($"{Plugin.Configuration.IntifaceServerAddress}"));
-                Client = new ButtplugClient("KinkShell Client");
-            });
-
-            Client.DeviceAdded += DeviceAdded;
-            Client.DeviceRemoved += DeviceRemoved;
+            IsConnecting = true;
 
             try
             {
-                await Client.ConnectAsync(Connector);
-                await Scan();
+                await Task.Run(() =>
+                {
+                    Connector = new ButtplugWebsocketConnector(new Uri($"{Plugin.Configuration.IntifaceServerAddress}"));
+                    Client = new ButtplugClient("KinkShell Client");
+                });
+
+                Client.DeviceAdded += DeviceAdded;
+                Client.DeviceRemoved += DeviceRemoved;
+                Client.ServerDisconnect += ServerDisconnect;
+
+                try
+                {
+                    await Client.ConnectAsync(Connector);
+                    await Scan();
+                }
+                catch { }
             }
             catch { }
+            finally
+            {
+                IsConnecting = false;
+                IsScanning = false;
+            }
         }
-
-        // TODO we have a DeviceAdded listener, AND a scan listener that updates the toys? Are they getting conflicted?
-        // Maybe scan should not clear the list and update shells. Copy what DeviceRemoved is doing?
+        
         private void DeviceAdded(object? sender, DeviceAddedEventArgs args)
         {
             AddConnectedToy(args.Device);
@@ -63,14 +78,24 @@ namespace CatboyEngineering.KinkShellClient.Toy
             _ = UpdateToysInShells();
         }
 
+        private void ServerDisconnect(object? sender, EventArgs args)
+        {
+            ConnectedToys.Clear();
+            _ = UpdateToysInShells();
+        }
+
         public async Task Scan()
         {
+            IsScanning = true;
+
             if (Client.Connected)
             {
                 await Client.StartScanningAsync();
-                await Task.Delay(3000);
+                await Task.Delay(2000);
                 await Client.StopScanningAsync();
             }
+
+            IsScanning = false;
         }
 
         private void AddConnectedToy(ButtplugClientDevice device)

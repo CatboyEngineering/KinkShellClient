@@ -32,7 +32,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
 
         public override void Draw()
         {
-            ImGui.SetNextWindowSize(new Vector2(410, 525), ImGuiCond.Always);
+            ImGui.SetNextWindowSize(new Vector2(410, 550), ImGuiCond.Always);
 
             if (ImGui.Begin("KinkShell"))
             {
@@ -438,40 +438,54 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
 
             if (Plugin.ToyController.Client != null)
             {
-                if (Plugin.ToyController.Client.Connected)
+                if (Plugin.ToyController.IsConnecting)
                 {
-                    ImGui.Text("Intiface Connected!");
-
-                    var width = ImGui.GetWindowWidth();
-                    ImGui.BeginChild("IntifaceWindow", new Vector2(width - 15, 75), true);
-
-                    if (Plugin.ToyController.ConnectedToys.Count > 0)
-                    {
-                        foreach (var toy in Plugin.ToyController.ConnectedToys)
-                        {
-                            ImGui.BulletText("Connected to " + toy.DisplayName);
-                        }
-                    }
-                    else
-                    {
-                        ImGui.Text("No Connected Devices");
-                    }
-
-                    if (ImGui.Button("Re-scan"))
-                    {
-                        _ = Plugin.ToyController.Scan();
-                    }
-
-                    ImGui.EndChild();
+                    ImGui.Text("Intiface connecting...");
                 }
                 else
                 {
-                    ImGui.Text("Intiface not connected");
-                    ImGui.SameLine();
-
-                    if (ImGui.Button("Retry"))
+                    if (Plugin.ToyController.Client.Connected)
                     {
-                        _ = Plugin.ToyController.Connect();
+                        ImGui.Text("Intiface Connected!");
+
+                        var width = ImGui.GetWindowWidth();
+                        ImGui.BeginChild("IntifaceWindow", new Vector2(width - 15, 75), true);
+
+                        if (Plugin.ToyController.ConnectedToys.Count > 0)
+                        {
+                            foreach (var toy in Plugin.ToyController.ConnectedToys)
+                            {
+                                ImGui.BulletText("Connected to " + toy.DisplayName);
+                            }
+                        }
+                        else
+                        {
+                            ImGui.Text("No Connected Devices");
+                        }
+
+                        if (Plugin.ToyController.IsScanning)
+                        {
+                            ImGui.Text("Scanning for devices...");
+                        }
+                        else
+                        {
+                            if (ImGui.Button("Re-scan"))
+                            {
+                                _ = Plugin.ToyController.Scan();
+                            }
+                        }
+
+                        ImGui.EndChild();
+                    }
+                    else
+                    {
+                        ImGui.Text("Intiface not connected");
+                        ImGui.SameLine();
+
+                        if (ImGui.Button("Retry"))
+                        {
+                            _ = Plugin.ToyController.Connect();
+                        }
                     }
                 }
             }
