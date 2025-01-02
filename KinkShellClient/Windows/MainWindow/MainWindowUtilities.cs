@@ -92,6 +92,20 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             }
         }
 
+        public static async Task DeleteAccount(Plugin plugin, MainWindow window)
+        {
+            var result = await plugin.ConnectionHandler.DeleteAccount();
+
+            if (result == HttpStatusCode.OK)
+            {
+                window.State.SetDefaultScreen();
+            }
+            else
+            {
+                HandleAPIError(result, window);
+            }
+        }
+
         public static async Task RecoverAccount(Plugin plugin, MainWindow window)
         {
             var result = await plugin.ConnectionHandler.RecoverAccount();

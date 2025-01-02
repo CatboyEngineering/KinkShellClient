@@ -115,7 +115,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
         private void DrawScreenCreateAccount()
         {
             var width = ImGui.GetWindowWidth();
-            ImGui.BeginChild("MainWindowCTA#CreateAccount", new Vector2(width - 15, 200), true);
+            ImGui.BeginChild("MainWindowCTA#CreateAccount", new Vector2(width - 15, 215), true);
 
             Plugin.HeaderFontHandle.Push();
             DrawUICenteredText("Welcome");
@@ -350,6 +350,10 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             {
                 BtnAdmin();
             }
+
+            ImGui.Spacing();
+
+            BtnDeleteAccount();
         }
 
         private void DrawUISectionShellList()
@@ -719,76 +723,125 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
 
         private void BtnMigrateV2()
         {
-            if (!State.isRequestInFlight)
-            {
-                if (ImGui.Button("Migrate Account"))
-                {
-                    var task = MainWindowUtilities.LogInV1AndMigrate(Plugin, this);
-
-                    _ = MainWindowUtilities.HandleWithIndicator(State, task);
-                }
-            }
-            else
+            if (State.isRequestInFlight)
             {
                 ImGui.BeginDisabled();
-                ImGui.Button("Connecting...");
+            }
+
+            if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.ArrowUp, "Migrate Account", new Vector2(130f, 24f)))
+            {
+                var task = MainWindowUtilities.LogInV1AndMigrate(Plugin, this);
+
+                _ = MainWindowUtilities.HandleWithIndicator(State, task);
+            }
+
+            if (State.isRequestInFlight)
+            {
                 ImGui.EndDisabled();
             }
         }
 
         private void BtnCreateAccount()
         {
-            if (!State.isRequestInFlight)
+            if (State.isRequestInFlight)
             {
-                if (ImGui.Button("Get Started"))
+                ImGui.BeginDisabled();
+            }
+
+            if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Plus, "Get Started", new Vector2(100f, 24f)))
+            {
+                var task = MainWindowUtilities.CreateAccount(Plugin, this);
+
+                _ = MainWindowUtilities.HandleWithIndicator(State, task);
+            }
+
+            if (State.isRequestInFlight)
+            {
+                ImGui.EndDisabled();
+            }
+        }
+
+        private void BtnDeleteAccount()
+        {
+            if (State.isDeletingAccount)
+            {
+                ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1f, 1f, 1f, 0.7f));
+                ImGui.TextWrapped("Deleting your account is irreversible! All of your KinkShells will be erased.");
+                ImGui.PopStyleColor();
+
+                if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Times, "Cancel", new Vector2(75f, 24f)))
                 {
-                    var task = MainWindowUtilities.CreateAccount(Plugin, this);
+                    State.isDeletingAccount = false;
+                }
+
+                ImGui.SameLine();
+
+                if (State.isRequestInFlight)
+                {
+                    ImGui.BeginDisabled();
+                }
+
+                ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.9f, 0.2f, 0.2f, 1f));
+                ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1f, 1f, 1f, 1f));
+                if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Trash, "Confirm", new Vector2(80f, 24f)))
+                {
+                    var task = MainWindowUtilities.DeleteAccount(Plugin, this);
 
                     _ = MainWindowUtilities.HandleWithIndicator(State, task);
+                }
+                ImGui.PopStyleColor();
+                ImGui.PopStyleColor();
+
+                if (State.isRequestInFlight)
+                {
+                    ImGui.EndDisabled();
                 }
             }
             else
             {
-                ImGui.BeginDisabled();
-                ImGui.Button("Connecting...");
-                ImGui.EndDisabled();
+                if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Trash, "Delete Account", new Vector2(125f, 24f)))
+                {
+                    State.isDeletingAccount = true;
+                }
             }
         }
 
         private void BtnVerifyCharacter()
         {
-            if (!State.isRequestInFlight)
-            {
-                if (ImGui.Button("Verify"))
-                {
-                    var task = MainWindowUtilities.VerifyCharacter(Plugin, this);
-
-                    _ = MainWindowUtilities.HandleWithIndicator(State, task);
-                }
-            }
-            else
+            if (State.isRequestInFlight)
             {
                 ImGui.BeginDisabled();
-                ImGui.Button("Connecting...");
+            }
+
+            if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.CheckSquare, "Verify", new Vector2(75f, 24f)))
+            {
+                var task = MainWindowUtilities.VerifyCharacter(Plugin, this);
+
+                _ = MainWindowUtilities.HandleWithIndicator(State, task);
+            }
+
+            if (State.isRequestInFlight)
+            {
                 ImGui.EndDisabled();
             }
         }
 
         private void BtnVerifyCharacterRecovery()
         {
-            if (!State.isRequestInFlight)
-            {
-                if (ImGui.Button("Verify"))
-                {
-                    var task = MainWindowUtilities.RecoverAccountVerify(Plugin, this);
-
-                    _ = MainWindowUtilities.HandleWithIndicator(State, task);
-                }
-            }
-            else
+            if (State.isRequestInFlight)
             {
                 ImGui.BeginDisabled();
-                ImGui.Button("Connecting...");
+            }
+
+            if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.CheckSquare, "Verify", new Vector2(75f, 24f)))
+            {
+                var task = MainWindowUtilities.RecoverAccountVerify(Plugin, this);
+
+                _ = MainWindowUtilities.HandleWithIndicator(State, task);
+            }
+
+            if (State.isRequestInFlight)
+            {
                 ImGui.EndDisabled();
             }
         }

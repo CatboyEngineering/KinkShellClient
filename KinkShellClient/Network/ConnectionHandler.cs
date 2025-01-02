@@ -214,6 +214,21 @@ namespace CatboyEngineering.KinkShellClient.Network
             return response.StatusCode;
         }
 
+        public async Task<HttpStatusCode> DeleteAccount()
+        {
+            var response = await Plugin.HTTP.Delete<IEmpty>("v2/account");
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                Plugin.Configuration.KinkShellServerLoginToken = "";
+                Plugin.Configuration.KinkShellServerUsername = "";
+                Plugin.Configuration.KinkShellServerPassword = "";
+                Plugin.Configuration.Save();
+            }
+
+            return response.StatusCode;
+        }
+
         public async Task<HttpStatusCode> GetKinkShells()
         {
             var response = await Plugin.HTTP.Get<ShellListResponse>("v1/shell");

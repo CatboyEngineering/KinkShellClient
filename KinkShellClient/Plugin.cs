@@ -54,6 +54,9 @@ namespace CatboyEngineering.KinkShellClient
             SmallFontHandle = PluginInterface.UiBuilder.FontAtlas.NewGameFontHandle(new GameFontStyle(GameFontFamily.Axis, 14f));
             HeaderFontHandle = PluginInterface.UiBuilder.FontAtlas.NewGameFontHandle(new GameFontStyle(GameFontFamily.Axis, 20f));
             TitleHeaderFontHandle = PluginInterface.UiBuilder.FontAtlas.NewGameFontHandle(new GameFontStyle(GameFontFamily.Axis, 36f));
+
+            // TODO: This popup is temporary during the migration period.
+            ClientState.Login += OnPlayerLogin;
         }
 
         public void Dispose()
@@ -62,6 +65,19 @@ namespace CatboyEngineering.KinkShellClient
             UIHandler.Dispose();
             ConnectionHandler.Dispose();
             ToyController.Dispose();
+        }
+
+        private void OnPlayerLogin()
+        {
+            if (!Configuration.ShowMigrationPopup)
+            {
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(Configuration.KinkShellServerUsername) && string.IsNullOrEmpty(Configuration.KinkShellServerLoginToken))
+            {
+                UIHandler.MigrateWindow.IsOpen = true;
+            }
         }
     }
 }

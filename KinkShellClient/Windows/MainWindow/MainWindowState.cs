@@ -22,6 +22,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
         public string stringBuffer;
         public bool canSendCommands;
         public bool isRequestInFlight;
+        public bool isDeletingAccount;
 
         public MainWindowState(Plugin plugin)
         {
@@ -51,6 +52,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             UsersToAdd = new List<ShellNewUser>();
             GuidsToDelete = new List<Guid>();
             isRequestInFlight = false;
+            isDeletingAccount = false;
 
             SetDefaultScreen();
             ClearErrors();
