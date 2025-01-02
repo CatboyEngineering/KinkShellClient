@@ -719,76 +719,80 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
 
         private void BtnMigrateV2()
         {
-            if (!State.isRequestInFlight)
-            {
-                if (ImGui.Button("Migrate Account"))
-                {
-                    var task = MainWindowUtilities.LogInV1AndMigrate(Plugin, this);
-
-                    _ = MainWindowUtilities.HandleWithIndicator(State, task);
-                }
-            }
-            else
+            if (State.isRequestInFlight)
             {
                 ImGui.BeginDisabled();
-                ImGui.Button("Connecting...");
+            }
+
+            if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.ArrowUp, "Migrate Account", new Vector2(125f, 24f)))
+            {
+                var task = MainWindowUtilities.LogInV1AndMigrate(Plugin, this);
+
+                _ = MainWindowUtilities.HandleWithIndicator(State, task);
+            }
+
+            if (State.isRequestInFlight)
+            {
                 ImGui.EndDisabled();
             }
         }
 
         private void BtnCreateAccount()
         {
-            if (!State.isRequestInFlight)
-            {
-                if (ImGui.Button("Get Started"))
-                {
-                    var task = MainWindowUtilities.CreateAccount(Plugin, this);
-
-                    _ = MainWindowUtilities.HandleWithIndicator(State, task);
-                }
-            }
-            else
+            if (State.isRequestInFlight)
             {
                 ImGui.BeginDisabled();
-                ImGui.Button("Connecting...");
+            }
+
+            if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Plus, "Get Started", new Vector2(120f, 24f)))
+            {
+                var task = MainWindowUtilities.CreateAccount(Plugin, this);
+
+                _ = MainWindowUtilities.HandleWithIndicator(State, task);
+            }
+
+            if (State.isRequestInFlight)
+            {
                 ImGui.EndDisabled();
             }
         }
 
         private void BtnVerifyCharacter()
         {
-            if (!State.isRequestInFlight)
-            {
-                if (ImGui.Button("Verify"))
-                {
-                    var task = MainWindowUtilities.VerifyCharacter(Plugin, this);
-
-                    _ = MainWindowUtilities.HandleWithIndicator(State, task);
-                }
-            }
-            else
+            if (State.isRequestInFlight)
             {
                 ImGui.BeginDisabled();
-                ImGui.Button("Connecting...");
+            }
+
+            if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.CheckSquare, "Verify", new Vector2(75f, 24f)))
+            {
+                var task = MainWindowUtilities.VerifyCharacter(Plugin, this);
+
+                _ = MainWindowUtilities.HandleWithIndicator(State, task);
+            }
+
+            if (State.isRequestInFlight)
+            {
                 ImGui.EndDisabled();
             }
         }
 
         private void BtnVerifyCharacterRecovery()
         {
-            if (!State.isRequestInFlight)
-            {
-                if (ImGui.Button("Verify"))
-                {
-                    var task = MainWindowUtilities.RecoverAccountVerify(Plugin, this);
-
-                    _ = MainWindowUtilities.HandleWithIndicator(State, task);
-                }
-            }
-            else
+            if (State.isRequestInFlight)
             {
                 ImGui.BeginDisabled();
-                ImGui.Button("Connecting...");
+            }
+
+            if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.CheckSquare, "Verify", new Vector2(75f, 24f)))
+            {
+                var task = MainWindowUtilities.RecoverAccountVerify(Plugin, this);
+
+                _ = MainWindowUtilities.HandleWithIndicator(State, task);
+            }
+
+            if (State.isRequestInFlight)
+            {
                 ImGui.EndDisabled();
             }
         }

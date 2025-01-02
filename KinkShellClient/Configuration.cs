@@ -25,6 +25,7 @@ namespace CatboyEngineering.KinkShellClient
         public List<StoredShellCommand> SavedPatterns { get; set; } = new List<StoredShellCommand>();
         public Vector4 SelfTextColor { get; set; } = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
         public int Version { get; set; } = 2;
+        public bool ShowMigrationPopup { get; set; } = true;
 
         [NonSerialized]
         private readonly int CurrentVersion = 2;
@@ -76,6 +77,7 @@ namespace CatboyEngineering.KinkShellClient
             clone.SavedPatterns = this.SavedPatterns;
             clone.SelfTextColor = this.SelfTextColor;
             clone.KinkShellSecure = this.KinkShellSecure;
+            clone.ShowMigrationPopup = this.ShowMigrationPopup;
 
             return clone;
         }
@@ -90,6 +92,7 @@ namespace CatboyEngineering.KinkShellClient
             this.SavedPatterns = configuration.SavedPatterns;
             this.SelfTextColor = configuration.SelfTextColor;
             this.KinkShellSecure = configuration.KinkShellSecure;
+            this.ShowMigrationPopup = configuration.ShowMigrationPopup;
         }
 
         private void PerformVersionUpdates()

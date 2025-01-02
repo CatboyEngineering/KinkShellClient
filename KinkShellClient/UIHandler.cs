@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CatboyEngineering.KinkShellClient.Models.Shell;
 using CatboyEngineering.KinkShellClient.Windows.MainWindow;
+using CatboyEngineering.KinkShellClient.Popups;
 
 namespace CatboyEngineering.KinkShellClient
 {
@@ -22,6 +23,8 @@ namespace CatboyEngineering.KinkShellClient
         public MainWindow MainWindow { get; init; }
         public PatternBuilderWindow PatternBuilderWindow { get; set; }
 
+        public MigrateWindow MigrateWindow { get; set; }
+
         public List<ShellWindow> ShellWindows { get; init; }
 
         public UIHandler(Plugin plugin, IDalamudPluginInterface pluginInterface)
@@ -32,11 +35,16 @@ namespace CatboyEngineering.KinkShellClient
             ConfigWindow = new ConfigWindow(this.Plugin);
             MainWindow = new MainWindow(this.Plugin);
             PatternBuilderWindow = new PatternBuilderWindow(this.Plugin);
+
+            MigrateWindow = new MigrateWindow(this.Plugin);
+
             ShellWindows = new List<ShellWindow>();
 
             WindowSystem.AddWindow(ConfigWindow);
             WindowSystem.AddWindow(MainWindow);
             WindowSystem.AddWindow(PatternBuilderWindow);
+
+            WindowSystem.AddWindow(MigrateWindow);
 
             this.PluginInterface.UiBuilder.Draw += DrawUI;
             this.PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
@@ -64,7 +72,7 @@ namespace CatboyEngineering.KinkShellClient
 
         public void RemoveShellWindow(ShellWindow window)
         {
-            if(ShellWindows.Contains(window))
+            if (ShellWindows.Contains(window))
             {
                 WindowSystem.RemoveWindow(window);
             }
