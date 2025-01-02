@@ -350,6 +350,10 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             {
                 BtnAdmin();
             }
+
+            ImGui.Spacing();
+
+            BtnDeleteAccount();
         }
 
         private void DrawUISectionShellList()
@@ -754,6 +758,51 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             if (State.isRequestInFlight)
             {
                 ImGui.EndDisabled();
+            }
+        }
+
+        private void BtnDeleteAccount()
+        {
+            if (State.isDeletingAccount)
+            {
+                ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1f, 1f, 1f, 0.7f));
+                ImGui.TextWrapped("Deleting your account is irreversible! All of your KinkShells will be erased.");
+                ImGui.PopStyleColor();
+
+                if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.XmarksLines, "Cancel", new Vector2(75f, 24f)))
+                {
+                    State.isDeletingAccount = false;
+                }
+
+                ImGui.SameLine();
+
+                if (State.isRequestInFlight)
+                {
+                    ImGui.BeginDisabled();
+                }
+
+                ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.9f, 0.2f, 0.2f, 1f));
+                ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1f, 1f, 1f, 1f));
+                if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Trash, "Confirm", new Vector2(80f, 24f)))
+                {
+                    var task = MainWindowUtilities.DeleteAccount(Plugin, this);
+
+                    _ = MainWindowUtilities.HandleWithIndicator(State, task);
+                }
+                ImGui.PopStyleColor();
+                ImGui.PopStyleColor();
+
+                if (State.isRequestInFlight)
+                {
+                    ImGui.EndDisabled();
+                }
+            }
+            else
+            {
+                if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Trash, "Delete Account", new Vector2(100f, 24f)))
+                {
+                    State.isDeletingAccount = true;
+                }
             }
         }
 
