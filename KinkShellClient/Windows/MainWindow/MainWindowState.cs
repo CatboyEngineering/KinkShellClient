@@ -79,7 +79,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
         public void ResetBuffers()
         {
             stringBuffer = "";
-            canSendCommands = false;
+            canSendCommands = true;
         }
 
         public void OnError(string error)

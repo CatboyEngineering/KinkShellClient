@@ -1,6 +1,10 @@
 ﻿using CatboyEngineering.KinkShellClient.Models;
 using CatboyEngineering.KinkShellClient.Models.Shell;
+using CatboyEngineering.KinkShellClient.Windows.MainWindow;
 using CatboyEngineering.KinkShellClient.Windows.Utilities;
+using Dalamud.Interface;
+using Dalamud.Interface.Components;
+using Dalamud.Interface.Utility;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
 using System;
@@ -13,6 +17,7 @@ namespace CatboyEngineering.KinkShellClient.Windows
     {
         public Plugin Plugin { get; set; }
         public ShellWindowState State { get; set; }
+        public KinkShellMember SelfUser { get; set; }
 
         public ShellWindow(Plugin plugin, KinkShell kinkShell, ShellSession session) : base(kinkShell.ShellName, ImGuiWindowFlags.NoResize)
         {
@@ -27,14 +32,18 @@ namespace CatboyEngineering.KinkShellClient.Windows
             base.OnClose();
 
             DisconnectFromShell();
+
+            Plugin.UIHandler.OpenMainWindow();
         }
 
         public override void Draw()
         {   
-            ImGui.SetNextWindowSize(new Vector2(500, 750), ImGuiCond.Always);
+            ImGui.SetNextWindowSize(new Vector2(505, 775), ImGuiCond.Always);
 
             if (ImGui.Begin(this.WindowName))
             {
+                SelfUser = ShellWindowUtilities.GetSelf(Plugin, State.Session);
+
                 DrawUIWindowBody();
             }
 
@@ -45,56 +54,49 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
         private void DrawUIWindowBody()
         {
-            if(ImGui.Button("Leave Session"))
+            Plugin.TitleHeaderFontHandle.Push();
+            DrawUICenteredText(State.KinkShell.ShellName);
+            Plugin.TitleHeaderFontHandle.Pop();
+
+            ImGui.Spacing();
+
+            if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.SignOutAlt, "Leave Session", new Vector2(120f, 24f)))
             {
                 this.IsOpen = false;
-                OnClose();
 
                 return;
             }
 
-            ImGui.SameLine();
-
-            if (ImGui.Button("Pattern Builder"))
-            {
-                Plugin.UIHandler.PatternBuilderWindow.IsOpen = true;
-            }
-
             ImGui.Spacing();
-            ImGui.Text("Connected Users:");
-
-            foreach(var user in State.Session.ConnectedUsers)
-            {
-                ImGui.BulletText(user.DisplayName);
-            }
-
             ImGui.Spacing();
 
-            var selfUser = ShellWindowUtilities.GetSelf(Plugin, State.Session);
-
-            if (selfUser.SendCommands)
-            {
-                DrawUIPatternCenter();
-            }
+            DrawUIPatternCenter();
 
             ImGui.Spacing();
 
             DrawUIChatWindow();
-            DrawUISafetyWindow(selfUser);
+            DrawUISafetyWindow();
+
+            ImGui.Spacing();
+
+            if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.PuzzlePiece, "Pattern Builder", new Vector2(125f, 24f)))
+            {
+                Plugin.UIHandler.PatternBuilderWindow.IsOpen = true;
+            }
         }
 
         private void DrawUIPatternCenter()
         {
-            ImGui.Text("Command Center:");
+            ImGui.Text("Connected Users:");
             var width = ImGui.GetWindowWidth();
             ImGui.BeginChild("ToyControlCenter", new Vector2(width - 15, 200), true);
 
 
-            for(var i=0; i< State.Session.ConnectedUsers.Count; i++)
+            for(var i = 0; i < State.Session.ConnectedUsers.Count; i++)
             {
                 var user = State.Session.ConnectedUsers[i];
 
-                if(i % 2 != 0)
+                if (i % 2 != 0)
                 {
                     ImGui.SameLine();
                 }
@@ -107,24 +109,44 @@ namespace CatboyEngineering.KinkShellClient.Windows
 
         private void DrawUIUserCommand(KinkShellMember user)
         {
-            ImGui.BeginChild($"{user.DisplayName}", new Vector2(200, 100), true);
+            ImGui.BeginChild($"{user.DisplayName}", new Vector2(225, 100), true);
             DrawPopupCommandUser(user);
 
+            ImGui.PushStyleColor(ImGuiCol.Text, user.TextColor);
             ImGui.Text(user.DisplayName);
+            ImGui.PopStyleColor();
 
             if (user.Toys.Count > 0)
             {
-                if (ImGui.Button("Send Command"))
+                var disable = !SelfUser.SendCommands || user.RunningCommands.Count > 0;
+
+                if (disable)
+                {
+                    ImGui.BeginDisabled();
+                }
+
+                ImGui.SameLine();
+
+                if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.WaveSquare, "Command", new Vector2(100f, 24f)))
                 {
                     ImGui.OpenPopup($"command_user_{user.AccountID}");
                 }
+
+                if (disable)
+                {
+                    ImGui.EndDisabled();
+                }
             }
 
-            ImGui.Text("Running commands:");
-            foreach(var runningCommand in user.RunningCommands)
+            if (user.RunningCommands.Count > 0)
             {
-                ImGui.BulletText($"{runningCommand.CommandName}");
+                ImGui.Text("Running commands:");
+                foreach (var runningCommand in user.RunningCommands)
+                {
+                    ImGui.BulletText($"{runningCommand.CommandName}");
+                }
             }
+
 
             ImGui.EndChild();
         }
@@ -133,7 +155,13 @@ namespace CatboyEngineering.KinkShellClient.Windows
         {
             if (ImGui.BeginPopup($"command_user_{user.AccountID}"))
             {
+                ImGui.BeginChild($"command_user_{user.AccountID}_child", new Vector2(350, 175), true);
+
+                Plugin.HeaderFontHandle.Push();
+                ImGui.PushStyleColor(ImGuiCol.Text, user.TextColor);
                 ImGui.Text($"Command {user.DisplayName}");
+                ImGui.PopStyleColor();
+                Plugin.HeaderFontHandle.Pop();
 
                 ImGui.Spacing();
                 ImGui.Text("Toy:");
@@ -181,13 +209,16 @@ namespace CatboyEngineering.KinkShellClient.Windows
                 }
 
                 ImGui.Spacing();
-                ImGui.Text($"Disabled commands are not supported by {user.DisplayName}'s device.");
+                ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1f, 1f, 1f, 0.7f));
+                ImGui.TextWrapped($"Disabled commands are not supported by the selected device.");
+                ImGui.PopStyleColor();
 
                 if (State.onCooldown)
                 {
                     ImGui.EndDisabled();
                 }
 
+                ImGui.EndChild();
                 ImGui.EndPopup();
             }
         }
@@ -245,27 +276,51 @@ namespace CatboyEngineering.KinkShellClient.Windows
             }
         }
 
-        private void DrawUISafetyWindow(KinkShellMember selfUser)
+        private void DrawUISafetyWindow()
         {
             ImGui.Spacing();
             ImGui.Text("Safety Center:");
             var width = ImGui.GetWindowWidth();
-            ImGui.BeginChild("##SafetyCenterWindow", new Vector2(width - 15, 75), true);
+            ImGui.BeginChild("##SafetyCenterWindow", new Vector2(width - 15, 90), true);
 
-            ImGui.Text("Receive Intiface Commands:");
-            ImGui.SameLine();
+            ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1f, 1f, 1f, 0.7f));
+            ImGui.TextWrapped("Need a break? Use these controls to pause commands running on your devices.");
+            ImGui.PopStyleColor();
 
-            if(ImGui.Checkbox("##ReceiveCommands", ref State.receiveCommands))
+            ImGui.Spacing();
+
+            if (State.Session.SelfUserReceiveCommands)
             {
-                State.Session.SelfUserReceiveCommands = State.receiveCommands;
+                if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Pause, "Pause Commands", new Vector2(140f, 24f)))
+                {
+                    State.Session.SelfUserReceiveCommands = false;
+                }
+            }
+            else
+            {
+                if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Play, "Resume Commands", new Vector2(150f, 24f)))
+                {
+                    State.Session.SelfUserReceiveCommands = true;
+                }
             }
 
-            if(ImGui.Button("Stop Current Pattern##StopPattern"))
+            ImGui.SameLine();
+
+            if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Square, "Stop Commands", new Vector2(130f, 24f)))
             {
-                Plugin.ToyController.StopAllDevices(State.Session, selfUser);
+                Plugin.ToyController.StopAllDevices(State.Session, SelfUser);
             }
 
             ImGui.EndChild();
+        }
+
+        private void DrawUICenteredText(string text)
+        {
+            var windowWidth = ImGui.GetWindowSize().X;
+            var textWidth = ImGui.CalcTextSize(text).X;
+
+            ImGui.SetCursorPosX((windowWidth - textWidth) * 0.5f);
+            ImGui.Text(text);
         }
 
         private void DisconnectFromShell()

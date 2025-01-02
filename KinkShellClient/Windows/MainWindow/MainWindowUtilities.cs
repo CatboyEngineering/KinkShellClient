@@ -88,7 +88,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             }
             else
             {
-                HandleAPIError(result, window, "An account already exists for this player!");
+                HandleAPIError(result, window, result == (HttpStatusCode)418 ? null : "An account already exists for this player!");
             }
         }
 
@@ -240,6 +240,9 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
                     break;
                 case HttpStatusCode.PaymentRequired:
                     mainWindow.State.OnError(errorMessage ?? "That action is not permitted.");
+                    break;
+                case (HttpStatusCode)418:
+                    mainWindow.State.OnError(errorMessage ?? "Your plugin client is outdated! Please update first.");
                     break;
                 default:
                     mainWindow.State.OnError(errorMessage ?? "The server encountered an error. Please try again.");

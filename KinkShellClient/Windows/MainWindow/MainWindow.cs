@@ -1,5 +1,7 @@
 ﻿using CatboyEngineering.KinkShellClient.Models;
 using CatboyEngineering.KinkShellClient.Models.Shell;
+using Dalamud.Interface.Components;
+using Dalamud.Interface;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
@@ -24,15 +26,9 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             State = new MainWindowState(plugin);
         }
 
-        public override void OnClose()
-        {
-            base.OnClose();
-            DisconnectAll();
-        }
-
         public override void Draw()
         {
-            ImGui.SetNextWindowSize(new Vector2(410, 550), ImGuiCond.Always);
+            ImGui.SetNextWindowSize(new Vector2(410, 575), ImGuiCond.Always);
 
             if (ImGui.Begin("KinkShell"))
             {
@@ -302,17 +298,11 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             BtnPatternBuilder();
             ImGui.SameLine();
             BtnConfiguration();
-
-            if (Plugin.Configuration.KinkShellUserData.IsAdmin != null && Plugin.Configuration.KinkShellUserData.IsAdmin! == true)
-            {
-                ImGui.SameLine();
-                BtnAdmin();
-            }
         }
 
         private void BtnPatternBuilder()
         {
-            if (ImGui.Button("Pattern Builder"))
+            if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.PuzzlePiece, "Pattern Builder", new Vector2(125f, 24f)))
             {
                 Plugin.UIHandler.PatternBuilderWindow.IsOpen = true;
             }
@@ -320,7 +310,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
 
         private void BtnConfiguration()
         {
-            if (ImGui.Button("Configuration"))
+            if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Cog, "Configuration", new Vector2(115f, 24f)))
             {
                 Plugin.UIHandler.ConfigWindow.IsOpen = true;
             }
@@ -328,7 +318,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
 
         private void BtnAdmin()
         {
-            if (ImGui.Button("Admin"))
+            if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Toolbox, "Admin", new Vector2(75f, 24f)))
             {
                 State.Screen = MainWindowScreen.ADMIN;
             }
@@ -345,7 +335,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             ImGui.TextColored(new Vector4(0.75f, 0.75f, 0.75f, 1), Plugin.Configuration.KinkShellAuthenticatedUserData.AccountID.ToString());
             ImGui.SameLine();
 
-            if (ImGui.Button("Copy##copyid"))
+            if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Copy, "Copy", new Vector2(60f, 24f)))
             {
                 ImGui.SetClipboardText(Plugin.Configuration.KinkShellAuthenticatedUserData.AccountID.ToString());
             }
@@ -355,6 +345,11 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             DrawUISectionShellList();
             DrawUIConnectedToys();
             BtnLogOut();
+
+            if (Plugin.Configuration.KinkShellUserData.IsAdmin != null && Plugin.Configuration.KinkShellUserData.IsAdmin! == true)
+            {
+                BtnAdmin();
+            }
         }
 
         private void DrawUISectionShellList()
@@ -362,7 +357,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             var width = ImGui.GetWindowWidth();
             ImGui.BeginChild("##UserShellConnectList", new Vector2(width - 15, 150), true);
 
-            if (ImGui.Button("+ New Shell"))
+            if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Plus, "New Shell", new Vector2(90f, 24f)))
             {
                 ImGui.OpenPopup("kinkshell_createshell_dialog");
             }
@@ -371,7 +366,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
 
             if (!State.isRequestInFlight)
             {
-                if (ImGui.Button("Refresh"))
+                if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Sync, "Refresh", new Vector2(75f, 24f)))
                 {
                     var task = MainWindowUtilities.GetUserShells(Plugin, this);
 
@@ -396,16 +391,17 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
                     ImGui.BulletText(shell.ShellName);
                     ImGui.SameLine();
 
-                    if (ImGui.Button($"Join##{shell.ShellID}"))
+                    if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Walking, $"Join##{shell.ShellID}", new Vector2(55f, 24f)))
                     {
                         MainWindowUtilities.LaunchShellWindow(Plugin, this, shell);
+                        this.IsOpen = false;
                     }
 
                     if (shell.OwnerID == Plugin.Configuration.KinkShellAuthenticatedUserData.AccountID)
                     {
                         ImGui.SameLine();
 
-                        if (ImGui.Button($"Edit##{shell.ShellID}"))
+                        if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.PencilAlt, $"Edit##{shell.ShellID}", new Vector2(55f, 24f)))
                         {
                             ImGui.OpenPopup($"kinkshell_editshell_dialog##{shell.ShellID}");
                         }
@@ -469,7 +465,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
                         }
                         else
                         {
-                            if (ImGui.Button("Re-scan"))
+                            if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Wifi, "Re-scan", new Vector2(80f, 24f)))
                             {
                                 _ = Plugin.ToyController.Scan();
                             }
@@ -538,9 +534,14 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
         {
             if (ImGui.BeginPopup($"kinkshell_editshell_dialog##{kinkShell.ShellID}"))
             {
-                DrawUICenteredText("Edit Kinkshell Members");
+                Plugin.HeaderFontHandle.Push();
+                DrawUICenteredText("Edit Kinkshell");
+                Plugin.HeaderFontHandle.Pop();
+
                 ImGui.Spacing();
 
+                ImGui.Text("Add a New User:");
+                ImGui.BeginChild("##EditShellAddUserSection", new Vector2(350, 100), true);
                 ImGui.Text("New User ID:");
 
                 if (ImGui.InputText("##NewKinkShellUser", ref State.stringBuffer, 40, ImGuiInputTextFlags.EnterReturnsTrue))
@@ -548,15 +549,21 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
                     IssueTryAddUser();
                 }
 
-                ImGui.Checkbox("Allow Commands?", ref State.canSendCommands);
                 ImGui.SameLine();
 
-                if (ImGui.Button("Add User"))
+                if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Plus, "Add User", new Vector2(85f, 24f)))
                 {
                     IssueTryAddUser();
                 }
 
                 ImGui.Spacing();
+                ImGui.Checkbox("Allow Commands?", ref State.canSendCommands);
+                ImGuiComponents.HelpMarker("Whether this user is allowed to send pattern commands to other KinkShell members.");
+                ImGui.EndChild();
+
+                ImGui.Spacing();
+
+                ImGui.Text("Shell Members:");
                 ImGui.BeginChild("##ShellUserEditList", new Vector2(625, 175), true);
 
                 foreach (var userToAdd in State.UsersToAdd)
@@ -776,23 +783,24 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
         private void BtnLoginV2()
         {
             var windowWidth = ImGui.GetWindowSize().X;
-            var settingsTextWidth = ImGui.CalcTextSize("Connect to KinkShell").X;
+            var settingsTextWidth = ImGui.CalcTextSize("XX Connect to KinkShell").X;
 
             ImGui.SetCursorPosX((windowWidth - settingsTextWidth) * 0.5f);
 
-            if (!State.isRequestInFlight)
-            {
-                if (ImGui.Button("Connect to KinkShell"))
-                {
-                    var task = MainWindowUtilities.LogInV2(Plugin, this);
-
-                    _ = MainWindowUtilities.HandleWithIndicator(State, task);
-                }
-            }
-            else
+            if (State.isRequestInFlight)
             {
                 ImGui.BeginDisabled();
-                ImGui.Button("Connecting...");
+            }
+
+            if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.SignInAlt, "Connect to KinkShell", new Vector2(155f, 24f)))
+            {
+                var task = MainWindowUtilities.LogInV2(Plugin, this);
+
+                _ = MainWindowUtilities.HandleWithIndicator(State, task);
+            }
+
+            if (State.isRequestInFlight)
+            {
                 ImGui.EndDisabled();
             }
         }
@@ -823,7 +831,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             var windowWidth = ImGui.GetWindowSize().X;
             ImGui.SetCursorPosX((windowWidth - buttonTextWidth) * 0.90f);
 
-            if (ImGui.Button("Log Out"))
+            if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.SignOutAlt, "Log Out", new Vector2(75f, 24f)))
             {
                 DisconnectAll();
             }
