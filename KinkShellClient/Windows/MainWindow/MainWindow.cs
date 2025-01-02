@@ -89,6 +89,8 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
                     DrawUIWindowLoggedInHomepage();
                     ImGui.Spacing();
                     DrawBtnToolbar();
+                    ImGui.Spacing();
+                    BtnDeleteAccount();
                     break;
                 case MainWindowScreen.ADMIN:
                     DrawScreenAdmin();
@@ -350,10 +352,6 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             {
                 BtnAdmin();
             }
-
-            ImGui.Spacing();
-
-            BtnDeleteAccount();
         }
 
         private void DrawUISectionShellList()
