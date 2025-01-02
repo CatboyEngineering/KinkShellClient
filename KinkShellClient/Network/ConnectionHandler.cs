@@ -101,7 +101,8 @@ namespace CatboyEngineering.KinkShellClient.Network
             {
                 CharacterName = Plugin.ClientState.LocalPlayer.Name.TextValue,
                 CharacterServer = Plugin.ClientState.LocalPlayer.HomeWorld.Value.Name.ExtractText(),
-                LoginToken = Plugin.Configuration.KinkShellServerLoginToken
+                LoginToken = Plugin.Configuration.KinkShellServerLoginToken,
+                ClientVersion = Plugin.Version
             };
 
             var response = await Plugin.HTTP.Post<Models.API.Response.V2.AccountAuthenticatedResponse>("v2/account", JObject.FromObject(request));
@@ -130,7 +131,8 @@ namespace CatboyEngineering.KinkShellClient.Network
             var request = new Models.API.Request.V2.AccountLoginRequest
             {
                 CharacterName = Plugin.ClientState.LocalPlayer.Name.TextValue,
-                CharacterServer = Plugin.ClientState.LocalPlayer.HomeWorld.Value.Name.ExtractText()
+                CharacterServer = Plugin.ClientState.LocalPlayer.HomeWorld.Value.Name.ExtractText(),
+                ClientVersion = Plugin.Version
             };
 
             var response = await Plugin.HTTP.Put<Models.API.Response.V2.AccountAuthenticatedResponse>("v2/account", JObject.FromObject(request));
@@ -160,7 +162,8 @@ namespace CatboyEngineering.KinkShellClient.Network
             var request = new Models.API.Request.V2.AccountLoginRequest
             {
                 CharacterName = Plugin.ClientState.LocalPlayer.Name.TextValue,
-                CharacterServer = Plugin.ClientState.LocalPlayer.HomeWorld.Value.Name.ExtractText()
+                CharacterServer = Plugin.ClientState.LocalPlayer.HomeWorld.Value.Name.ExtractText(),
+                ClientVersion = Plugin.Version
             };
 
             var response = await Plugin.HTTP.Put<AccountRecoverStartedResponse>("v2/account/recover", JObject.FromObject(request));
@@ -265,9 +268,8 @@ namespace CatboyEngineering.KinkShellClient.Network
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                var shell = Plugin.Configuration.Shells.Find(s => s.ShellID == shellID);
-
-                shell.Users = response.Result.Value.Users;
+                Plugin.Configuration.Shells.RemoveAll(s => s.ShellID == shellID);
+                Plugin.Configuration.Shells.Add(response.Result.Value);
             }
 
             return response.StatusCode;
@@ -416,6 +418,7 @@ namespace CatboyEngineering.KinkShellClient.Network
                 MessageData = JObject.FromObject(new ShellSocketConnectRequest
                 {
                     ShellID = shellSession.KinkShell.ShellID,
+                    TextColor = Plugin.Configuration.SelfTextColor,
                     Toys = Plugin.ToyController.ConnectedToys
                 })
             };
@@ -431,6 +434,7 @@ namespace CatboyEngineering.KinkShellClient.Network
                 MessageData = JObject.FromObject(new ShellSocketConnectRequest
                 {
                     ShellID = shellSession.KinkShell.ShellID,
+                    TextColor = Plugin.Configuration.SelfTextColor,
                     Toys = Plugin.ToyController.ConnectedToys
                 })
             };
