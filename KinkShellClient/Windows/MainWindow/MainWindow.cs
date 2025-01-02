@@ -563,42 +563,55 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
 
                 ImGui.Spacing();
 
-                ImGui.Text("Shell Members:");
-                ImGui.BeginChild("##ShellUserEditList", new Vector2(625, 175), true);
+                ImGui.Text("KinkShell Users:");
+                ImGui.BeginChild("##ShellUserEditList", new Vector2(500, 175), true);
 
-                foreach (var userToAdd in State.UsersToAdd)
+                if (State.UsersToAdd.Count > 0)
                 {
-                    ImGui.Text(userToAdd.UserID.ToString());
-                    ImGui.SameLine();
-                    ImGui.Text("(pending)");
-                    ImGui.SameLine();
-
-                    DrawUICommandsEnabled(userToAdd.SendCommands);
-                }
-
-                foreach (var currentUser in kinkShell.Users)
-                {
-                    ImGui.Text(currentUser.AccountID.ToString());
-                    ImGui.SameLine();
-                    ImGui.Text($"({currentUser.DisplayName})");
-                    ImGui.SameLine();
-
-                    DrawUICommandsEnabled(currentUser.SendCommands);
-
-                    ImGui.SameLine();
-
-                    if (!State.GuidsToDelete.Contains(currentUser.AccountID))
+                    ImGui.Text("New Users:");
+                    foreach (var userToAdd in State.UsersToAdd)
                     {
-                        if (ImGui.Button($"Remove##{currentUser.AccountID}"))
+                        ImGui.BulletText($"({userToAdd.UserID.ToString().Substring(0, 7)}...)");
+                        ImGui.SameLine();
+
+                        DrawUICommandsEnabled(userToAdd.SendCommands);
+
+                        ImGui.SameLine();
+                        if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Times, "Cancel", new Vector2(70f, 24f)))
                         {
-                            State.GuidsToDelete.Add(currentUser.AccountID);
+                            State.UsersToAdd.Remove(userToAdd);
                         }
                     }
-                    else
+                }
+
+                if (kinkShell.Users.Count > 0)
+                {
+                    ImGui.Text("KinkShell Members:");
+                    foreach (var currentUser in kinkShell.Users)
                     {
-                        ImGui.Text($"(removing)");
+                        ImGui.BulletText($"{currentUser.DisplayName}");
+                        ImGui.SameLine();
+                        ImGui.Text($"({currentUser.AccountID.ToString().Substring(0, 7)}...)");
+                        ImGui.SameLine();
+
+                        DrawUICommandsEnabled(currentUser.SendCommands);
+
+                        ImGui.SameLine();
+
+                        if (!State.GuidsToDelete.Contains(currentUser.AccountID))
+                        {
+                            if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Trash, $"Remove##{currentUser.AccountID}", new Vector2(80f, 24f)))
+                            {
+                                State.GuidsToDelete.Add(currentUser.AccountID);
+                            }
+                        }
+                        else
+                        {
+                            ImGui.Text($"(removing)");
+                        }
                     }
                 }
+
 
                 ImGui.EndChild();
                 ImGui.Spacing();

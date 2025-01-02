@@ -268,9 +268,8 @@ namespace CatboyEngineering.KinkShellClient.Network
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                var shell = Plugin.Configuration.Shells.Find(s => s.ShellID == shellID);
-
-                shell.Users = response.Result.Value.Users;
+                Plugin.Configuration.Shells.RemoveAll(s => s.ShellID == shellID);
+                Plugin.Configuration.Shells.Add(response.Result.Value);
             }
 
             return response.StatusCode;
