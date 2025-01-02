@@ -74,7 +74,7 @@ namespace CatboyEngineering.KinkShellClient
                 return;
             }
 
-            if (!string.IsNullOrEmpty(Configuration.KinkShellServerUsername))
+            if (!string.IsNullOrEmpty(Configuration.KinkShellServerUsername) && string.IsNullOrEmpty(Configuration.KinkShellServerLoginToken))
             {
                 UIHandler.MigrateWindow.IsOpen = true;
             }

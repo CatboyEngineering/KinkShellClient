@@ -216,13 +216,14 @@ namespace CatboyEngineering.KinkShellClient.Network
 
         public async Task<HttpStatusCode> DeleteAccount()
         {
-            var response = await Plugin.HTTP.Delete<IEmpty>("v1/account");
+            var response = await Plugin.HTTP.Delete<IEmpty>("v2/account");
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 Plugin.Configuration.KinkShellServerLoginToken = "";
                 Plugin.Configuration.KinkShellServerUsername = "";
                 Plugin.Configuration.KinkShellServerPassword = "";
+                Plugin.Configuration.Save();
             }
 
             return response.StatusCode;

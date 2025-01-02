@@ -12,7 +12,7 @@ public class MigrateWindow : Window
     private Plugin plugin;
     private Configuration Configuration;
 
-    public MigrateWindow(Plugin plugin) : base("Ready to Migrate", ImGuiWindowFlags.NoResize | ImGuiWindowFlags.Popup)
+    public MigrateWindow(Plugin plugin) : base("Ready to Migrate", ImGuiWindowFlags.NoResize)
     {
         this.Configuration = plugin.Configuration;
         this.plugin = plugin;
@@ -20,7 +20,7 @@ public class MigrateWindow : Window
 
     public override void Draw()
     {
-        ImGui.SetNextWindowSize(new Vector2(500, 500), ImGuiCond.Always);
+        ImGui.SetNextWindowSize(new Vector2(500, 575), ImGuiCond.Always);
 
         if (ImGui.Begin("Ready to Migrate"))
         {
@@ -51,7 +51,7 @@ public class MigrateWindow : Window
     {
         ImGui.Text("Ready to get started?");
         ImGui.Spacing();
-        ImGui.Text("Choose \"Migrate Now\" to upgrade your account. It even takes less than 5 minutes!");
+        ImGui.TextWrapped("Choose \"Migrate Now\" to upgrade your account. It even takes less than 5 minutes!");
         ImGui.Spacing();
 
         DrawMigrateButton();
@@ -62,7 +62,7 @@ public class MigrateWindow : Window
     private void DrawBorderedBody()
     {
         var width = ImGui.GetWindowWidth();
-        ImGui.BeginChild("PopupBodyBorder#Migrate", new Vector2(width - 15, 400), true);
+        ImGui.BeginChild("PopupBodyBorder#Migrate", new Vector2(width - 15, 315), true);
 
         DrawUICenteredText("KinkShell is getting easier!");
 
@@ -122,9 +122,10 @@ public class MigrateWindow : Window
 
         ImGui.SetCursorPosX((windowWidth - settingsTextWidth) * 0.5f);
 
-        if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Play, "Migrate Now", new Vector2(145f, 24f)))
+        if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Play, "Migrate Now", new Vector2(115f, 24f)))
         {
             this.IsOpen = false;
+            plugin.UIHandler.MainWindow.State.SetDefaultScreen();
             plugin.UIHandler.MainWindow.IsOpen = true;
         }
     }

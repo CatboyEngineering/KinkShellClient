@@ -24,11 +24,11 @@ namespace CatboyEngineering.KinkShellClient
         public string IntifaceServerAddress { get; set; } = "ws://localhost:12345";
         public List<StoredShellCommand> SavedPatterns { get; set; } = new List<StoredShellCommand>();
         public Vector4 SelfTextColor { get; set; } = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-        public int Version { get; set; } = 2;
+        public int Version { get; set; } = 3;
         public bool ShowMigrationPopup { get; set; } = true;
 
         [NonSerialized]
-        private readonly int CurrentVersion = 2;
+        private readonly int CurrentVersion = 3;
 
         [NonSerialized]
         [Obsolete]
@@ -99,24 +99,38 @@ namespace CatboyEngineering.KinkShellClient
         {
             if (Version == 0)
             {
+                Plugin.Logger.Debug($"Upgrading Config to version {1}");
+
                 // This update moves the Intiface server protocol into the configuration.
-                Version = CurrentVersion;
+                Version = 1;
 
                 IntifaceServerAddress = "ws://" + IntifaceServerAddress;
-
-                Save();
             }
 
             if (Version == 1)
             {
+                Plugin.Logger.Debug($"Upgrading Config to version {2}");
+
                 // This update changes the schema for stored patterns and the API URL
-                Version = CurrentVersion;
+                Version = 2;
 
                 KinkShellServerAddress = "api.catboy.engineering";
                 SavedPatterns.Clear();
-
-                Save();
             }
+
+            if (Version == 2)
+            {
+                Plugin.Logger.Debug($"Upgrading Config to version {3}");
+
+                // This update adds a popup control
+                Version = 3;
+
+                ShowMigrationPopup = true;
+            }
+
+            Version = CurrentVersion;
+
+            Save();
         }
     }
 }

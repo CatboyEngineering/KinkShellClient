@@ -35,15 +35,12 @@ namespace CatboyEngineering.KinkShellClient
             ConfigWindow = new ConfigWindow(this.Plugin);
             MainWindow = new MainWindow(this.Plugin);
             PatternBuilderWindow = new PatternBuilderWindow(this.Plugin);
-
             MigrateWindow = new MigrateWindow(this.Plugin);
-
             ShellWindows = new List<ShellWindow>();
 
             WindowSystem.AddWindow(ConfigWindow);
             WindowSystem.AddWindow(MainWindow);
             WindowSystem.AddWindow(PatternBuilderWindow);
-
             WindowSystem.AddWindow(MigrateWindow);
 
             this.PluginInterface.UiBuilder.Draw += DrawUI;

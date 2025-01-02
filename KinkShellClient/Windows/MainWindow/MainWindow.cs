@@ -115,7 +115,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
         private void DrawScreenCreateAccount()
         {
             var width = ImGui.GetWindowWidth();
-            ImGui.BeginChild("MainWindowCTA#CreateAccount", new Vector2(width - 15, 200), true);
+            ImGui.BeginChild("MainWindowCTA#CreateAccount", new Vector2(width - 15, 215), true);
 
             Plugin.HeaderFontHandle.Push();
             DrawUICenteredText("Welcome");
@@ -728,7 +728,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
                 ImGui.BeginDisabled();
             }
 
-            if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.ArrowUp, "Migrate Account", new Vector2(125f, 24f)))
+            if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.ArrowUp, "Migrate Account", new Vector2(130f, 24f)))
             {
                 var task = MainWindowUtilities.LogInV1AndMigrate(Plugin, this);
 
@@ -748,7 +748,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
                 ImGui.BeginDisabled();
             }
 
-            if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Plus, "Get Started", new Vector2(120f, 24f)))
+            if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Plus, "Get Started", new Vector2(100f, 24f)))
             {
                 var task = MainWindowUtilities.CreateAccount(Plugin, this);
 
@@ -769,7 +769,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
                 ImGui.TextWrapped("Deleting your account is irreversible! All of your KinkShells will be erased.");
                 ImGui.PopStyleColor();
 
-                if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.XmarksLines, "Cancel", new Vector2(75f, 24f)))
+                if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Times, "Cancel", new Vector2(75f, 24f)))
                 {
                     State.isDeletingAccount = false;
                 }
@@ -799,7 +799,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             }
             else
             {
-                if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Trash, "Delete Account", new Vector2(100f, 24f)))
+                if (ImGuiComponents.IconButtonWithText(FontAwesomeIcon.Trash, "Delete Account", new Vector2(125f, 24f)))
                 {
                     State.isDeletingAccount = true;
                 }
