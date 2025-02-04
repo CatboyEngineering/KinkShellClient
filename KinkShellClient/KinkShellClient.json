@@ -3,12 +3,12 @@
   "Name": "KinkShellClient",
   "Punchline": "Pair and synchronize toys with other users.",
   "Description": "Pair and synchronize toys with other users. Use /kinkshell to get started.",
-  "Tags": [ "kink", "buttplug", "toys", "sync", "erp", "nsfw" ],
+  "Tags": ["kink", "buttplug", "toys", "sync", "erp", "nsfw"],
   "InternalName": "KinkShellClient",
   "RepoUrl": "https://github.com/CatboyEngineering/KinkShellClient",
   "IconUrl": "https://raw.githubusercontent.com/CatboyEngineering/Plugins/main/assets/img/icon.png",
   "ApplicableVersion": "any",
   "DalamudApiLevel": 11,
   "LoadPriority": 0,
-  "AssemblyVersion": "0.0.9.4"
+  "AssemblyVersion": "0.0.9.5"
 }

@@ -14,7 +14,7 @@ namespace CatboyEngineering.KinkShellClient
     [Serializable]
     public class Configuration : IPluginConfiguration
     {
-        public string KinkShellServerAddress { get; set; } = "api.catboy.engineering";
+        public string KinkShellServerAddress { get; set; } = "api2.galsim.io";
         [Obsolete]
         public string KinkShellServerUsername { get; set; } = "";
         [Obsolete]
@@ -24,11 +24,16 @@ namespace CatboyEngineering.KinkShellClient
         public string IntifaceServerAddress { get; set; } = "ws://localhost:12345";
         public List<StoredShellCommand> SavedPatterns { get; set; } = new List<StoredShellCommand>();
         public Vector4 SelfTextColor { get; set; } = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-        public int Version { get; set; } = 3;
         public bool ShowMigrationPopup { get; set; } = true;
 
+        // Config Versioning Constants
+        // Version will be serialized and restored by the client, but also provides a default value.
+        // CurrentVersion exists only in memory to compare the client's deserialized version and perform upgrades.
+        public int Version { get; set; } = 4;
+
         [NonSerialized]
-        private readonly int CurrentVersion = 3;
+        private readonly int CurrentVersion = 4;
+        // End Config Versioning Constants
 
         [NonSerialized]
         [Obsolete]
@@ -126,6 +131,16 @@ namespace CatboyEngineering.KinkShellClient
                 Version = 3;
 
                 ShowMigrationPopup = true;
+            }
+
+            if (Version == 3)
+            {
+                Plugin.Logger.Debug($"Upgrading Config to version {4}");
+
+                // This update changes the API URL
+                Version = 4;
+
+                KinkShellServerAddress = "api2.galsim.io";
             }
 
             Version = CurrentVersion;
