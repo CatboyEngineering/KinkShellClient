@@ -51,7 +51,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
             DrawUICenteredText("KinkShell");
             Plugin.TitleHeaderFontHandle.Pop();
             DrawUICenteredText("A Linkshell for your kinks.");
-            DrawUICenteredText(new Vector4(0.5f, 0.6f, 0.8f, 1), "https://kinkshell.catboy.engineering/");
+            DrawUICenteredText(new Vector4(0.5f, 0.6f, 0.8f, 1), "https://catboyengineering.github.io/KinkShellWebsite");
 
             ImGui.Spacing();
             ImGui.Spacing();

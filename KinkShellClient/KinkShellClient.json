@@ -10,5 +10,5 @@
   "ApplicableVersion": "any",
   "DalamudApiLevel": 11,
   "LoadPriority": 0,
-  "AssemblyVersion": "0.0.9.5"
+  "AssemblyVersion": "0.0.9.6"
 }
