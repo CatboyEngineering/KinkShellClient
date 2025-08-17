@@ -2,7 +2,7 @@
 using System.Numerics;
 using System.Text.RegularExpressions;
 using Dalamud.Interface.Windowing;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 
 namespace CatboyEngineering.KinkShellClient.Windows
 {

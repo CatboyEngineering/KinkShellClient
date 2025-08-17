@@ -1,7 +1,7 @@
 ﻿using CatboyEngineering.KinkShellClient.Models;
 using CatboyEngineering.KinkShellClient.Models.Shell;
 using Dalamud.Utility;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,9 +61,9 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
 
         public void SetDefaultScreen()
         {
-            if (Plugin.Configuration.KinkShellServerLoginToken.IsNullOrEmpty())
+            if (string.IsNullOrEmpty(Plugin.Configuration.KinkShellServerLoginToken))
             {
-                if (!Plugin.Configuration.KinkShellServerUsername.IsNullOrEmpty() && !Plugin.Configuration.KinkShellServerPassword.IsNullOrEmpty())
+                if (!string.IsNullOrEmpty(Plugin.Configuration.KinkShellServerUsername) && !string.IsNullOrEmpty(Plugin.Configuration.KinkShellServerPassword))
                 {
                     Screen = MainWindowScreen.MIGRATE;
                 }

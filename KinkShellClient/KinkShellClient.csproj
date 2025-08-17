@@ -1,15 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<Product>KinkShellClient</Product>
-		<Version>0.0.9.7</Version>
+		<Version>0.0.9.8</Version>
 		<Description>Pair and synchronize toys with other users.</Description>
 		<PackageProjectUrl>https://github.com/CatboyEngineering/KinkShellClient</PackageProjectUrl>
 		<Copyright>Copyright CatboyEngineering 2024-2025</Copyright>
+		<TargetFramework>net9.0-windows7.0</TargetFramework>
 	</PropertyGroup>
 
 	<Import Project="dalamud.props" />
 
 	<ItemGroup>
 		<PackageReference Include="Buttplug" Version="4.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="Dalamud.Bindings.ImGui">
+	    <HintPath>lib\Dalamud.Bindings.ImGui.dll</HintPath>
+	  </Reference>
 	</ItemGroup>
 </Project>

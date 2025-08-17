@@ -6,11 +6,11 @@ using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
 using Dalamud.Utility;
-using ImGuiNET;
 using System;
 using System.Diagnostics;
 using System.Numerics;
 using static System.Net.Mime.MediaTypeNames;
+using Dalamud.Bindings.ImGui;
 
 namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
 {
@@ -698,7 +698,7 @@ namespace CatboyEngineering.KinkShellClient.Windows.MainWindow
         [Obsolete]
         private void BtnLoginV1()
         {
-            if (!Plugin.Configuration.KinkShellServerUsername.IsNullOrEmpty())
+            if (!string.IsNullOrEmpty(Plugin.Configuration.KinkShellServerUsername))
             {
                 if (!State.isRequestInFlight)
                 {

@@ -4,7 +4,7 @@ using CatboyEngineering.KinkShellClient.Windows.States.Models;
 using CatboyEngineering.KinkShellClient.Windows.Utilities;
 using Dalamud.Interface.Windowing;
 using Dalamud.Utility;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using System;
 using System.Collections.Generic;
 using System.Linq;
