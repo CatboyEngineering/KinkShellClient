@@ -1,5 +1,3 @@
-[![Build](https://github.com/CatboyEngineering/KinkShellClient/actions/workflows/release.yml/badge.svg?branch=main)](https://github.com/CatboyEngineering/KinkShellClient/actions/workflows/release.yml)
-
 # KinkShell (beta)
 ###### Disclaimer: This plugin is currently in development. Not all features may work as expected, and user support is limited.
 
